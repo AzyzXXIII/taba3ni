@@ -28,7 +28,6 @@ type DataItemProps = {
   children?: ReactNode; // optional
 };
 
-// ✅ Component with typed props
 function DataItem({ icon, label, children }: DataItemProps) {
   return (
     <StyledDataItem>

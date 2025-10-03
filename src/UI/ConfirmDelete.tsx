@@ -29,7 +29,6 @@ type ConfirmDeleteProps = {
   disabled?: boolean;
 };
 
-// ✅ Component with typed props
 function ConfirmDelete({
   resourceName,
   onConfirm,

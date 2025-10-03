@@ -63,7 +63,6 @@ type ButtonProps = {
   $variation?: keyof typeof variations;
 };
 
-// ✅ Strongly typed styled-component
 const Button = styled.button<ButtonProps>`
   border: none;
   border-radius: var(--border-radius-sm);
