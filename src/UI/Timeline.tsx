@@ -44,7 +44,6 @@ type TimelineProps = {
   actions: TimelineAction[];
 };
 
-// ✅ Component
 function Timeline({ actions }: TimelineProps) {
   return (
     <TimelineContainer>

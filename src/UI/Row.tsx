@@ -23,7 +23,6 @@ const Row = styled.div<RowProps>`
     `}
 `;
 
-// ✅ Default props
 Row.defaultProps = {
   type: "vertical",
 };

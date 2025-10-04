@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 type TagProps = {
-  type: "red" | "green" | "blue" | "yellow" | "grey"; // define your allowed types
+  type: "red" | "green" | "blue" | "yellow" | "grey";
 };
 
 const Tag = styled.span<TagProps>`

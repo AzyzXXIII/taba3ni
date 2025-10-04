@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import type { ChangeEvent, SelectHTMLAttributes } from "react";
 
-// ✅ Styled select with typed props
 type StyledSelectProps = {
   type?: "white" | "default";
 };
@@ -30,7 +29,6 @@ type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
   options: Option[];
 };
 
-// ✅ Component
 function Select({ options, value, onChange, ...props }: SelectProps) {
   return (
     <StyledSelect

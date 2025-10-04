@@ -1,7 +1,6 @@
 import { createContext, useContext, type ReactNode } from "react";
 import styled from "styled-components";
 
-// Styled components with typed $columns
 type CommonRowProps = {
   $columns: string;
 };
