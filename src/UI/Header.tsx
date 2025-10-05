@@ -1,13 +1,9 @@
 import styled from "styled-components";
-import {
-  HiOutlineBell,
-  HiOutlineUser,
-  HiOutlineMoon,
-  HiOutlineSun,
-} from "react-icons/hi2";
+import { HiOutlineBell, HiOutlineMoon, HiOutlineSun } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import ButtonIcon from "./ButtonIcon";
+import HeaderMenu from "./HeaderMenu";
 
 const StyledHeader = styled.header`
   background-color: var(--color-grey-0);
@@ -91,7 +87,7 @@ type HeaderProps = {
 function Header({
   userName = "John Doe",
   userRole = "admin",
-  unreadNotifications = 0,
+  unreadNotifications = 10,
   welcomeMessage,
 }: HeaderProps) {
   const navigate = useNavigate();
@@ -102,17 +98,12 @@ function Header({
     document.documentElement.classList.toggle("dark-mode");
   };
 
-  // Default welcome message based on role
   const getWelcomeMessage = () => {
     if (welcomeMessage) return welcomeMessage;
 
     const hour = new Date().getHours();
     const greeting =
-      hour < 12
-        ? "Good Morning"
-        : hour < 18
-        ? "Good Afternoon"
-        : "Good Evening";
+      hour < 12 ? "Sbah el khir" : hour < 18 ? "Asslema" : "Liltek zina";
 
     if (userRole === "admin") return `${greeting}, ${userName.split(" ")[0]}`;
     if (userRole === "distributor") return `${greeting}, Ready for deliveries?`;
@@ -154,13 +145,8 @@ function Header({
           <UserRole>{userRole}</UserRole>
         </UserInfo>
 
-        {/* User Profile */}
-        <ButtonIcon
-          onClick={() => navigate("/account")}
-          title="Account Settings"
-        >
-          <HiOutlineUser />
-        </ButtonIcon>
+        {/* User + Logout menu */}
+        <HeaderMenu />
       </RightSection>
     </StyledHeader>
   );

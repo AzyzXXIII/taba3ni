@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
 import GlobalStyles from "./styles/GlobalStyles";
 import AppLayout from "./UI/AppLayout";
 
@@ -7,14 +8,53 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import PageNotFound from "./pages/PageNotFound";
 
+type User = {
+  name: string;
+  email: string;
+  role: "admin" | "distributor" | "client";
+  notifications: number;
+};
+
+// Extend Window interface to include our auth functions
+declare global {
+  interface Window {
+    login: (userData: User) => void;
+    logout: () => void;
+  }
+}
+
 function App() {
-  // TODO: Replace with real auth later
-  const isAuthenticated = true; // Temporarily set to true for testing
-  const user = {
-    name: "Ahmed Ben Ali",
-    role: "admin" as const,
-    notifications: 5,
-  };
+  // Check localStorage for existing session
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem("isAuthenticated") === "true";
+  });
+
+  const [user, setUser] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
+  // Login function (memoized)
+  const login = useCallback((userData: User) => {
+    setIsAuthenticated(true);
+    setUser(userData);
+    localStorage.setItem("isAuthenticated", "true");
+    localStorage.setItem("user", JSON.stringify(userData));
+  }, []);
+
+  // Logout function (memoized)
+  const logout = useCallback(() => {
+    setIsAuthenticated(false);
+    setUser(null);
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("user");
+  }, []);
+
+  // Make login/logout available globally (simple approach)
+  useEffect(() => {
+    window.login = login;
+    window.logout = logout;
+  }, [login, logout]);
 
   return (
     <>
@@ -32,7 +72,7 @@ function App() {
           {/* Protected Routes */}
           <Route
             element={
-              isAuthenticated ? (
+              isAuthenticated && user ? (
                 <AppLayout
                   role={user.role}
                   userName={user.name}

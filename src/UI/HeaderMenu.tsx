@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import ButtonIcon from "./ButtonIcon";
-import { HiOutlineUser } from "react-icons/hi2";
+import { HiArrowRightOnRectangle } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 
 const StyledHeaderMenu = styled.ul`
@@ -11,11 +11,16 @@ const StyledHeaderMenu = styled.ul`
 function HeaderMenu() {
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    window.logout();
+    navigate("/login");
+  };
+
   return (
     <StyledHeaderMenu>
       <li>
-        <ButtonIcon onClick={() => navigate("/account")}>
-          <HiOutlineUser />
+        <ButtonIcon onClick={handleLogout} title="Logout">
+          <HiArrowRightOnRectangle />
         </ButtonIcon>
       </li>
     </StyledHeaderMenu>
