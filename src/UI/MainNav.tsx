@@ -1,11 +1,14 @@
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 import {
-  HiOutlineCalendarDays,
-  HiOutlineCog6Tooth,
   HiOutlineHome,
-  HiOutlineHomeModern,
+  HiOutlineShoppingCart,
+  HiOutlineTruck,
   HiOutlineUsers,
+  HiOutlineBuildingStorefront,
+  HiOutlineCube,
+  HiOutlineChartBar,
+  HiOutlineCog6Tooth,
 } from "react-icons/hi2";
 
 const NavList = styled.ul`
@@ -28,7 +31,6 @@ const StyledNavLink = styled(NavLink)`
     transition: all 0.3s;
   }
 
-  /* This works because react-router places the active class on the active NavLink */
   &:hover,
   &:active,
   &.active:link,
@@ -53,43 +55,145 @@ const StyledNavLink = styled(NavLink)`
   }
 `;
 
-function MainNav() {
-  return (
-    <nav>
-      <NavList>
-        <li>
-          <StyledNavLink to="/dashboard">
-            <HiOutlineHome />
-            <span>Home</span>
-          </StyledNavLink>
-        </li>
-        <li>
-          <StyledNavLink to="/bookings">
-            <HiOutlineCalendarDays />
-            <span>Bookings</span>
-          </StyledNavLink>
-        </li>
-        <li>
-          <StyledNavLink to="/cabins">
-            <HiOutlineHomeModern />
-            <span>Cabins</span>
-          </StyledNavLink>
-        </li>
-        <li>
-          <StyledNavLink to="/users">
-            <HiOutlineUsers />
-            <span>Users</span>
-          </StyledNavLink>
-        </li>
-        <li>
-          <StyledNavLink to="/settings">
-            <HiOutlineCog6Tooth />
-            <span>Settings</span>
-          </StyledNavLink>
-        </li>
-      </NavList>
-    </nav>
-  );
+// Props for role-based navigation
+type MainNavProps = {
+  role?: "admin" | "distributor" | "client";
+};
+
+function MainNav({ role = "admin" }: MainNavProps) {
+  // Admin Navigation
+  if (role === "admin") {
+    return (
+      <nav>
+        <NavList>
+          <li>
+            <StyledNavLink to="/dashboard">
+              <HiOutlineHome />
+              <span>Dashboard</span>
+            </StyledNavLink>
+          </li>
+          <li>
+            <StyledNavLink to="/orders">
+              <HiOutlineShoppingCart />
+              <span>Orders</span>
+            </StyledNavLink>
+          </li>
+          <li>
+            <StyledNavLink to="/deliveries">
+              <HiOutlineTruck />
+              <span>Deliveries</span>
+            </StyledNavLink>
+          </li>
+          <li>
+            <StyledNavLink to="/clients">
+              <HiOutlineBuildingStorefront />
+              <span>Clients (Stores)</span>
+            </StyledNavLink>
+          </li>
+          <li>
+            <StyledNavLink to="/distributors">
+              <HiOutlineUsers />
+              <span>Distributors</span>
+            </StyledNavLink>
+          </li>
+          <li>
+            <StyledNavLink to="/products">
+              <HiOutlineCube />
+              <span>Products</span>
+            </StyledNavLink>
+          </li>
+          <li>
+            <StyledNavLink to="/analytics">
+              <HiOutlineChartBar />
+              <span>Analytics</span>
+            </StyledNavLink>
+          </li>
+          <li>
+            <StyledNavLink to="/settings">
+              <HiOutlineCog6Tooth />
+              <span>Settings</span>
+            </StyledNavLink>
+          </li>
+        </NavList>
+      </nav>
+    );
+  }
+
+  // Distributor Navigation
+  if (role === "distributor") {
+    return (
+      <nav>
+        <NavList>
+          <li>
+            <StyledNavLink to="/dashboard">
+              <HiOutlineHome />
+              <span>Dashboard</span>
+            </StyledNavLink>
+          </li>
+          <li>
+            <StyledNavLink to="/deliveries">
+              <HiOutlineTruck />
+              <span>Today's Deliveries</span>
+            </StyledNavLink>
+          </li>
+          <li>
+            <StyledNavLink to="/history">
+              <HiOutlineChartBar />
+              <span>History</span>
+            </StyledNavLink>
+          </li>
+          <li>
+            <StyledNavLink to="/profile">
+              <HiOutlineCog6Tooth />
+              <span>Profile</span>
+            </StyledNavLink>
+          </li>
+        </NavList>
+      </nav>
+    );
+  }
+
+  // Client Navigation
+  if (role === "client") {
+    return (
+      <nav>
+        <NavList>
+          <li>
+            <StyledNavLink to="/dashboard">
+              <HiOutlineHome />
+              <span>Dashboard</span>
+            </StyledNavLink>
+          </li>
+          <li>
+            <StyledNavLink to="/new-order">
+              <HiOutlineShoppingCart />
+              <span>New Order</span>
+            </StyledNavLink>
+          </li>
+          <li>
+            <StyledNavLink to="/orders">
+              <HiOutlineTruck />
+              <span>My Orders</span>
+            </StyledNavLink>
+          </li>
+          <li>
+            <StyledNavLink to="/invoices">
+              <HiOutlineChartBar />
+              <span>Invoices & Payments</span>
+            </StyledNavLink>
+          </li>
+          <li>
+            <StyledNavLink to="/settings">
+              <HiOutlineCog6Tooth />
+              <span>Settings</span>
+            </StyledNavLink>
+          </li>
+        </NavList>
+      </nav>
+    );
+  }
+
+  return null;
 }
 
 export default MainNav;

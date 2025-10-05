@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import logo from "../assets/logo.jpeg";
+import logo from "../assets/Logo.svg";
 const StyledLogo = styled.div`
   text-align: center;
 `;
