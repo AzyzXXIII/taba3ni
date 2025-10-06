@@ -199,10 +199,11 @@ const mockOrders: Order[] = [
 
 // ---------------- Component ----------------
 function Orders() {
-  const navigate = useNavigate(); // ✅ now inside component
+  const navigate = useNavigate();
 
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [orderToEdit, setOrderToEdit] = useState<any>(null);
 
   // Filter orders
   const filteredOrders = mockOrders.filter((order) => {
@@ -228,7 +229,21 @@ function Orders() {
   };
 
   const handleEditOrder = (orderId: string) => {
-    console.log("Edit order:", orderId);
+    const order = mockOrders.find((o) => o.id === orderId);
+    if (order) {
+      // Convert order to the format expected by OrderForm
+      setOrderToEdit({
+        id: order.id,
+        orderNumber: order.orderNumber,
+        client: order.client,
+        deliveryDate: order.date,
+        products: [
+          { id: "1", name: "Full Cream Milk (1L)", quantity: 50, price: 15 },
+          { id: "2", name: "Greek Yogurt (500g)", quantity: 30, price: 8 },
+        ],
+        notes: "Sample order notes",
+      });
+    }
   };
 
   const handleDeleteOrder = (orderId: string) => {
@@ -375,12 +390,11 @@ function Orders() {
                             >
                               View Details
                             </Menus.Button>
-                            <Menus.Button
-                              icon={<HiOutlinePencil />}
-                              onClick={() => handleEditOrder(order.id)}
-                            >
-                              Edit Order
-                            </Menus.Button>
+                            <Modal.Open opens={`edit-${order.id}`}>
+                              <Menus.Button icon={<HiOutlinePencil />}>
+                                Edit Order
+                              </Menus.Button>
+                            </Modal.Open>
                             <Modal.Open opens="delete">
                               <Menus.Button icon={<HiOutlineTrash />}>
                                 Delete Order
@@ -388,6 +402,33 @@ function Orders() {
                             </Modal.Open>
                           </Menus.List>
                         </Menus.Menu>
+
+                        <Modal.Window name={`edit-${order.id}`}>
+                          <OrderForm
+                            orderToEdit={{
+                              id: order.id,
+                              orderNumber: order.orderNumber,
+                              client: order.client,
+                              deliveryDate: order.date,
+                              products: [
+                                {
+                                  id: "1",
+                                  name: "Full Cream Milk (1L)",
+                                  quantity: 50,
+                                  price: 15,
+                                },
+                                {
+                                  id: "2",
+                                  name: "Greek Yogurt (500g)",
+                                  quantity: 30,
+                                  price: 8,
+                                },
+                              ],
+                              notes: "Sample order notes",
+                            }}
+                            onCloseModal={() => {}}
+                          />
+                        </Modal.Window>
 
                         <Modal.Window name="delete">
                           <ConfirmDelete

@@ -1,106 +1,52 @@
 import { useState } from "react";
 import styled from "styled-components";
-import { HiOutlinePlus, HiOutlineTrash } from "react-icons/hi2";
-import Heading from "../UI/Heading";
 import Form from "../UI/Form";
 import FormRow from "../UI/FormRow";
 import Input from "../UI/Input";
-import Select from "../UI/Select";
 import Textarea from "../UI/Textarea";
 import Button from "../UI/Button";
 import ButtonGroup from "../UI/ButtonGroup";
-
-// Styled Components
-const FormContainer = styled.div`
-  max-width: 90rem;
-  margin: 0 auto;
-`;
-
-const Section = styled.div`
-  margin-bottom: 3.2rem;
-`;
-
-const SectionTitle = styled.h3`
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: var(--color-grey-900);
-  margin-bottom: 1.6rem;
-  padding-bottom: 1.2rem;
-  border-bottom: 2px solid var(--color-grey-200);
-`;
-
-const ProductsSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.6rem;
-`;
+import Heading from "../UI/Heading";
+import Select from "../UI/Select";
 
 const ProductRow = styled.div`
   display: grid;
-  grid-template-columns: 3fr 1fr 1fr 1fr auto;
-  gap: 1.6rem;
-  align-items: end;
-  padding: 1.6rem;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
+  gap: 1.2rem;
+  align-items: center;
+  padding: 1.2rem;
   background-color: var(--color-grey-50);
-  border-radius: var(--border-radius-md);
-`;
-
-const ProductInput = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-`;
-
-const Label = styled.label`
-  font-size: 1.4rem;
-  font-weight: 500;
-  color: var(--color-grey-700);
-`;
-
-const DeleteButton = styled.button`
-  padding: 1rem;
-  background-color: var(--color-red-100);
-  border: none;
   border-radius: var(--border-radius-sm);
+  margin-bottom: 1.2rem;
+`;
+
+const RemoveButton = styled.button`
+  background: none;
+  border: none;
+  color: var(--color-red-700);
   cursor: pointer;
-  transition: all 0.2s;
+  font-size: 2rem;
+  padding: 0.4rem;
 
   &:hover {
-    background-color: var(--color-red-700);
-  }
-
-  & svg {
-    width: 2rem;
-    height: 2rem;
-    color: var(--color-red-700);
-  }
-
-  &:hover svg {
-    color: var(--color-grey-0);
+    color: var(--color-red-800);
   }
 `;
 
 const AddProductButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 1.2rem 2.4rem;
-  background-color: var(--color-grey-0);
-  border: 2px dashed var(--color-brand-600);
+  width: 100%;
+  padding: 1.2rem;
+  border: 2px dashed var(--color-grey-300);
+  background: none;
+  border-radius: var(--border-radius-sm);
   color: var(--color-brand-600);
-  border-radius: var(--border-radius-md);
-  font-size: 1.4rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
+    border-color: var(--color-brand-600);
     background-color: var(--color-brand-50);
-  }
-
-  & svg {
-    width: 2rem;
-    height: 2rem;
   }
 `;
 
@@ -130,299 +76,266 @@ const SummaryRow = styled.div<{ $isTotal?: boolean }>`
   }
 `;
 
+type Product = {
+  id: string;
+  productId: string;
+  name: string;
+  quantity: number;
+  price: number;
+};
+
+type OrderFormProps = {
+  orderToEdit?: {
+    id: string;
+    orderNumber: string;
+    client: string;
+    deliveryDate: string;
+    products: Product[];
+    notes?: string;
+  };
+  onCloseModal: () => void;
+};
+
 // Mock data
 const mockClients = [
+  { value: "", label: "Select a client..." },
   { value: "1", label: "Carrefour Lac 2" },
   { value: "2", label: "Monoprix Menzah" },
   { value: "3", label: "Magasin Général Marsa" },
   { value: "4", label: "Superette Ariana" },
 ];
 
-const mockProducts = [
-  { value: "1", label: "Full Cream Milk (1L)", price: 15 },
-  { value: "2", label: "Greek Yogurt (500g)", price: 8 },
-  { value: "3", label: "Cheddar Cheese (200g)", price: 20 },
-  { value: "4", label: "Butter (250g)", price: 12 },
-  { value: "5", label: "Fresh Cream (250ml)", price: 10 },
+const mockProductsData = [
+  { id: "1", name: "Full Cream Milk (1L)", price: 15 },
+  { id: "2", name: "Greek Yogurt (500g)", price: 8 },
+  { id: "3", name: "Butter (250g)", price: 12 },
+  { id: "4", name: "Cheese (200g)", price: 18 },
+  { id: "5", name: "Skimmed Milk (1L)", price: 13 },
 ];
 
-type PaymentType = "cash" | "credit" | "card";
+const mockProducts = [
+  { value: "", label: "Select a product..." },
+  ...mockProductsData.map((p) => ({
+    value: p.id,
+    label: `${p.name} - ${p.price} TND`,
+  })),
+];
 
-type ProductItem = {
-  id: string;
-  productId: string;
-  quantity: number;
-  price: number;
-};
+const TAX_RATE = 0.19;
 
-type OrderData = {
-  clientId: string;
-  deliveryDate: string;
-  paymentType: PaymentType;
-  notes?: string;
-  products: ProductItem[];
-};
+function OrderForm({ orderToEdit, onCloseModal }: OrderFormProps) {
+  const isEditMode = Boolean(orderToEdit);
 
-type OrderFormProps = {
-  onCloseModal?: () => void;
-  editData?: OrderData;
-};
-
-function OrderForm({ onCloseModal, editData }: OrderFormProps) {
-  const isEditMode = !!editData;
-
-  const [formData, setFormData] = useState<OrderData>({
-    clientId: editData?.clientId || "",
-    deliveryDate: editData?.deliveryDate || "",
-    paymentType: editData?.paymentType || "cash",
-    notes: editData?.notes || "",
-    products: editData?.products || [],
-  });
-
-  const [products, setProducts] = useState<ProductItem[]>(
-    editData?.products || [{ id: "1", productId: "", quantity: 1, price: 0 }]
+  const [client, setClient] = useState(orderToEdit?.client || "");
+  const [deliveryDate, setDeliveryDate] = useState(
+    orderToEdit?.deliveryDate?.split(" ")[0] || ""
   );
-
-  // Calculate totals
-  const subtotal = products.reduce(
-    (sum, item) => sum + item.quantity * item.price,
-    0
+  const [notes, setNotes] = useState(orderToEdit?.notes || "");
+  const [products, setProducts] = useState<Product[]>(
+    orderToEdit?.products || [
+      {
+        id: Date.now().toString(),
+        productId: "",
+        name: "",
+        quantity: 1,
+        price: 0,
+      },
+    ]
   );
-  const tax = subtotal * 0.19; // 19% TVA
-  const total = subtotal + tax;
 
   const handleAddProduct = () => {
     setProducts([
       ...products,
-      { id: Date.now().toString(), productId: "", quantity: 1, price: 0 },
+      {
+        id: Date.now().toString(),
+        productId: "",
+        name: "",
+        quantity: 1,
+        price: 0,
+      },
     ]);
   };
 
   const handleRemoveProduct = (id: string) => {
-    if (products.length > 1) {
-      setProducts(products.filter((p) => p.id !== id));
+    if (products.length === 1) return;
+    setProducts(products.filter((p) => p.id !== id));
+  };
+
+  const handleProductSelect = (id: string, productId: string) => {
+    const selectedProduct = mockProductsData.find((p) => p.id === productId);
+    if (selectedProduct) {
+      setProducts(
+        products.map((p) =>
+          p.id === id
+            ? {
+                ...p,
+                productId,
+                name: selectedProduct.name,
+                price: selectedProduct.price,
+              }
+            : p
+        )
+      );
     }
   };
 
-  const handleProductChange = (
-    id: string,
-    field: keyof ProductItem,
-    value: string | number
-  ) => {
+  const handleQuantityChange = (id: string, quantity: number) => {
     setProducts(
-      products.map((p) => {
-        if (p.id === id) {
-          if (field === "productId") {
-            const selectedProduct = mockProducts.find(
-              (prod) => prod.value === value
-            );
-            return {
-              ...p,
-              productId: value as string,
-              price: selectedProduct?.price || 0,
-            };
-          }
-          return { ...p, [field]: value };
-        }
-        return p;
-      })
+      products.map((p) =>
+        p.id === id ? { ...p, quantity: Math.max(1, quantity) } : p
+      )
     );
   };
+
+  const calculateSubtotal = () =>
+    products.reduce((sum, p) => sum + p.quantity * p.price, 0);
+
+  const calculateTax = () => calculateSubtotal() * TAX_RATE;
+
+  const calculateTotal = () => calculateSubtotal() + calculateTax();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const orderData: OrderData = {
-      ...formData,
-      products,
+    const validProducts = products.filter((p) => p.productId && p.quantity > 0);
+
+    if (validProducts.length === 0) {
+      alert("Please add at least one product");
+      return;
+    }
+
+    const orderData = {
+      client,
+      deliveryDate,
+      products: validProducts,
+      notes,
+      subtotal: calculateSubtotal(),
+      tax: calculateTax(),
+      total: calculateTotal(),
     };
 
-    console.log("Order submitted:", {
-      ...orderData,
-      subtotal,
-      tax,
-      total,
-    });
-    // TODO: Call API to create/update order
-
-    if (onCloseModal) onCloseModal();
+    console.log(isEditMode ? "Updating order:" : "Creating order:", orderData);
+    onCloseModal();
   };
 
   return (
-    <FormContainer>
-      <Heading as="h2" style={{ marginBottom: "3.2rem" }}>
-        {isEditMode ? "Edit Order" : "Create New Order"}
+    <Form type="modal" onSubmit={handleSubmit}>
+      <Heading as="h2">
+        {isEditMode
+          ? `Edit Order ${orderToEdit?.orderNumber}`
+          : "Create New Order"}
       </Heading>
 
-      <Form onSubmit={handleSubmit} type="modal">
-        {/* Client Selection */}
-        <Section>
-          <SectionTitle>Client Information</SectionTitle>
-          <FormRow label="Select Client">
+      <FormRow label="Client">
+        <Select
+          id="client"
+          options={mockClients}
+          value={client}
+          onChange={(e) => setClient(e.target.value)}
+          required
+        />
+      </FormRow>
+
+      <FormRow label="Delivery Date">
+        <Input
+          type="date"
+          id="deliveryDate"
+          value={deliveryDate}
+          onChange={(e) => setDeliveryDate(e.target.value)}
+          required
+        />
+      </FormRow>
+
+      {/* Products */}
+      <div style={{ padding: "1.2rem 0" }}>
+        <label
+          style={{ fontWeight: 500, display: "block", marginBottom: "1.2rem" }}
+        >
+          Products
+        </label>
+        {products.map((product) => (
+          <ProductRow key={product.id}>
             <Select
-              id="clientId"
-              options={mockClients}
-              value={formData.clientId}
-              onChange={(e) =>
-                setFormData({ ...formData, clientId: e.target.value })
-              }
+              options={mockProducts}
+              value={product.productId}
+              onChange={(e) => handleProductSelect(product.id, e.target.value)}
               required
             />
-          </FormRow>
-
-          <FormRow label="Delivery Date">
             <Input
-              type="datetime-local"
-              id="deliveryDate"
-              value={formData.deliveryDate}
+              type="number"
+              placeholder="Quantity"
+              min="1"
+              value={product.quantity}
               onChange={(e) =>
-                setFormData({ ...formData, deliveryDate: e.target.value })
+                handleQuantityChange(product.id, parseInt(e.target.value) || 1)
               }
               required
             />
-          </FormRow>
+            <div
+              style={{
+                padding: "0.8rem 1.2rem",
+                background: "var(--color-grey-100)",
+                borderRadius: "var(--border-radius-sm)",
+                textAlign: "center",
+                fontWeight: 500,
+              }}
+            >
+              {product.price} TND
+            </div>
+            <div style={{ fontWeight: 600, textAlign: "right" }}>
+              {(product.quantity * product.price).toFixed(2)} TND
+            </div>
+            {products.length > 1 && (
+              <RemoveButton
+                type="button"
+                onClick={() => handleRemoveProduct(product.id)}
+                title="Remove product"
+              >
+                ×
+              </RemoveButton>
+            )}
+          </ProductRow>
+        ))}
+        <AddProductButton type="button" onClick={handleAddProduct}>
+          + Add Product
+        </AddProductButton>
 
-          <FormRow label="Payment Type">
-            <Select
-              id="paymentType"
-              options={[
-                { value: "cash", label: "Cash" },
-                { value: "credit", label: "Credit" },
-                { value: "card", label: "Card" },
-              ]}
-              value={formData.paymentType}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  paymentType: e.target.value as PaymentType, // 👈 FIX
-                })
-              }
-            />
-          </FormRow>
-        </Section>
+        {/* Summary */}
+        <SummaryCard>
+          <SummaryRow>
+            <span>Subtotal:</span>
+            <span>{calculateSubtotal().toFixed(2)} TND</span>
+          </SummaryRow>
+          <SummaryRow>
+            <span>Tax (19% TVA):</span>
+            <span>{calculateTax().toFixed(2)} TND</span>
+          </SummaryRow>
+          <SummaryRow $isTotal>
+            <span>Total:</span>
+            <span>{calculateTotal().toFixed(2)} TND</span>
+          </SummaryRow>
+        </SummaryCard>
+      </div>
 
-        {/* Products */}
-        <Section>
-          <SectionTitle>Products</SectionTitle>
-          <ProductsSection>
-            {products.map((product) => (
-              <ProductRow key={product.id}>
-                <ProductInput>
-                  <Label>Product</Label>
-                  <Select
-                    options={[
-                      { value: "", label: "Select product..." },
-                      ...mockProducts,
-                    ]}
-                    value={product.productId}
-                    onChange={(e) =>
-                      handleProductChange(
-                        product.id,
-                        "productId",
-                        e.target.value
-                      )
-                    }
-                    required
-                  />
-                </ProductInput>
+      <FormRow label="Notes (Optional)">
+        <Textarea
+          id="notes"
+          placeholder="Add any special instructions..."
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          rows={3}
+        />
+      </FormRow>
 
-                <ProductInput>
-                  <Label>Quantity</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={product.quantity}
-                    onChange={(e) =>
-                      handleProductChange(
-                        product.id,
-                        "quantity",
-                        parseInt(e.target.value) || 1
-                      )
-                    }
-                    required
-                  />
-                </ProductInput>
-
-                <ProductInput>
-                  <Label>Price</Label>
-                  <Input
-                    type="number"
-                    value={product.price}
-                    readOnly
-                    disabled
-                  />
-                </ProductInput>
-
-                <ProductInput>
-                  <Label>Total</Label>
-                  <Input
-                    type="number"
-                    value={product.quantity * product.price}
-                    readOnly
-                    disabled
-                  />
-                </ProductInput>
-
-                <DeleteButton
-                  type="button"
-                  onClick={() => handleRemoveProduct(product.id)}
-                  disabled={products.length === 1}
-                >
-                  <HiOutlineTrash />
-                </DeleteButton>
-              </ProductRow>
-            ))}
-
-            <AddProductButton type="button" onClick={handleAddProduct}>
-              <HiOutlinePlus />
-              Add Another Product
-            </AddProductButton>
-          </ProductsSection>
-
-          {/* Summary */}
-          <SummaryCard>
-            <SummaryRow>
-              <span>Subtotal:</span>
-              <span>{subtotal.toFixed(2)} TND</span>
-            </SummaryRow>
-            <SummaryRow>
-              <span>Tax (19% TVA):</span>
-              <span>{tax.toFixed(2)} TND</span>
-            </SummaryRow>
-            <SummaryRow $isTotal>
-              <span>Total:</span>
-              <span>{total.toFixed(2)} TND</span>
-            </SummaryRow>
-          </SummaryCard>
-        </Section>
-
-        {/* Notes */}
-        <Section>
-          <FormRow label="Notes (Optional)">
-            <Textarea
-              id="notes"
-              placeholder="Add any special instructions or notes..."
-              value={formData.notes}
-              onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })
-              }
-            />
-          </FormRow>
-        </Section>
-
-        {/* Action Buttons */}
-        <FormRow>
-          <ButtonGroup>
-            <Button type="button" $variation="secondary" onClick={onCloseModal}>
-              Cancel
-            </Button>
-            <Button type="submit" $variation="primary">
-              {isEditMode ? "Update Order" : "Create Order"}
-            </Button>
-          </ButtonGroup>
-        </FormRow>
-      </Form>
-    </FormContainer>
+      <ButtonGroup>
+        <Button type="button" $variation="secondary" onClick={onCloseModal}>
+          Cancel
+        </Button>
+        <Button type="submit">
+          {isEditMode ? "Update Order" : "Create Order"}
+        </Button>
+      </ButtonGroup>
+    </Form>
   );
 }
 
