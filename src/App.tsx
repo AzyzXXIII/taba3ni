@@ -8,6 +8,8 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import PageNotFound from "./pages/PageNotFound";
 import Orders from "./pages/Orders";
+import OrderDetails from "./pages/OrderDetails";
+
 type User = {
   name: string;
   email: string;
@@ -91,6 +93,8 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
 
             <Route path="orders" element={<Orders />} />
+            <Route path="orders/:orderId" element={<OrderDetails />} />
+
             {/* TODO: Add more routes as you create pages
             <Route path="orders" element={<Orders />} />
             <Route path="deliveries" element={<Deliveries />} />

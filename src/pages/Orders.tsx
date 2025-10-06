@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import styled from "styled-components";
 import { HiOutlineEye, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi2";
 import Heading from "../UI/Heading";
@@ -11,8 +13,9 @@ import SearchBar from "../UI/SearchBar";
 import Menus from "../UI/Menus";
 import Modal from "../UI/Modal";
 import ConfirmDelete from "../UI/ConfirmDelete";
+import OrderForm from "../components/OrderForm";
 
-// Styled Components
+// ---------------- Styled Components ----------------
 const OrdersLayout = styled.div`
   display: flex;
   flex-direction: column;
@@ -149,7 +152,7 @@ const StatCard = styled.div`
   }
 `;
 
-// Mock Orders Data
+// ---------------- Mock Data ----------------
 type Order = {
   id: string;
   orderNumber: string;
@@ -192,59 +195,12 @@ const mockOrders: Order[] = [
     paymentStatus: "partial",
     date: "2025-10-05 08:45",
   },
-  {
-    id: "4",
-    orderNumber: "ORD-004",
-    client: "Superette Ariana",
-    products: "Yogurt (20), Milk (30L)",
-    amount: 450,
-    status: "pending",
-    paymentStatus: "unpaid",
-    date: "2025-10-04 16:20",
-  },
-  {
-    id: "5",
-    orderNumber: "ORD-005",
-    client: "Aziza Market",
-    products: "Milk (80L), Cheese (15kg)",
-    amount: 1680,
-    status: "confirmed",
-    paymentStatus: "unpaid",
-    date: "2025-10-04 15:10",
-  },
-  {
-    id: "6",
-    orderNumber: "ORD-006",
-    client: "Monoprix Centre Ville",
-    products: "Butter (25kg)",
-    amount: 950,
-    status: "failed",
-    paymentStatus: "unpaid",
-    date: "2025-10-04 14:00",
-  },
-  {
-    id: "7",
-    orderNumber: "ORD-007",
-    client: "Géant Tunisie",
-    products: "Milk (150L), Yogurt (100)",
-    amount: 3200,
-    status: "delivered",
-    paymentStatus: "paid",
-    date: "2025-10-03 11:30",
-  },
-  {
-    id: "8",
-    orderNumber: "ORD-008",
-    client: "Carrefour Express",
-    products: "Yogurt (40), Cheese (10kg)",
-    amount: 780,
-    status: "cancelled",
-    paymentStatus: "unpaid",
-    date: "2025-10-03 10:00",
-  },
 ];
 
+// ---------------- Component ----------------
 function Orders() {
+  const navigate = useNavigate(); // ✅ now inside component
+
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -268,18 +224,15 @@ function Orders() {
   };
 
   const handleViewOrder = (orderId: string) => {
-    console.log("View order:", orderId);
-    // TODO: Navigate to order details page
+    navigate(`/orders/${orderId}`);
   };
 
   const handleEditOrder = (orderId: string) => {
     console.log("Edit order:", orderId);
-    // TODO: Open edit modal
   };
 
   const handleDeleteOrder = (orderId: string) => {
     console.log("Delete order:", orderId);
-    // TODO: Call delete API
   };
 
   return (
@@ -287,9 +240,14 @@ function Orders() {
       {/* Header */}
       <Row type="horizontal">
         <Heading as="h1">Orders Management</Heading>
-        <Button $size="medium" onClick={() => console.log("Create new order")}>
-          + New Order
-        </Button>
+        <Modal>
+          <Modal.Open opens="create-order">
+            <Button $size="medium">+ New Order</Button>
+          </Modal.Open>
+          <Modal.Window name="create-order">
+            <OrderForm onCloseModal={() => {}} />
+          </Modal.Window>
+        </Modal>
       </Row>
 
       {/* Stats */}
