@@ -1,11 +1,12 @@
 import styled from "styled-components";
-import type { ReactElement } from "react";
+import type { ReactNode, CSSProperties } from "react";
+import { Children, isValidElement } from "react";
 
-const StyledFormRow = styled.div`
+const StyledFormRow = styled.div<Partial<FormRowProps>>`
   display: grid;
   align-items: center;
   grid-template-columns: 24rem 1fr 1.2fr;
-  gap: 2.4rem;
+  gap: 0.4rem;
   padding: 1.2rem 0;
 
   &:first-child {
@@ -39,16 +40,19 @@ const Error = styled.span`
 interface FormRowProps {
   label?: string;
   error?: string;
-  children: ReactElement;
+  children: ReactNode;
+  style?: CSSProperties;
 }
 
-function FormRow({ label, error, children }: FormRowProps) {
-  // Prevents the error when children or id is undefined
-  const inputId = (children?.props as { id?: string })?.id || "";
+function FormRow({ label, error, children, style }: FormRowProps) {
+  // Find the first valid React element child and get its id for htmlFor
+  const inputId = Children.toArray(children).find(
+    (child) => isValidElement(child) && (child.props as { id?: string }).id
+  ) as React.ReactElement<{ id?: string }> | undefined;
 
   return (
-    <StyledFormRow>
-      {label && <Label htmlFor={inputId}>{label}</Label>}
+    <StyledFormRow style={style}>
+      {label && <Label htmlFor={inputId?.props?.id}>{label}</Label>}
       {children}
       {error && <Error>{error}</Error>}
     </StyledFormRow>

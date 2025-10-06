@@ -153,7 +153,10 @@ function ProductForm({ productToEdit, onCloseModal }: ProductFormProps) {
 
       <FormGrid>
         {/* Product Name */}
-        <FormRow label="Product Name *">
+        <FormRow
+          label="Product Name *"
+          style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
+        >
           <Input
             type="text"
             id="name"
@@ -165,7 +168,10 @@ function ProductForm({ productToEdit, onCloseModal }: ProductFormProps) {
         </FormRow>
 
         {/* Category */}
-        <FormRow label="Category *">
+        <FormRow
+          label="Category *"
+          style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
+        >
           <Select
             id="category"
             options={categoryOptions}
@@ -176,7 +182,10 @@ function ProductForm({ productToEdit, onCloseModal }: ProductFormProps) {
         </FormRow>
 
         {/* Price */}
-        <FormRow label="Price (TND) *">
+        <FormRow
+          label="Price (TND) *"
+          style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
+        >
           <Input
             type="number"
             id="price"
@@ -190,7 +199,10 @@ function ProductForm({ productToEdit, onCloseModal }: ProductFormProps) {
         </FormRow>
 
         {/* Unit */}
-        <FormRow label="Unit *">
+        <FormRow
+          label="Unit *"
+          style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
+        >
           <Select
             id="unit"
             options={unitOptions}
@@ -201,7 +213,10 @@ function ProductForm({ productToEdit, onCloseModal }: ProductFormProps) {
         </FormRow>
 
         {/* Current Stock */}
-        <FormRow label="Current Stock *">
+        <FormRow
+          label="Current Stock *"
+          style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
+        >
           <Input
             type="number"
             id="stock"
@@ -214,7 +229,10 @@ function ProductForm({ productToEdit, onCloseModal }: ProductFormProps) {
         </FormRow>
 
         {/* Minimum Stock */}
-        <FormRow label="Minimum Stock *">
+        <FormRow
+          label="Minimum Stock *"
+          style={{ gridTemplateColumns: "10rem 1fr 1.2fr" }}
+        >
           <Input
             type="number"
             id="minStock"
@@ -228,7 +246,10 @@ function ProductForm({ productToEdit, onCloseModal }: ProductFormProps) {
 
         {/* SKU */}
         <FullWidth>
-          <FormRow label="SKU Code *">
+          <FormRow
+            label="SKU Code *"
+            style={{ gridTemplateColumns: "10em 1fr 1.2fr" }}
+          >
             <div style={{ display: "flex", gap: "1.2rem" }}>
               <Input
                 type="text"
@@ -242,7 +263,7 @@ function ProductForm({ productToEdit, onCloseModal }: ProductFormProps) {
               {!isEditMode && (
                 <Button
                   type="button"
-                  $variation="secondary"
+                  $variation="primary"
                   onClick={generateSKU}
                 >
                   Generate SKU
@@ -254,7 +275,10 @@ function ProductForm({ productToEdit, onCloseModal }: ProductFormProps) {
 
         {/* Description */}
         <FullWidth>
-          <FormRow label="Description (Optional)">
+          <FormRow
+            label="Description (Optional)"
+            style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
+          >
             <Textarea
               id="description"
               placeholder="Add product details, ingredients, or any notes..."
