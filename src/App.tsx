@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import PageNotFound from "./pages/PageNotFound";
 import Orders from "./pages/Orders";
 import OrderDetails from "./pages/OrderDetails";
+import Products from "./pages/Products";
 
 type User = {
   name: string;
@@ -17,7 +18,6 @@ type User = {
   notifications: number;
 };
 
-// Extend Window interface to include our auth functions
 declare global {
   interface Window {
     login: (userData: User) => void;
@@ -26,7 +26,6 @@ declare global {
 }
 
 function App() {
-  // Check localStorage for existing session
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem("isAuthenticated") === "true";
   });
@@ -36,7 +35,6 @@ function App() {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  // Login function (memoized)
   const login = useCallback((userData: User) => {
     setIsAuthenticated(true);
     setUser(userData);
@@ -44,7 +42,6 @@ function App() {
     localStorage.setItem("user", JSON.stringify(userData));
   }, []);
 
-  // Logout function (memoized)
   const logout = useCallback(() => {
     setIsAuthenticated(false);
     setUser(null);
@@ -52,7 +49,6 @@ function App() {
     localStorage.removeItem("user");
   }, []);
 
-  // Make login/logout available globally (simple approach)
   useEffect(() => {
     window.login = login;
     window.logout = logout;
@@ -86,26 +82,11 @@ function App() {
               )
             }
           >
-            {/* Redirect root to dashboard */}
             <Route index element={<Navigate to="/dashboard" replace />} />
-
-            {/* Dashboard */}
             <Route path="dashboard" element={<Dashboard />} />
-
             <Route path="orders" element={<Orders />} />
             <Route path="orders/:orderId" element={<OrderDetails />} />
-
-            {/* TODO: Add more routes as you create pages
-            <Route path="orders" element={<Orders />} />
-            <Route path="deliveries" element={<Deliveries />} />
-            <Route path="clients" element={<Clients />} />
-            <Route path="distributors" element={<Distributors />} />
             <Route path="products" element={<Products />} />
-            <Route path="analytics" element={<Analytics />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="account" element={<Account />} />
-            <Route path="notifications" element={<Notifications />} />
-            */}
           </Route>
 
           {/* 404 Page */}
