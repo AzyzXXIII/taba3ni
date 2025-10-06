@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import styled from "styled-components";
 import { HiOutlineEye, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi2";
 import Heading from "../UI/Heading";
@@ -152,7 +151,23 @@ const StatCard = styled.div`
   }
 `;
 
-// ---------------- Mock Data ----------------
+// ---------------- Types ----------------
+type Product = {
+  productId: string;
+  name: string;
+  quantity: number;
+  price: number;
+};
+
+type EditableOrder = {
+  id: string;
+  orderNumber: string;
+  client: string;
+  deliveryDate: string;
+  products: Product[];
+  notes: string;
+} | null;
+
 type Order = {
   id: string;
   orderNumber: string;
@@ -164,6 +179,7 @@ type Order = {
   date: string;
 };
 
+// ---------------- Mock Data ----------------
 const mockOrders: Order[] = [
   {
     id: "1",
@@ -203,7 +219,7 @@ function Orders() {
 
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [orderToEdit, setOrderToEdit] = useState<any>(null);
+  const [orderToEdit, setOrderToEdit] = useState<EditableOrder>(null);
 
   // Filter orders
   const filteredOrders = mockOrders.filter((order) => {
@@ -226,24 +242,6 @@ function Orders() {
 
   const handleViewOrder = (orderId: string) => {
     navigate(`/orders/${orderId}`);
-  };
-
-  const handleEditOrder = (orderId: string) => {
-    const order = mockOrders.find((o) => o.id === orderId);
-    if (order) {
-      // Convert order to the format expected by OrderForm
-      setOrderToEdit({
-        id: order.id,
-        orderNumber: order.orderNumber,
-        client: order.client,
-        deliveryDate: order.date,
-        products: [
-          { id: "1", name: "Full Cream Milk (1L)", quantity: 50, price: 15 },
-          { id: "2", name: "Greek Yogurt (500g)", quantity: 30, price: 8 },
-        ],
-        notes: "Sample order notes",
-      });
-    }
   };
 
   const handleDeleteOrder = (orderId: string) => {
@@ -412,13 +410,13 @@ function Orders() {
                               deliveryDate: order.date,
                               products: [
                                 {
-                                  id: "1",
+                                  productId: "1",
                                   name: "Full Cream Milk (1L)",
                                   quantity: 50,
                                   price: 15,
                                 },
                                 {
-                                  id: "2",
+                                  productId: "2",
                                   name: "Greek Yogurt (500g)",
                                   quantity: 30,
                                   price: 8,
