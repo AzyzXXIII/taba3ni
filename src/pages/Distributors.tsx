@@ -327,17 +327,18 @@ function Distributors() {
     console.log("Delete distributor:", distributorId);
   };
 
+  // ✅ FIXED getInitials function
   const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .toUpperCase()
+    if (!name) return "N/A";
+    const parts = name.trim().split(" ");
+    return parts
+      .map((n) => n[0]?.toUpperCase())
+      .join("")
       .slice(0, 2);
   };
 
   return (
     <DistributorsLayout>
-      {/* Header */}
       <Row type="horizontal">
         <Heading as="h1">Distributors Management</Heading>
         <Button $size="medium" onClick={() => navigate("/distributors/new")}>
@@ -345,7 +346,6 @@ function Distributors() {
         </Button>
       </Row>
 
-      {/* Stats */}
       <StatsRow>
         <StatsCard
           title="Total Distributors"
@@ -373,7 +373,6 @@ function Distributors() {
         />
       </StatsRow>
 
-      {/* Filters & Search */}
       <FiltersBar>
         <SearchBar
           placeholder="Search by name, phone, or zone..."
@@ -408,7 +407,6 @@ function Distributors() {
         </FilterGroup>
       </FiltersBar>
 
-      {/* Distributors Table */}
       <TableCard>
         <Table>
           <TableHeader>
