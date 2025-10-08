@@ -2,7 +2,6 @@ import styled from "styled-components";
 import Button from "./Button";
 import Heading from "./Heading";
 
-// Styled container
 const StyledConfirmDelete = styled.div`
   width: 40rem;
   display: flex;

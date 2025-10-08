@@ -61,7 +61,6 @@ const Empty = styled.p`
   margin: 2.4rem;
 `;
 
-// Context typing
 type TableContextType = {
   columns: string;
 };
