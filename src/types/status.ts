@@ -1,4 +1,3 @@
-// Status types for orders and deliveries
 export type OrderStatus =
   | "pending"
   | "confirmed"

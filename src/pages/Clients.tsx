@@ -377,7 +377,6 @@ function Clients() {
 
   return (
     <ClientsLayout>
-      {/* Header */}
       <Row type="horizontal">
         <Heading as="h1">Clients Management</Heading>
         <Modal>
