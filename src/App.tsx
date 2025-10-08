@@ -10,6 +10,8 @@ import PageNotFound from "./pages/PageNotFound";
 import Orders from "./pages/Orders";
 import OrderDetails from "./pages/OrderDetails";
 import Products from "./pages/Products";
+import Clients from "./pages/Clients";
+import ClientDetails from "./pages/ClientDetails";
 
 type User = {
   name: string;
@@ -87,6 +89,8 @@ function App() {
             <Route path="orders" element={<Orders />} />
             <Route path="orders/:orderId" element={<OrderDetails />} />
             <Route path="products" element={<Products />} />
+            <Route path="clients" element={<Clients />} />
+            <Route path="clients/:clientId" element={<ClientDetails />} />
           </Route>
 
           {/* 404 Page */}
