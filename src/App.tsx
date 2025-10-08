@@ -12,6 +12,10 @@ import OrderDetails from "./pages/OrderDetails";
 import Products from "./pages/Products";
 import Clients from "./pages/Clients";
 import ClientDetails from "./pages/ClientDetails";
+import Deliveries from "./pages/Deliveries";
+import DeliveryDetails from "./pages/DeliveryDetails";
+import Distributors from "./pages/Distributors";
+import DistributorDetails from "./pages/DistributorDetails";
 
 type User = {
   name: string;
@@ -86,11 +90,31 @@ function App() {
           >
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
+
+            {/* Orders */}
             <Route path="orders" element={<Orders />} />
             <Route path="orders/:orderId" element={<OrderDetails />} />
+
+            {/* Products */}
             <Route path="products" element={<Products />} />
+
+            {/* Clients */}
             <Route path="clients" element={<Clients />} />
             <Route path="clients/:clientId" element={<ClientDetails />} />
+
+            {/* Deliveries - NEW */}
+            <Route path="deliveries" element={<Deliveries />} />
+            <Route
+              path="deliveries/:deliveryId"
+              element={<DeliveryDetails />}
+            />
+
+            {/* Distributors - NEW */}
+            <Route path="distributors" element={<Distributors />} />
+            <Route
+              path="distributors/:distributorId"
+              element={<DistributorDetails />}
+            />
           </Route>
 
           {/* 404 Page */}
