@@ -198,7 +198,10 @@ function ClientForm({ clientToEdit, onCloseModal }: ClientFormProps) {
         <SectionTitle>📋 Basic Information</SectionTitle>
 
         <FullWidth>
-          <FormRow label="Business Name *">
+          <FormRow
+            label="Business Name *"
+            style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
+          >
             <Input
               type="text"
               id="name"
@@ -210,7 +213,10 @@ function ClientForm({ clientToEdit, onCloseModal }: ClientFormProps) {
           </FormRow>
         </FullWidth>
 
-        <FormRow label="Client Type *">
+        <FormRow
+          label="Client Type *"
+          style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
+        >
           <Select
             id="type"
             options={clientTypeOptions}
@@ -220,7 +226,10 @@ function ClientForm({ clientToEdit, onCloseModal }: ClientFormProps) {
           />
         </FormRow>
 
-        <FormRow label="Status *">
+        <FormRow
+          label="Status *"
+          style={{ gridTemplateColumns: "10rem 1fr 1.2fr" }}
+        >
           <Select
             id="status"
             options={statusOptions}
@@ -231,7 +240,10 @@ function ClientForm({ clientToEdit, onCloseModal }: ClientFormProps) {
         </FormRow>
 
         <FullWidth>
-          <FormRow label="Contact Person *">
+          <FormRow
+            label="Contact Person *"
+            style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
+          >
             <Input
               type="text"
               id="contactPerson"
@@ -246,7 +258,10 @@ function ClientForm({ clientToEdit, onCloseModal }: ClientFormProps) {
         {/* Contact Information Section */}
         <SectionTitle>📞 Contact Information</SectionTitle>
 
-        <FormRow label="Phone Number *">
+        <FormRow
+          label="Phone Number *"
+          style={{ gridTemplateColumns: "15rem 1fr 1.2fr" }}
+        >
           <Input
             type="tel"
             id="phone"
@@ -257,7 +272,10 @@ function ClientForm({ clientToEdit, onCloseModal }: ClientFormProps) {
           />
         </FormRow>
 
-        <FormRow label="Email Address *">
+        <FormRow
+          label="Email Address *"
+          style={{ gridTemplateColumns: "12rem 1fr 1.2fr" }}
+        >
           <Input
             type="email"
             id="email"
@@ -268,7 +286,10 @@ function ClientForm({ clientToEdit, onCloseModal }: ClientFormProps) {
           />
         </FormRow>
 
-        <FormRow label="City *">
+        <FormRow
+          label="City *"
+          style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
+        >
           <Select
             id="city"
             options={tunisianCities}
@@ -279,7 +300,10 @@ function ClientForm({ clientToEdit, onCloseModal }: ClientFormProps) {
         </FormRow>
 
         <FullWidth>
-          <FormRow label="Full Address *">
+          <FormRow
+            label="Full Address *"
+            style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
+          >
             <Textarea
               id="address"
               placeholder="Street address, building number, floor..."
@@ -294,7 +318,10 @@ function ClientForm({ clientToEdit, onCloseModal }: ClientFormProps) {
         {/* Financial Information Section */}
         <SectionTitle>💰 Financial Information</SectionTitle>
 
-        <FormRow label="Credit Limit (TND) *">
+        <FormRow
+          label="Credit Limit (TND) *"
+          style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
+        >
           <Input
             type="number"
             id="creditLimit"
@@ -307,7 +334,10 @@ function ClientForm({ clientToEdit, onCloseModal }: ClientFormProps) {
           />
         </FormRow>
 
-        <FormRow label="Payment Terms *">
+        <FormRow
+          label="Payment Terms *"
+          style={{ gridTemplateColumns: "15rem 1fr 1.2fr" }}
+        >
           <Select
             id="paymentTerms"
             options={paymentTermsOptions}
