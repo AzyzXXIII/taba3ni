@@ -19,6 +19,7 @@ import Modal from "../UI/Modal";
 import ConfirmDelete from "../UI/ConfirmDelete";
 import Timeline from "../UI/Timeline";
 import StatusBadge from "../UI/StatusBadge";
+import DeliveryConfirmation from "../components/DeliveryConfirmation";
 
 // Styled Components
 const DetailsLayout = styled.div`
@@ -458,28 +459,39 @@ function DeliveryDetails() {
             <CardHeader>
               <Heading as="h2">Quick Actions</Heading>
             </CardHeader>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "1.2rem",
-              }}
-            >
-              <Button $variation="primary" $size="medium">
-                <HiOutlineCheckCircle
-                  style={{ width: "2rem", height: "2rem" }}
+            <Modal>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1.2rem",
+                }}
+              >
+                <Modal.Open opens="confirm-delivery">
+                  <Button $variation="primary" $size="medium">
+                    <HiOutlineCheckCircle
+                      style={{ width: "2rem", height: "2rem" }}
+                    />
+                    Mark as Delivered
+                  </Button>
+                </Modal.Open>
+                <Button $variation="secondary" $size="medium">
+                  <HiOutlinePhone style={{ width: "2rem", height: "2rem" }} />
+                  Call Client
+                </Button>
+                <Button $variation="secondary" $size="medium">
+                  <HiOutlinePhone style={{ width: "2rem", height: "2rem" }} />
+                  Call Distributor
+                </Button>
+              </div>
+
+              <Modal.Window name="confirm-delivery">
+                <DeliveryConfirmation
+                  deliveryId={delivery.deliveryId}
+                  onCloseModal={() => {}}
                 />
-                Mark as Delivered
-              </Button>
-              <Button $variation="secondary" $size="medium">
-                <HiOutlinePhone style={{ width: "2rem", height: "2rem" }} />
-                Call Client
-              </Button>
-              <Button $variation="secondary" $size="medium">
-                <HiOutlinePhone style={{ width: "2rem", height: "2rem" }} />
-                Call Distributor
-              </Button>
-            </div>
+              </Modal.Window>
+            </Modal>
           </Card>
         </div>
       </Grid>
