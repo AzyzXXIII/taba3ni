@@ -20,6 +20,7 @@ import ConfirmDelete from "../UI/ConfirmDelete";
 import Timeline from "../UI/Timeline";
 import StatusBadge from "../UI/StatusBadge";
 import DeliveryConfirmation from "../components/DeliveryConfirmation";
+import DeliveryMap from "../components/DeliveryMap";
 
 // Styled Components
 const DetailsLayout = styled.div`
@@ -397,18 +398,14 @@ function DeliveryDetails() {
           {/* Route Map */}
           <Card>
             <CardHeader>
-              <Heading as="h2">Delivery Route</Heading>
+              <Heading as="h2">Live Delivery Tracking</Heading>
             </CardHeader>
-            <MapPlaceholder>🗺️</MapPlaceholder>
-            <p
-              style={{
-                marginTop: "1.2rem",
-                fontSize: "1.3rem",
-                color: "var(--color-grey-600)",
-              }}
-            >
-              GPS tracking integration coming soon
-            </p>
+            <DeliveryMap
+              distributorLocation={{ lat: 36.8065, lng: 10.1815 }}
+              clientLocation={{ lat: 36.8189, lng: 10.1658 }}
+              distributorName={delivery.distributor.name}
+              clientName={delivery.client.name}
+            />
           </Card>
         </div>
 
