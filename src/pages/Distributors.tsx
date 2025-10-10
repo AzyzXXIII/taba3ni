@@ -18,6 +18,7 @@ import Menus from "../UI/Menus";
 import Modal from "../UI/Modal";
 import ConfirmDelete from "../UI/ConfirmDelete";
 import StatsCard from "../UI/StatsCard";
+import DistributorForm from "../components/DistributorForm";
 
 // Styled Components
 const DistributorsLayout = styled.div`
@@ -220,6 +221,7 @@ type Distributor = {
   vehicle: {
     type: string;
     plate: string;
+    capacity?: string;
   };
   status: DistributorStatus;
   totalDeliveries: number;
@@ -238,6 +240,7 @@ const mockDistributors: Distributor[] = [
     vehicle: {
       type: "Refrigerated Truck",
       plate: "123 TU 1234",
+      capacity: "2 tons",
     },
     status: "on-delivery",
     totalDeliveries: 145,
@@ -253,6 +256,7 @@ const mockDistributors: Distributor[] = [
     vehicle: {
       type: "Van",
       plate: "456 TU 5678",
+      capacity: "1.5 tons",
     },
     status: "active",
     totalDeliveries: 98,
@@ -268,6 +272,7 @@ const mockDistributors: Distributor[] = [
     vehicle: {
       type: "Pickup Truck",
       plate: "789 TU 9012",
+      capacity: "1 ton",
     },
     status: "active",
     totalDeliveries: 67,
@@ -283,6 +288,7 @@ const mockDistributors: Distributor[] = [
     vehicle: {
       type: "Refrigerated Van",
       plate: "321 TU 3456",
+      capacity: "1.2 tons",
     },
     status: "inactive",
     totalDeliveries: 34,
@@ -325,9 +331,9 @@ function Distributors() {
 
   const handleDeleteDistributor = (distributorId: string) => {
     console.log("Delete distributor:", distributorId);
+    // TODO: Implement API call to delete distributor
   };
 
-  // ✅ FIXED getInitials function
   const getInitials = (name: string) => {
     if (!name) return "N/A";
     const parts = name.trim().split(" ");
@@ -341,9 +347,14 @@ function Distributors() {
     <DistributorsLayout>
       <Row type="horizontal">
         <Heading as="h1">Distributors Management</Heading>
-        <Button $size="medium" onClick={() => navigate("/distributors/new")}>
-          + Add Distributor
-        </Button>
+        <Modal>
+          <Modal.Open opens="create-distributor">
+            <Button $size="medium">+ Add Distributor</Button>
+          </Modal.Open>
+          <Modal.Window name="create-distributor">
+            <DistributorForm onCloseModal={() => {}} />
+          </Modal.Window>
+        </Modal>
       </Row>
 
       <StatsRow>
@@ -487,9 +498,11 @@ function Distributors() {
                           >
                             View Details
                           </Menus.Button>
-                          <Menus.Button icon={<HiOutlinePencil />}>
-                            Edit Distributor
-                          </Menus.Button>
+                          <Modal.Open opens={`edit-${distributor.id}`}>
+                            <Menus.Button icon={<HiOutlinePencil />}>
+                              Edit Distributor
+                            </Menus.Button>
+                          </Modal.Open>
                           <Modal.Open opens={`delete-${distributor.id}`}>
                             <Menus.Button icon={<HiOutlineTrash />}>
                               Delete Distributor
@@ -497,6 +510,25 @@ function Distributors() {
                           </Modal.Open>
                         </Menus.List>
                       </Menus.Menu>
+
+                      <Modal.Window name={`edit-${distributor.id}`}>
+                        <DistributorForm
+                          distributorToEdit={{
+                            id: distributor.id,
+                            name: distributor.name,
+                            phone: distributor.phone,
+                            email: distributor.email,
+                            zone: distributor.zone,
+                            vehicle: {
+                              type: distributor.vehicle.type,
+                              plate: distributor.vehicle.plate,
+                              capacity: distributor.vehicle.capacity || "",
+                            },
+                            status: distributor.status,
+                          }}
+                          onCloseModal={() => {}}
+                        />
+                      </Modal.Window>
 
                       <Modal.Window name={`delete-${distributor.id}`}>
                         <ConfirmDelete
