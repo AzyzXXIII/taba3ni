@@ -5,9 +5,12 @@ import {
   HiOutlineTruck,
   HiOutlineCurrencyDollar,
   HiOutlineShoppingCart,
-  HiOutlineArrowTrendingUp, // ✅ ADD THIS LINE
+  HiOutlineArrowTrendingUp,
+  HiOutlineArrowTrendingDown,
+  HiOutlineArrowDownTray,
+  HiOutlineCalendar,
+  HiOutlineMapPin,
 } from "react-icons/hi2";
-
 import {
   LineChart,
   Line,
@@ -183,6 +186,194 @@ const TrendBadge = styled.span<{ $isPositive: boolean }>`
   }
 `;
 
+const ExportButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1.6rem;
+  background-color: var(--color-green-700);
+  color: var(--color-grey-0);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-size: 1.4rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: var(--color-green-800);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  & svg {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+`;
+
+const DateRangeInputs = styled.div`
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+`;
+
+const DateInput = styled.input`
+  padding: 0.8rem 1.2rem;
+  border: 1px solid var(--color-grey-300);
+  border-radius: var(--border-radius-sm);
+  font-size: 1.4rem;
+  background-color: var(--color-grey-0);
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-brand-600);
+  }
+`;
+
+const DateLabel = styled.span`
+  font-size: 1.4rem;
+  color: var(--color-grey-600);
+  font-weight: 500;
+`;
+
+const HeatmapGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 1.6rem;
+  margin-top: 1.6rem;
+`;
+
+const ZoneCard = styled.div<{ $intensity: number }>`
+  padding: 2rem;
+  border-radius: var(--border-radius-md);
+  background: ${(props) => {
+    if (props.$intensity >= 80)
+      return "linear-gradient(135deg, #dc2626 0%, #991b1b 100%)";
+    if (props.$intensity >= 60)
+      return "linear-gradient(135deg, #ea580c 0%, #c2410c 100%)";
+    if (props.$intensity >= 40)
+      return "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)";
+    if (props.$intensity >= 20)
+      return "linear-gradient(135deg, #eab308 0%, #ca8a04 100%)";
+    return "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+  }};
+  color: var(--color-grey-0);
+  transition: all 0.3s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: var(--shadow-lg);
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+`;
+
+const ZoneHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+
+  & svg {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+`;
+
+const ZoneName = styled.h4`
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
+`;
+
+const ZoneStats = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+`;
+
+const ZoneStat = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.3rem;
+`;
+
+const StatLabel = styled.span`
+  opacity: 0.9;
+`;
+
+const StatValue = styled.span`
+  font-weight: 700;
+  font-size: 1.5rem;
+`;
+
+const IntensityBar = styled.div<{ $intensity: number }>`
+  width: 100%;
+  height: 0.6rem;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 100px;
+  margin-top: 1.2rem;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    display: block;
+    width: ${(props) => props.$intensity}%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 100px;
+    transition: width 0.5s ease-out;
+  }
+`;
+
+const HeatmapLegend = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2.4rem;
+  padding: 1.6rem;
+  background-color: var(--color-grey-50);
+  border-radius: var(--border-radius-md);
+`;
+
+const LegendItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+`;
+
+const LegendColor = styled.div<{ $color: string }>`
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.4rem;
+  background: ${(props) => props.$color};
+`;
+
+const LegendLabel = styled.span`
+  font-size: 1.3rem;
+  color: var(--color-grey-700);
+  font-weight: 500;
+`;
+
 // Mock Data
 const periodOptions = [
   { value: "7days", label: "Last 7 Days" },
@@ -267,8 +458,71 @@ const topClients = [
   { name: "Café des Arts", type: "Café", orders: 42, revenue: 18500 },
 ];
 
+// Delivery Heatmap Data (zones with delivery activity)
+const deliveryHeatmapData = [
+  {
+    zone: "Tunis Center",
+    deliveries: 245,
+    avgTime: 22,
+    onTimeRate: 98,
+    intensity: 95,
+  },
+  {
+    zone: "Lac 2 & Berges du Lac",
+    deliveries: 189,
+    avgTime: 25,
+    onTimeRate: 97,
+    intensity: 82,
+  },
+  {
+    zone: "Ariana & Menzah",
+    deliveries: 156,
+    avgTime: 28,
+    onTimeRate: 96,
+    intensity: 68,
+  },
+  {
+    zone: "La Marsa & Gammarth",
+    deliveries: 134,
+    avgTime: 32,
+    onTimeRate: 94,
+    intensity: 58,
+  },
+  {
+    zone: "Ben Arous",
+    deliveries: 98,
+    avgTime: 26,
+    onTimeRate: 95,
+    intensity: 42,
+  },
+  {
+    zone: "Bizerte",
+    deliveries: 67,
+    avgTime: 45,
+    onTimeRate: 91,
+    intensity: 29,
+  },
+  {
+    zone: "Nabeul",
+    deliveries: 54,
+    avgTime: 38,
+    onTimeRate: 92,
+    intensity: 23,
+  },
+  {
+    zone: "Sousse",
+    deliveries: 43,
+    avgTime: 52,
+    onTimeRate: 89,
+    intensity: 18,
+  },
+];
+
 function Analytics() {
   const [selectedPeriod, setSelectedPeriod] = useState("30days");
+  const [startDate, setStartDate] = useState("2025-09-11");
+  const [endDate, setEndDate] = useState("2025-10-11");
+  const [useCustomRange, setUseCustomRange] = useState(false);
 
   // Calculate stats
   const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenue, 0);
@@ -279,6 +533,70 @@ function Analytics() {
   const avgDeliveryTime = 28; // minutes
   const onTimeRate = 98; // percentage
 
+  const handleExportReport = () => {
+    // Generate CSV data
+    const csvData = [
+      [
+        "Analytics Report",
+        `Period: ${
+          useCustomRange ? `${startDate} to ${endDate}` : selectedPeriod
+        }`,
+      ],
+      [""],
+      ["Key Metrics"],
+      ["Metric", "Value"],
+      ["Total Revenue", `${totalRevenue.toLocaleString()} TND`],
+      ["Total Orders", totalOrders],
+      ["Average Order Value", `${avgOrderValue.toFixed(2)} TND`],
+      ["On-Time Delivery Rate", `${onTimeRate}%`],
+      [""],
+      ["Top Products"],
+      ["Rank", "Product", "Category", "Units Sold", "Revenue (TND)"],
+      ...topProducts.map((p, i) => [
+        i + 1,
+        p.name,
+        p.category,
+        p.units,
+        p.revenue,
+      ]),
+      [""],
+      ["Top Clients"],
+      ["Rank", "Client", "Type", "Orders", "Revenue (TND)"],
+      ...topClients.map((c, i) => [i + 1, c.name, c.type, c.orders, c.revenue]),
+      [""],
+      ["Delivery Heatmap"],
+      ["Zone", "Deliveries", "Avg Time (min)", "On-Time Rate (%)"],
+      ...deliveryHeatmapData.map((z) => [
+        z.zone,
+        z.deliveries,
+        z.avgTime,
+        z.onTimeRate,
+      ]),
+    ];
+
+    // Convert to CSV string
+    const csvContent = csvData.map((row) => row.join(",")).join("\n");
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `analytics_report_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handlePeriodChange = (value: string) => {
+    setSelectedPeriod(value);
+    setUseCustomRange(value === "custom");
+  };
+
   return (
     <AnalyticsLayout>
       {/* Header */}
@@ -288,8 +606,28 @@ function Analytics() {
           <Select
             options={periodOptions}
             value={selectedPeriod}
-            onChange={(e) => setSelectedPeriod(e.target.value)}
+            onChange={(e) => handlePeriodChange(e.target.value)}
           />
+          {useCustomRange && (
+            <DateRangeInputs>
+              <DateLabel>From:</DateLabel>
+              <DateInput
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+              <DateLabel>To:</DateLabel>
+              <DateInput
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </DateRangeInputs>
+          )}
+          <ExportButton onClick={handleExportReport}>
+            <HiOutlineArrowDownTray />
+            Export Report
+          </ExportButton>
         </FiltersBar>
       </Row>
 
@@ -514,6 +852,67 @@ function Analytics() {
           </TopItemsList>
         </ChartCard>
       </Grid2Cols>
+
+      {/* Delivery Heatmap */}
+      <ChartCard>
+        <ChartHeader>
+          <ChartTitle>
+            🗺️ Delivery Activity Heatmap - Most Active Zones
+          </ChartTitle>
+          <TrendBadge $isPositive={true}>
+            <HiOutlineMapPin />
+            {deliveryHeatmapData.reduce((sum, z) => sum + z.deliveries, 0)}{" "}
+            total deliveries
+          </TrendBadge>
+        </ChartHeader>
+        <HeatmapGrid>
+          {deliveryHeatmapData.map((zone) => (
+            <ZoneCard key={zone.zone} $intensity={zone.intensity}>
+              <ZoneHeader>
+                <HiOutlineMapPin />
+                <ZoneName>{zone.zone}</ZoneName>
+              </ZoneHeader>
+              <ZoneStats>
+                <ZoneStat>
+                  <StatLabel>Deliveries:</StatLabel>
+                  <StatValue>{zone.deliveries}</StatValue>
+                </ZoneStat>
+                <ZoneStat>
+                  <StatLabel>Avg Time:</StatLabel>
+                  <StatValue>{zone.avgTime} min</StatValue>
+                </ZoneStat>
+                <ZoneStat>
+                  <StatLabel>On-Time:</StatLabel>
+                  <StatValue>{zone.onTimeRate}%</StatValue>
+                </ZoneStat>
+              </ZoneStats>
+              <IntensityBar $intensity={zone.intensity} />
+            </ZoneCard>
+          ))}
+        </HeatmapGrid>
+        <HeatmapLegend>
+          <LegendItem>
+            <LegendColor $color="linear-gradient(135deg, #dc2626 0%, #991b1b 100%)" />
+            <LegendLabel>Very High (80%+)</LegendLabel>
+          </LegendItem>
+          <LegendItem>
+            <LegendColor $color="linear-gradient(135deg, #ea580c 0%, #c2410c 100%)" />
+            <LegendLabel>High (60-79%)</LegendLabel>
+          </LegendItem>
+          <LegendItem>
+            <LegendColor $color="linear-gradient(135deg, #f59e0b 0%, #d97706 100%)" />
+            <LegendLabel>Medium (40-59%)</LegendLabel>
+          </LegendItem>
+          <LegendItem>
+            <LegendColor $color="linear-gradient(135deg, #eab308 0%, #ca8a04 100%)" />
+            <LegendLabel>Low (20-39%)</LegendLabel>
+          </LegendItem>
+          <LegendItem>
+            <LegendColor $color="linear-gradient(135deg, #10b981 0%, #059669 100%)" />
+            <LegendLabel>Very Low (0-19%)</LegendLabel>
+          </LegendItem>
+        </HeatmapLegend>
+      </ChartCard>
     </AnalyticsLayout>
   );
 }
