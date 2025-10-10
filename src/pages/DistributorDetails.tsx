@@ -17,6 +17,7 @@ import Row from "../UI/Row";
 import Button from "../UI/Button";
 import Modal from "../UI/Modal";
 import ConfirmDelete from "../UI/ConfirmDelete";
+import DistributorForm from "../components/DistributorForm";
 
 // Styled Components
 const DetailsLayout = styled.div`
@@ -326,7 +327,22 @@ function DistributorDetails() {
               </Button>
             </Modal.Open>
             <Modal.Window name="edit-distributor">
-              <div>Edit form coming soon</div>
+              <DistributorForm
+                distributorToEdit={{
+                  id: distributor.id,
+                  name: distributor.name,
+                  phone: distributor.phone,
+                  email: distributor.email,
+                  zone: distributor.zone,
+                  vehicle: {
+                    type: distributor.vehicle.type,
+                    plate: distributor.vehicle.plate,
+                    capacity: distributor.vehicle.capacity,
+                  },
+                  status: distributor.status,
+                }}
+                onCloseModal={() => {}}
+              />
             </Modal.Window>
           </Modal>
 
