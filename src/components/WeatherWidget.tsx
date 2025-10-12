@@ -343,7 +343,7 @@ function WeatherWidget({ city = "Tunis", country = "TN" }: WeatherWidgetProps) {
     } catch (error) {
       console.error("Error fetching weather:", error);
 
-      // Fallback to mock data if API fails
+      // mock data if API fails
       const mockWeather: WeatherData = {
         temp: 25,
         feelsLike: 26,

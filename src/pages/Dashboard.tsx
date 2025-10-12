@@ -624,7 +624,7 @@ function Dashboard() {
         <div
           style={{ display: "flex", flexDirection: "column", gap: "2.4rem" }}
         >
-          {/* Weather Widget - ADD THIS */}
+          {/* Weather Widget  */}
           <Section>
             <SectionHeader>
               <Heading as="h2">Weather Forecast</Heading>
@@ -632,7 +632,7 @@ function Dashboard() {
             <WeatherWidget city="Tunis" country="TN" />
           </Section>
 
-          {/* Delivery Calendar - ADD THIS */}
+          {/* Delivery Calendar */}
           <Section>
             <SectionHeader>
               <Heading as="h2">Delivery Schedule</Heading>
