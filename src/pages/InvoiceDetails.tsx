@@ -429,16 +429,28 @@ function InvoiceDetails() {
                 />
                 Send Reminder
               </Button>
-              <Button
-                $variation="primary"
-                $size="medium"
-                onClick={handleRecordPayment}
-              >
-                <HiOutlineCurrencyDollar
-                  style={{ width: "2rem", height: "2rem" }}
-                />
-                Record Payment
-              </Button>
+              <Modal>
+                <Modal.Open opens="record-payment">
+                  <Button $variation="primary" $size="medium">
+                    <HiOutlineCurrencyDollar
+                      style={{ width: "2rem", height: "2rem" }}
+                    />
+                    Record Payment
+                  </Button>
+                </Modal.Open>
+                <Modal.Window name="record-payment">
+                  <PaymentForm
+                    invoice={{
+                      invoiceNumber: invoice.invoiceNumber,
+                      clientName: invoice.client.name,
+                      totalAmount: invoice.total,
+                      paidAmount: invoice.paidAmount,
+                      remainingAmount: invoice.remainingAmount,
+                    }}
+                    onCloseModal={() => {}}
+                  />
+                </Modal.Window>
+              </Modal>
             </>
           )}
         </ActionButtons>
