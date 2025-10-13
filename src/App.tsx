@@ -17,6 +17,8 @@ import DeliveryDetails from "./pages/DeliveryDetails";
 import Distributors from "./pages/Distributors";
 import DistributorDetails from "./pages/DistributorDetails";
 import Analytics from "./pages/Analytics";
+import Invoices from "./pages/Invoices";
+import InvoiceDetails from "./pages/InvoiceDetails";
 
 type User = {
   name: string;
@@ -117,6 +119,9 @@ function App() {
               element={<DistributorDetails />}
             />
             <Route path="analytics" element={<Analytics />} />
+
+            <Route path="invoices" element={<Invoices />} />
+            <Route path="invoices/:invoiceId" element={<InvoiceDetails />} />
           </Route>
 
           {/* 404 Page */}
