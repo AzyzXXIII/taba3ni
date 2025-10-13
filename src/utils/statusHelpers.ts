@@ -2,6 +2,7 @@ import type { OrderStatus, PaymentStatus, Status } from "../types/status";
 
 // Status colors configuration
 export const statusColors: Record<Status, { bg: string; text: string }> = {
+  // Order statuses
   pending: {
     bg: "var(--color-yellow-100)",
     text: "var(--color-yellow-700)",
