@@ -19,7 +19,6 @@ import Row from "../UI/Row";
 import Button from "../UI/Button";
 import Modal from "../UI/Modal";
 import Timeline from "../UI/Timeline";
-
 import PaymentForm from "../components/PaymentForm";
 
 // Styled Components
@@ -363,19 +362,166 @@ function InvoiceDetails() {
 
   const invoice = mockInvoiceDetails;
 
+  // PDF Generation Function
   const handleDownloadPDF = () => {
-    console.log("Downloading PDF for:", invoice.invoiceNumber);
-    // TODO: Generate and download PDF
+    console.log("Generating PDF for:", invoice.invoiceNumber);
+
+    // Create HTML content for PDF
+    const invoiceHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Invoice ${invoice.invoiceNumber}</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
+          .header { display: flex; justify-content: space-between; margin-bottom: 40px; border-bottom: 3px solid #145DA0; padding-bottom: 20px; }
+          .company-info h1 { color: #145DA0; font-size: 28px; margin-bottom: 10px; }
+          .company-info p { font-size: 12px; color: #666; line-height: 1.6; }
+          .invoice-info { text-align: right; }
+          .invoice-info h2 { font-size: 32px; color: #333; margin-bottom: 10px; }
+          .invoice-info p { font-size: 12px; color: #666; line-height: 1.6; }
+          .section { margin-bottom: 30px; }
+          .section-title { font-size: 14px; font-weight: bold; text-transform: uppercase; color: #145DA0; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px; }
+          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+          .info-block h3 { font-size: 11px; text-transform: uppercase; color: #999; margin-bottom: 8px; }
+          .info-block p { font-size: 13px; margin: 4px 0; }
+          table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+          th { background: #f5f5f5; padding: 12px; text-align: left; font-size: 11px; text-transform: uppercase; color: #666; border-bottom: 2px solid #ddd; }
+          td { padding: 12px; font-size: 13px; border-bottom: 1px solid #eee; }
+          .text-right { text-align: right; }
+          .total-section { margin-top: 30px; padding-top: 20px; border-top: 2px solid #ddd; }
+          .total-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
+          .total-row.highlight { font-size: 18px; font-weight: bold; color: #145DA0; margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd; }
+          .paid { color: #10b981; }
+          .due { color: #ef4444; }
+          .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #ddd; font-size: 11px; color: #666; font-style: italic; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="company-info">
+            <h1>🥛 Taba3ni Dairy</h1>
+            <p>Distribution Management</p>
+            <p>Avenue Habib Bourguiba, Tunis</p>
+            <p>Phone: +216 71 000 000</p>
+            <p>Tax ID: TN-123456789</p>
+          </div>
+          <div class="invoice-info">
+            <h2>INVOICE</h2>
+            <p><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
+            <p><strong>Issue Date:</strong> ${invoice.issueDate}</p>
+            <p><strong>Due Date:</strong> ${invoice.dueDate}</p>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Bill To</div>
+          <div class="info-grid">
+            <div class="info-block">
+              <h3>Client Information</h3>
+              <p><strong>${invoice.client.name}</strong></p>
+              <p>${invoice.client.address}, ${invoice.client.city}</p>
+            </div>
+            <div class="info-block">
+              <h3>Contact Details</h3>
+              <p>Phone: ${invoice.client.phone}</p>
+              <p>Email: ${invoice.client.email}</p>
+              <p>Tax ID: ${invoice.client.taxId}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Order Details</div>
+          <p>Related Order: <strong>#${invoice.orderId}</strong></p>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Items</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th class="text-right">Quantity</th>
+                <th class="text-right">Unit Price</th>
+                <th class="text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${invoice.items
+                .map(
+                  (item) => `
+                <tr>
+                  <td>${item.name}</td>
+                  <td class="text-right">${item.quantity}</td>
+                  <td class="text-right">${item.price.toFixed(2)} TND</td>
+                  <td class="text-right"><strong>${item.total.toFixed(
+                    2
+                  )} TND</strong></td>
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+          </table>
+
+          <div class="total-section">
+            <div class="total-row">
+              <span>Subtotal:</span>
+              <span>${invoice.subtotal.toFixed(2)} TND</span>
+            </div>
+            <div class="total-row">
+              <span>Tax (18% TVA):</span>
+              <span>${invoice.tax.toFixed(2)} TND</span>
+            </div>
+            <div class="total-row highlight">
+              <span>Total Amount:</span>
+              <span>${invoice.total.toFixed(2)} TND</span>
+            </div>
+            <div class="total-row paid">
+              <span>Paid Amount:</span>
+              <span>-${invoice.paidAmount.toFixed(2)} TND</span>
+            </div>
+            <div class="total-row highlight due">
+              <span>Amount Due:</span>
+              <span>${invoice.remainingAmount.toFixed(2)} TND</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <p><strong>Payment Terms:</strong> Payment is due within 30 days of invoice date. Late payments may be subject to additional charges.</p>
+          <p><strong>Bank Details:</strong> IBAN: TN59 1000 0000 0000 0000 0000 0000 | BIC: BFTNTNTT</p>
+          <p style="margin-top: 20px; text-align: center;">Thank you for your business!</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // Create a blob and download
+    const blob = new Blob([invoiceHTML], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Invoice_${invoice.invoiceNumber}.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    // Note: For actual PDF, you would use a library like jsPDF or call a backend API
+    console.log(
+      "✅ Invoice HTML downloaded. You can open it and print to PDF from your browser."
+    );
   };
 
   const handleSendReminder = () => {
     console.log("Sending reminder to:", invoice.client.email);
-    // TODO: Send email reminder
-  };
-
-  const handleRecordPayment = () => {
-    console.log("Recording payment for:", invoice.invoiceNumber);
-    // TODO: Open payment modal
+    alert(
+      `📧 Payment reminder sent to ${invoice.client.email}\n\nReminder: Invoice ${invoice.invoiceNumber} - Amount Due: ${invoice.remainingAmount} TND`
+    );
   };
 
   const getStatusIcon = (status: string) => {
@@ -702,16 +848,28 @@ function InvoiceDetails() {
                   gap: "1.2rem",
                 }}
               >
-                <Button
-                  $variation="primary"
-                  $size="medium"
-                  onClick={handleRecordPayment}
-                >
-                  <HiOutlineCurrencyDollar
-                    style={{ width: "2rem", height: "2rem" }}
-                  />
-                  Record Payment
-                </Button>
+                <Modal>
+                  <Modal.Open opens="record-payment-quick">
+                    <Button $variation="primary" $size="medium">
+                      <HiOutlineCurrencyDollar
+                        style={{ width: "2rem", height: "2rem" }}
+                      />
+                      Record Payment
+                    </Button>
+                  </Modal.Open>
+                  <Modal.Window name="record-payment-quick">
+                    <PaymentForm
+                      invoice={{
+                        invoiceNumber: invoice.invoiceNumber,
+                        clientName: invoice.client.name,
+                        totalAmount: invoice.total,
+                        paidAmount: invoice.paidAmount,
+                        remainingAmount: invoice.remainingAmount,
+                      }}
+                      onCloseModal={() => {}}
+                    />
+                  </Modal.Window>
+                </Modal>
                 <Button
                   $variation="secondary"
                   $size="medium"
