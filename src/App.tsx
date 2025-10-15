@@ -21,6 +21,9 @@ import Invoices from "./pages/Invoices";
 import InvoiceDetails from "./pages/InvoiceDetails";
 import InvoiceForm from "./components/InvoiceForm";
 
+import { NotificationsProvider } from "./hooks/useNotifications";
+import { NotificationToast } from "./components/NotificationToast";
+
 type User = {
   name: string;
   email: string;
@@ -66,71 +69,78 @@ function App() {
 
   return (
     <>
-      <GlobalStyles />
-      <BrowserRouter>
-        <Routes>
-          {/* Public Routes */}
-          <Route
-            path="/login"
-            element={
-              isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
-            }
-          />
-
-          {/* Protected Routes */}
-          <Route
-            element={
-              isAuthenticated && user ? (
-                <AppLayout
-                  role={user.role}
-                  userName={user.name}
-                  unreadNotifications={user.notifications}
-                  companyName="Taba3ni Dairy"
-                />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          >
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<Dashboard />} />
-
-            {/* Orders */}
-            <Route path="orders" element={<Orders />} />
-            <Route path="orders/:orderId" element={<OrderDetails />} />
-
-            {/* Products */}
-            <Route path="products" element={<Products />} />
-
-            {/* Clients */}
-            <Route path="clients" element={<Clients />} />
-            <Route path="clients/:clientId" element={<ClientDetails />} />
-
-            {/* Deliveries - NEW */}
-            <Route path="deliveries" element={<Deliveries />} />
+      <NotificationsProvider>
+        <GlobalStyles />
+        <BrowserRouter>
+          <Routes>
+            {/* Public Routes */}
             <Route
-              path="deliveries/:deliveryId"
-              element={<DeliveryDetails />}
+              path="/login"
+              element={
+                isAuthenticated ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <Login />
+                )
+              }
             />
 
-            {/* Distributors - NEW */}
-            <Route path="distributors" element={<Distributors />} />
+            {/* Protected Routes */}
             <Route
-              path="distributors/:distributorId"
-              element={<DistributorDetails />}
-            />
-            <Route path="analytics" element={<Analytics />} />
+              element={
+                isAuthenticated && user ? (
+                  <AppLayout
+                    role={user.role}
+                    userName={user.name}
+                    unreadNotifications={user.notifications}
+                    companyName="Taba3ni Dairy"
+                  />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            >
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<Dashboard />} />
 
-            <Route path="invoices" element={<Invoices />} />
-            <Route path="invoices/:invoiceId" element={<InvoiceDetails />} />
-            <Route path="invoices/new" element={<InvoiceForm />} />
-            <Route path="invoices/:invoiceId" element={<InvoiceDetails />} />
-          </Route>
+              {/* Orders */}
+              <Route path="orders" element={<Orders />} />
+              <Route path="orders/:orderId" element={<OrderDetails />} />
 
-          {/* 404 Page */}
-          <Route path="*" element={<PageNotFound />} />
-        </Routes>
-      </BrowserRouter>
+              {/* Products */}
+              <Route path="products" element={<Products />} />
+
+              {/* Clients */}
+              <Route path="clients" element={<Clients />} />
+              <Route path="clients/:clientId" element={<ClientDetails />} />
+
+              {/* Deliveries - NEW */}
+              <Route path="deliveries" element={<Deliveries />} />
+              <Route
+                path="deliveries/:deliveryId"
+                element={<DeliveryDetails />}
+              />
+
+              {/* Distributors - NEW */}
+              <Route path="distributors" element={<Distributors />} />
+              <Route
+                path="distributors/:distributorId"
+                element={<DistributorDetails />}
+              />
+              <Route path="analytics" element={<Analytics />} />
+
+              <Route path="invoices" element={<Invoices />} />
+              <Route path="invoices/:invoiceId" element={<InvoiceDetails />} />
+              <Route path="invoices/new" element={<InvoiceForm />} />
+              <Route path="invoices/:invoiceId" element={<InvoiceDetails />} />
+            </Route>
+
+            {/* 404 Page */}
+            <Route path="*" element={<PageNotFound />} />
+          </Routes>
+        </BrowserRouter>
+        <NotificationToast />
+      </NotificationsProvider>
     </>
   );
 }

@@ -18,6 +18,7 @@ import SearchBar from "../UI/SearchBar";
 import Menus from "../UI/Menus";
 import Modal from "../UI/Modal";
 import StatsCard from "../UI/StatsCard";
+import { useNotifications } from "../hooks/useNotifications";
 
 // Styled Components
 const InvoicesLayout = styled.div`
@@ -284,6 +285,12 @@ function Invoices() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const { addNotification } = useNotifications(); // ← Add this
+
+  const handleViewInvoice = (invoiceId: string) => {
+    addNotification("📄 Opening Invoice", `Loading invoice details...`, "info");
+    navigate(`/invoices/${invoiceId}`);
+  };
   // Filter invoices
   const filteredInvoices = mockInvoices.filter((invoice) => {
     const matchesStatus =
@@ -306,18 +313,42 @@ function Invoices() {
     overdue: mockInvoices.filter((inv) => inv.status === "overdue").length,
   };
 
-  const handleViewInvoice = (invoiceId: string) => {
-    navigate(`/invoices/${invoiceId}`);
-  };
+  // (Removed duplicate handleViewInvoice)
 
   const handleDownloadInvoice = (invoice: Invoice) => {
+    addNotification(
+      "⬇️ Downloading",
+      `Invoice ${invoice.invoiceNumber} is being prepared...`,
+      "info"
+    );
     console.log("Download invoice:", invoice.invoiceNumber);
-    // TODO: Generate PDF
+
+    // After download completes:
+    setTimeout(() => {
+      addNotification(
+        "✅ Download Complete",
+        `Invoice ${invoice.invoiceNumber} downloaded successfully`,
+        "success"
+      );
+    }, 2000);
   };
 
   const handleSendReminder = (invoice: Invoice) => {
-    console.log("Send reminder to:", invoice.client.email);
-    // TODO: Send email reminder
+    addNotification(
+      "📧 Sending Reminder",
+      `Payment reminder being sent to ${invoice.client.email}...`,
+      "info"
+    );
+
+    // Simulate sending
+    setTimeout(() => {
+      addNotification(
+        "✅ Reminder Sent",
+        `Payment reminder sent to ${invoice.client.name}`,
+        "success",
+        5000
+      );
+    }, 1500);
   };
 
   const isOverdue = (dueDate: string, status: PaymentStatus) => {

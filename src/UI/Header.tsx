@@ -5,6 +5,8 @@ import { useState } from "react";
 import ButtonIcon from "./ButtonIcon";
 import HeaderMenu from "./HeaderMenu";
 
+import { NotificationsPanel } from "../components/NotificationsPanel";
+
 const StyledHeader = styled.header`
   background-color: var(--color-grey-0);
   padding: 1.2rem 4.8rem;
@@ -125,19 +127,7 @@ function Header({
         </ButtonIcon>
 
         {/* Notifications */}
-        <NotificationButton>
-          <ButtonIcon
-            onClick={() => navigate("/notifications")}
-            title="Notifications"
-          >
-            <HiOutlineBell />
-          </ButtonIcon>
-          {unreadNotifications > 0 && (
-            <Badge>
-              {unreadNotifications > 9 ? "9+" : unreadNotifications}
-            </Badge>
-          )}
-        </NotificationButton>
+        <NotificationsPanel />
 
         {/* User Info */}
         <UserInfo>
