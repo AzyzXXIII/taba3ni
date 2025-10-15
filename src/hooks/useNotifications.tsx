@@ -3,7 +3,7 @@ import {
   useCallback,
   useContext,
   createContext,
-  ReactNode,
+  type ReactNode,
 } from "react";
 
 // Types
@@ -39,7 +39,7 @@ interface NotificationsContextType {
   clearAll: () => void;
 }
 
-export const NotificationsContext = createContext<
+const NotificationsContext = createContext<
   NotificationsContextType | undefined
 >(undefined);
 
@@ -67,7 +67,6 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
 
       setNotifications((prev) => [newNotification, ...prev]);
 
-      // Auto-remove after duration (if duration > 0)
       if (duration > 0) {
         setTimeout(() => {
           removeNotification(id);
@@ -97,18 +96,18 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
+  const value: NotificationsContextType = {
+    notifications,
+    unreadCount,
+    addNotification,
+    removeNotification,
+    markAsRead,
+    markAllAsRead,
+    clearAll,
+  };
+
   return (
-    <NotificationsContext.Provider
-      value={{
-        notifications,
-        unreadCount,
-        addNotification,
-        removeNotification,
-        markAsRead,
-        markAllAsRead,
-        clearAll,
-      }}
-    >
+    <NotificationsContext.Provider value={value}>
       {children}
     </NotificationsContext.Provider>
   );

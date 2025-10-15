@@ -8,8 +8,9 @@ import {
   HiOutlineXCircle,
   HiOutlineTrash,
 } from "react-icons/hi2";
-import { useNotifications, NotificationType } from "../hooks/useNotifications";
-import ButtonIcon from "./ButtonIcon";
+import { useNotifications } from "../hooks/useNotifications";
+import type { NotificationType } from "../hooks/useNotifications";
+import ButtonIcon from "./../UI/ButtonIcon";
 
 // Styled Components
 const Container = styled.div`

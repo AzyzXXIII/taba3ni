@@ -6,7 +6,8 @@ import {
   HiOutlineXCircle,
   HiOutlineXMark,
 } from "react-icons/hi2";
-import { useNotifications, NotificationType } from "../hooks/useNotifications";
+import { useNotifications } from "../hooks/useNotifications";
+import type { NotificationType } from "../hooks/useNotifications";
 
 // Animations
 const slideIn = keyframes`
