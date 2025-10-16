@@ -176,11 +176,12 @@ function getIcon(type: NotificationType) {
 }
 
 export function NotificationToast() {
-  const { notifications, removeNotification, markAsRead } = useNotifications();
+  const { toastNotifications, removeNotification, markAsRead } =
+    useNotifications();
 
   return (
     <Container>
-      {notifications.map((notification) => (
+      {toastNotifications.map((notification) => (
         <Toast key={notification.id} $type={notification.type}>
           <IconWrapper $type={notification.type}>
             {getIcon(notification.type)}

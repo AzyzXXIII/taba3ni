@@ -288,7 +288,15 @@ function Invoices() {
   const { addNotification } = useNotifications(); // ← Add this
 
   const handleViewInvoice = (invoiceId: string) => {
-    addNotification("📄 Opening Invoice", `Loading invoice details...`, "info");
+    addNotification(
+      "📄 Opening Invoice",
+      `Loading invoice details...`,
+      "info",
+      {
+        duration: 3000,
+        persistent: true,
+      }
+    );
     navigate(`/invoices/${invoiceId}`);
   };
   // Filter invoices

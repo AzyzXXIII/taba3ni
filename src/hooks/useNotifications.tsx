@@ -21,17 +21,24 @@ export interface Notification {
     label: string;
     onClick: () => void;
   };
+  showToast?: boolean; // Whether to show as a toast popup
+  persistent?: boolean; // Whether to keep in notification panel
 }
 
 interface NotificationsContextType {
   notifications: Notification[];
+  toastNotifications: Notification[];
   unreadCount: number;
   addNotification: (
     title: string,
     message: string,
     type: NotificationType,
-    duration?: number,
-    action?: Notification["action"]
+    options?: {
+      duration?: number;
+      action?: Notification["action"];
+      showToast?: boolean;
+      persistent?: boolean;
+    }
   ) => void;
   removeNotification: (id: string) => void;
   markAsRead: (id: string) => void;
@@ -45,15 +52,29 @@ const NotificationsContext = createContext<
 
 export function NotificationsProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [toastNotifications, setToastNotifications] = useState<Notification[]>(
+    []
+  );
 
   const addNotification = useCallback(
     (
       title: string,
       message: string,
       type: NotificationType,
-      duration: number = 8000,
-      action?: Notification["action"]
+      options: {
+        duration?: number;
+        action?: Notification["action"];
+        showToast?: boolean;
+        persistent?: boolean;
+      } = {}
     ) => {
+      const {
+        duration = 5000,
+        action,
+        showToast = true,
+        persistent = true,
+      } = options;
+
       const id = `${Date.now()}-${Math.random()}`;
       const newNotification: Notification = {
         id,
@@ -63,14 +84,24 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
         timestamp: new Date(),
         read: false,
         action,
+        showToast,
+        persistent,
       };
 
-      setNotifications((prev) => [newNotification, ...prev]);
+      // Add to persistent notifications panel
+      if (persistent) {
+        setNotifications((prev) => [newNotification, ...prev]);
+      }
 
-      if (duration > 0) {
-        setTimeout(() => {
-          removeNotification(id);
-        }, duration);
+      // Add to toast notifications (temporary)
+      if (showToast) {
+        setToastNotifications((prev) => [newNotification, ...prev]);
+
+        if (duration > 0) {
+          setTimeout(() => {
+            setToastNotifications((prev) => prev.filter((n) => n.id !== id));
+          }, duration);
+        }
       }
     },
     []
@@ -78,6 +109,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
 
   const removeNotification = useCallback((id: string) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
+    setToastNotifications((prev) => prev.filter((n) => n.id !== id));
   }, []);
 
   const markAsRead = useCallback((id: string) => {
@@ -92,12 +124,14 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
 
   const clearAll = useCallback(() => {
     setNotifications([]);
+    setToastNotifications([]);
   }, []);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const value: NotificationsContextType = {
     notifications,
+    toastNotifications,
     unreadCount,
     addNotification,
     removeNotification,
