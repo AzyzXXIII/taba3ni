@@ -51,7 +51,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
       title: string,
       message: string,
       type: NotificationType,
-      duration: number = 5000,
+      duration: number = 8000,
       action?: Notification["action"]
     ) => {
       const id = `${Date.now()}-${Math.random()}`;
