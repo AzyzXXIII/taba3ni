@@ -8,6 +8,7 @@ import Button from "../UI/Button";
 import ButtonGroup from "../UI/ButtonGroup";
 import Heading from "../UI/Heading";
 import Select from "../UI/Select";
+import { useNotifications } from "../hooks/useNotifications";
 
 const ProductRow = styled.div`
   display: grid;
@@ -76,6 +77,23 @@ const SummaryRow = styled.div<{ $isTotal?: boolean }>`
   }
 `;
 
+const InfoBox = styled.div`
+  padding: 1.6rem;
+  background-color: var(--color-blue-100);
+  border-radius: var(--border-radius-sm);
+  margin-bottom: 2.4rem;
+
+  & p {
+    font-size: 1.3rem;
+    color: var(--color-blue-700);
+    margin-bottom: 0;
+  }
+
+  & strong {
+    font-weight: 600;
+  }
+`;
+
 type Product = {
   id: string;
   productId: string;
@@ -94,6 +112,9 @@ type OrderFormProps = {
     notes?: string;
   };
   onCloseModal: () => void;
+  userRole?: "admin" | "client";
+  clientId?: string;
+  clientName?: string;
 };
 
 // Mock data
@@ -106,30 +127,39 @@ const mockClients = [
 ];
 
 const mockProductsData = [
-  { id: "1", name: "Full Cream Milk (1L)", price: 15 },
-  { id: "2", name: "Greek Yogurt (500g)", price: 8 },
-  { id: "3", name: "Butter (250g)", price: 12 },
-  { id: "4", name: "Cheese (200g)", price: 18 },
-  { id: "5", name: "Skimmed Milk (1L)", price: 13 },
+  { id: "1", name: "Full Cream Milk (1L)", price: 15, stock: 250 },
+  { id: "2", name: "Greek Yogurt (500g)", price: 8, stock: 120 },
+  { id: "3", name: "Butter (250g)", price: 12, stock: 80 },
+  { id: "4", name: "Cheese (200g)", price: 18, stock: 15 },
+  { id: "5", name: "Skimmed Milk (1L)", price: 13, stock: 180 },
 ];
 
 const mockProducts = [
   { value: "", label: "Select a product..." },
   ...mockProductsData.map((p) => ({
     value: p.id,
-    label: `${p.name} - ${p.price} TND`,
+    label: `${p.name} - ${p.price} TND (Stock: ${p.stock})`,
   })),
 ];
 
 const TAX_RATE = 0.19;
 
-function OrderForm({ orderToEdit, onCloseModal }: OrderFormProps) {
+function OrderForm({
+  orderToEdit,
+  onCloseModal,
+  userRole = "admin",
+  clientId,
+  clientName,
+}: OrderFormProps) {
   const isEditMode = Boolean(orderToEdit);
+  const isClientMode = userRole === "client";
+  const { addNotification } = useNotifications();
 
-  const [client, setClient] = useState(orderToEdit?.client || "");
+  const [client, setClient] = useState(orderToEdit?.client || clientId || "");
   const [deliveryDate, setDeliveryDate] = useState(
     orderToEdit?.deliveryDate?.split(" ")[0] || ""
   );
+  const [deliveryAddress, setDeliveryAddress] = useState("");
   const [notes, setNotes] = useState(orderToEdit?.notes || "");
   const [products, setProducts] = useState<Product[]>(
     orderToEdit?.products || [
@@ -180,9 +210,19 @@ function OrderForm({ orderToEdit, onCloseModal }: OrderFormProps) {
   };
 
   const handleQuantityChange = (id: string, quantity: number) => {
+    const product = products.find((p) => p.id === id);
+    if (!product) return;
+
+    const productData = mockProductsData.find(
+      (p) => p.id === product.productId
+    );
+    const maxStock = productData?.stock || 999;
+
     setProducts(
       products.map((p) =>
-        p.id === id ? { ...p, quantity: Math.max(1, quantity) } : p
+        p.id === id
+          ? { ...p, quantity: Math.max(1, Math.min(quantity, maxStock)) }
+          : p
       )
     );
   };
@@ -200,13 +240,39 @@ function OrderForm({ orderToEdit, onCloseModal }: OrderFormProps) {
     const validProducts = products.filter((p) => p.productId && p.quantity > 0);
 
     if (validProducts.length === 0) {
-      alert("Please add at least one product");
+      addNotification(
+        "⚠️ No Products",
+        "Please add at least one product to your order",
+        "warning",
+        { duration: 5000, persistent: true }
+      );
+      return;
+    }
+
+    if (!deliveryDate) {
+      addNotification(
+        "⚠️ Missing Date",
+        "Please select a delivery date",
+        "warning",
+        { duration: 5000, persistent: true }
+      );
+      return;
+    }
+
+    if (isClientMode && !deliveryAddress) {
+      addNotification(
+        "⚠️ Missing Address",
+        "Please enter a delivery address",
+        "warning",
+        { duration: 5000, persistent: true }
+      );
       return;
     }
 
     const orderData = {
-      client,
+      client: isClientMode ? clientId : client,
       deliveryDate,
+      deliveryAddress: isClientMode ? deliveryAddress : undefined,
       products: validProducts,
       notes,
       subtotal: calculateSubtotal(),
@@ -215,26 +281,65 @@ function OrderForm({ orderToEdit, onCloseModal }: OrderFormProps) {
     };
 
     console.log(isEditMode ? "Updating order:" : "Creating order:", orderData);
+
+    addNotification(
+      "✅ Order " + (isEditMode ? "Updated" : "Placed") + " Successfully!",
+      `Your order for ${calculateTotal().toFixed(2)} TND has been ${
+        isEditMode ? "updated" : "submitted"
+      }`,
+      "success",
+      { duration: 6000, persistent: true }
+    );
+
     onCloseModal();
   };
+
+  // Get minimum date (today)
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <Form type="modal" onSubmit={handleSubmit}>
       <Heading as="h2">
         {isEditMode
           ? `Edit Order ${orderToEdit?.orderNumber}`
+          : isClientMode
+          ? "Place New Order"
           : "Create New Order"}
       </Heading>
 
-      <FormRow label="Client">
-        <Select
-          id="client"
-          options={mockClients}
-          value={client}
-          onChange={(e) => setClient(e.target.value)}
-          required
-        />
-      </FormRow>
+      {isClientMode && !isEditMode && (
+        <InfoBox>
+          <p>
+            <strong>💡 Quick Order:</strong> Select your products and delivery
+            date. We'll process your order within 24 hours.
+          </p>
+        </InfoBox>
+      )}
+
+      {/* Client Selection (Admin only) */}
+      {!isClientMode && (
+        <FormRow label="Client">
+          <Select
+            id="client"
+            options={mockClients}
+            value={client}
+            onChange={(e) => setClient(e.target.value)}
+            required
+          />
+        </FormRow>
+      )}
+
+      {/* Client Info Display (for clients) */}
+      {isClientMode && clientName && (
+        <FormRow label="Ordering As">
+          <Input
+            type="text"
+            value={clientName}
+            disabled
+            style={{ backgroundColor: "var(--color-grey-100)" }}
+          />
+        </FormRow>
+      )}
 
       <FormRow label="Delivery Date">
         <Input
@@ -242,9 +347,24 @@ function OrderForm({ orderToEdit, onCloseModal }: OrderFormProps) {
           id="deliveryDate"
           value={deliveryDate}
           onChange={(e) => setDeliveryDate(e.target.value)}
+          min={today}
           required
         />
       </FormRow>
+
+      {/* Delivery Address (Client only) */}
+      {isClientMode && (
+        <FormRow label="Delivery Address">
+          <Textarea
+            id="deliveryAddress"
+            placeholder="Enter full delivery address..."
+            value={deliveryAddress}
+            onChange={(e) => setDeliveryAddress(e.target.value)}
+            rows={2}
+            required
+          />
+        </FormRow>
+      )}
 
       {/* Products */}
       <div style={{ padding: "1.2rem 0" }}>
@@ -263,7 +383,7 @@ function OrderForm({ orderToEdit, onCloseModal }: OrderFormProps) {
             />
             <Input
               type="number"
-              placeholder="Quantity"
+              placeholder="Qty"
               min="1"
               value={product.quantity}
               onChange={(e) =>
@@ -332,7 +452,11 @@ function OrderForm({ orderToEdit, onCloseModal }: OrderFormProps) {
           Cancel
         </Button>
         <Button type="submit">
-          {isEditMode ? "Update Order" : "Create Order"}
+          {isEditMode
+            ? "Update Order"
+            : isClientMode
+            ? "Place Order"
+            : "Create Order"}
         </Button>
       </ButtonGroup>
     </Form>

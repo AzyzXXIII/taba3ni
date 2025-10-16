@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { HiOutlineEye, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi2";
 import Heading from "../UI/Heading";
-import Row from "../UI/Row";
+import Row from "../UI/Row"; // ← MAKE SURE THIS IS IMPORTED
 import Button from "../UI/Button";
 import StatusBadge from "../UI/StatusBadge";
 import { getStatusDisplay } from "../utils/statusHelpers";
@@ -179,6 +179,13 @@ type Order = {
   date: string;
 };
 
+// Add props type
+type OrdersProps = {
+  userRole?: "admin" | "distributor" | "client";
+  userId?: string;
+  userName?: string;
+};
+
 // ---------------- Mock Data ----------------
 const mockOrders: Order[] = [
   {
@@ -214,12 +221,10 @@ const mockOrders: Order[] = [
 ];
 
 // ---------------- Component ----------------
-function Orders() {
+function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
   const navigate = useNavigate();
-
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [orderToEdit, setOrderToEdit] = useState<EditableOrder>(null);
 
   // Filter orders
   const filteredOrders = mockOrders.filter((order) => {
@@ -250,15 +255,24 @@ function Orders() {
 
   return (
     <OrdersLayout>
-      {/* Header */}
+      {/* Header - Role-based */}
       <Row type="horizontal">
-        <Heading as="h1">Orders Management</Heading>
+        <Heading as="h1">
+          {userRole === "client" ? "My Orders" : "Orders Management"}
+        </Heading>
         <Modal>
           <Modal.Open opens="create-order">
-            <Button $size="medium">+ New Order</Button>
+            <Button $size="medium">
+              {userRole === "client" ? "+ Place New Order" : "+ New Order"}
+            </Button>
           </Modal.Open>
           <Modal.Window name="create-order">
-            <OrderForm onCloseModal={() => {}} />
+            <OrderForm
+              onCloseModal={() => {}}
+              userRole={userRole}
+              clientId={userRole === "client" ? userId : undefined}
+              clientName={userRole === "client" ? userName : undefined}
+            />
           </Modal.Window>
         </Modal>
       </Row>
@@ -388,53 +402,62 @@ function Orders() {
                             >
                               View Details
                             </Menus.Button>
-                            <Modal.Open opens={`edit-${order.id}`}>
-                              <Menus.Button icon={<HiOutlinePencil />}>
-                                Edit Order
-                              </Menus.Button>
-                            </Modal.Open>
-                            <Modal.Open opens="delete">
-                              <Menus.Button icon={<HiOutlineTrash />}>
-                                Delete Order
-                              </Menus.Button>
-                            </Modal.Open>
+                            {userRole === "admin" && (
+                              <>
+                                <Modal.Open opens={`edit-${order.id}`}>
+                                  <Menus.Button icon={<HiOutlinePencil />}>
+                                    Edit Order
+                                  </Menus.Button>
+                                </Modal.Open>
+                                <Modal.Open opens="delete">
+                                  <Menus.Button icon={<HiOutlineTrash />}>
+                                    Delete Order
+                                  </Menus.Button>
+                                </Modal.Open>
+                              </>
+                            )}
                           </Menus.List>
                         </Menus.Menu>
 
-                        <Modal.Window name={`edit-${order.id}`}>
-                          <OrderForm
-                            orderToEdit={{
-                              id: order.id,
-                              orderNumber: order.orderNumber,
-                              client: order.client,
-                              deliveryDate: order.date,
-                              products: [
-                                {
-                                  productId: "1",
-                                  name: "Full Cream Milk (1L)",
-                                  quantity: 50,
-                                  price: 15,
-                                },
-                                {
-                                  productId: "2",
-                                  name: "Greek Yogurt (500g)",
-                                  quantity: 30,
-                                  price: 8,
-                                },
-                              ],
-                              notes: "Sample order notes",
-                            }}
-                            onCloseModal={() => {}}
-                          />
-                        </Modal.Window>
+                        {userRole === "admin" && (
+                          <>
+                            <Modal.Window name={`edit-${order.id}`}>
+                              <OrderForm
+                                orderToEdit={{
+                                  id: order.id,
+                                  orderNumber: order.orderNumber,
+                                  client: order.client,
+                                  deliveryDate: order.date,
+                                  products: [
+                                    {
+                                      productId: "1",
+                                      name: "Full Cream Milk (1L)",
+                                      quantity: 50,
+                                      price: 15,
+                                    },
+                                    {
+                                      productId: "2",
+                                      name: "Greek Yogurt (500g)",
+                                      quantity: 30,
+                                      price: 8,
+                                    },
+                                  ],
+                                  notes: "Sample order notes",
+                                }}
+                                onCloseModal={() => {}}
+                                userRole={userRole}
+                              />
+                            </Modal.Window>
 
-                        <Modal.Window name="delete">
-                          <ConfirmDelete
-                            resourceName={`order ${order.orderNumber}`}
-                            onConfirm={() => handleDeleteOrder(order.id)}
-                            onCloseModal={() => {}}
-                          />
-                        </Modal.Window>
+                            <Modal.Window name="delete">
+                              <ConfirmDelete
+                                resourceName={`order ${order.orderNumber}`}
+                                onConfirm={() => handleDeleteOrder(order.id)}
+                                onCloseModal={() => {}}
+                              />
+                            </Modal.Window>
+                          </>
+                        )}
                       </Modal>
                     </div>
                   </TableRow>

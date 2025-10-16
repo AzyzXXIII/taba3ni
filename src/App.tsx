@@ -104,7 +104,17 @@ function App() {
               <Route path="dashboard" element={<Dashboard />} />
 
               {/* Orders */}
-              <Route path="orders" element={<Orders />} />
+              {/* Orders - Pass user role and info */}
+              <Route
+                path="orders"
+                element={
+                  <Orders
+                    userRole={user?.role}
+                    userId={user?.email}
+                    userName={user?.name}
+                  />
+                }
+              />
               <Route path="orders/:orderId" element={<OrderDetails />} />
 
               {/* Products */}
