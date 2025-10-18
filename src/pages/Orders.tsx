@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { HiOutlineEye, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi2";
 import Heading from "../UI/Heading";
-import Row from "../UI/Row"; // ← MAKE SURE THIS IS IMPORTED
+import Row from "../UI/Row";
 import Button from "../UI/Button";
 import StatusBadge from "../UI/StatusBadge";
 import { getStatusDisplay } from "../utils/statusHelpers";
@@ -14,7 +14,6 @@ import Modal from "../UI/Modal";
 import ConfirmDelete from "../UI/ConfirmDelete";
 import OrderForm from "../components/OrderForm";
 
-// ---------------- Styled Components ----------------
 const OrdersLayout = styled.div`
   display: flex;
   flex-direction: column;
