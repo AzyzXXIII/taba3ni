@@ -270,7 +270,23 @@ const AlertContent = styled.div`
   & p {
     font-size: 1.3rem;
     color: var(--color-grey-600);
-    margin: 0;
+    margin: 0 0 1rem 0;
+  }
+`;
+
+const AlertButton = styled.button`
+  padding: 0.6rem 1.2rem;
+  background-color: var(--color-grey-0);
+  border: 1px solid var(--color-grey-300);
+  border-radius: var(--border-radius-sm);
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: var(--color-grey-100);
+    transform: translateX(4px);
   }
 `;
 
@@ -449,11 +465,22 @@ const alerts = [
     type: "warning" as const,
     title: "Low Stock Alert",
     message: "3 products are running low on stock",
+    actionLabel: "View Products",
+    actionLink: "/products",
   },
   {
     type: "info" as const,
-    title: "Pending Deliveries",
-    message: "5 deliveries scheduled for today",
+    title: "Pending Orders",
+    message: "5 orders waiting for confirmation",
+    actionLabel: "Review Orders",
+    actionLink: "/orders?status=pending",
+  },
+  {
+    type: "warning" as const,
+    title: "Overdue Invoices",
+    message: "2 invoices are past due date",
+    actionLabel: "View Invoices",
+    actionLink: "/invoices?status=overdue",
   },
 ];
 
@@ -592,6 +619,9 @@ function Dashboard() {
               <AlertContent>
                 <h4>{alert.title}</h4>
                 <p>{alert.message}</p>
+                <AlertButton onClick={() => navigate(alert.actionLink)}>
+                  {alert.actionLabel} →
+                </AlertButton>
               </AlertContent>
             </AlertCard>
           ))}
