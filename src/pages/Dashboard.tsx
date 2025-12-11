@@ -343,7 +343,51 @@ const MapPlaceholder = styled.div`
     height: 4rem;
   }
 `;
+const TodayHighlight = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2.4rem;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: var(--border-radius-lg);
+  color: var(--color-grey-0);
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition: all 0.3s;
 
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(16, 185, 129, 0.3);
+  }
+`;
+
+const HighlightContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+
+  & h3 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  & p {
+    font-size: 3.2rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  & span {
+    font-size: 1.3rem;
+    opacity: 0.9;
+  }
+`;
+
+const HighlightIcon = styled.div`
+  font-size: 6rem;
+  opacity: 0.8;
+`;
 // Mock Data
 const mockStats = {
   totalRevenue: 145231,
@@ -523,6 +567,18 @@ function Dashboard() {
           }
         />
       </StatsGrid>
+
+      {/* Today's Deliveries Highlight */}
+      <TodayHighlight onClick={() => navigate("/deliveries")}>
+        <HighlightContent>
+          <h3>📦 Today's Deliveries</h3>
+          <p>{mockStats.activeDeliveries}</p>
+          <span>5 completed • 3 in progress • 2 pending</span>
+        </HighlightContent>
+        <HighlightIcon>
+          <HiOutlineTruck />
+        </HighlightIcon>
+      </TodayHighlight>
 
       {/* Alerts */}
       {alerts.length > 0 && (
