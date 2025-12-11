@@ -13,12 +13,13 @@ import {
 import Heading from "../UI/Heading";
 import Row from "../UI/Row";
 import StatsCard from "../UI/StatsCard";
+import Button from "../UI/Button";
 import StatusBadge from "../UI/StatusBadge";
 import { getStatusDisplay } from "../utils/statusHelpers";
 import type { OrderStatus } from "../types/status";
 import DeliveryCalendar from "../components/DeliveryCalendar";
 import WeatherWidget from "../components/WeatherWidget";
-
+import { useNotifications } from "../hooks/useNotifications";
 // Styled Components
 const DashboardLayout = styled.div`
   display: flex;
@@ -514,6 +515,47 @@ const recentActivity = [
 
 function Dashboard() {
   const navigate = useNavigate();
+  const { addNotification } = useNotifications();
+
+  const testNotifications = () => {
+    // Test 1: Success with high priority
+    addNotification(
+      "Order Placed Successfully",
+      "Your order #ORD-123 has been confirmed",
+      "success",
+      { priority: "high", playSound: true }
+    );
+
+    // Test 2: Warning with medium priority
+    setTimeout(() => {
+      addNotification(
+        "Low Stock Warning",
+        "Full Cream Milk is running low (only 5 units left)",
+        "warning",
+        { priority: "medium", playSound: true }
+      );
+    }, 2000);
+
+    // Test 3: Error with high priority
+    setTimeout(() => {
+      addNotification(
+        "Payment Failed",
+        "Unable to process payment for invoice #INV-456",
+        "error",
+        { priority: "high", playSound: true }
+      );
+    }, 4000);
+
+    // Test 4: Info with low priority (no sound)
+    setTimeout(() => {
+      addNotification(
+        "System Update",
+        "A new version is available. Update when ready.",
+        "info",
+        { priority: "low", playSound: false }
+      );
+    }, 6000);
+  };
 
   return (
     <DashboardLayout>
@@ -530,6 +572,7 @@ function Dashboard() {
             })}
           </p>
         </div>
+        <Button onClick={testNotifications}>🧪 Test Notifications</Button>
       </Row>
 
       {/* Stats Cards */}
