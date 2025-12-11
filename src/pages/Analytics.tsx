@@ -11,6 +11,7 @@ import {
   HiOutlineCalendar,
   HiOutlineMapPin,
 } from "react-icons/hi2";
+import { HiOutlinePrinter } from "react-icons/hi2";
 import {
   LineChart,
   Line,
@@ -32,6 +33,53 @@ import Heading from "../UI/Heading";
 import Row from "../UI/Row";
 import StatsCard from "../UI/StatsCard";
 import Select from "../UI/Select";
+
+const SummaryGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 1.6rem;
+  margin-bottom: 2.4rem;
+`;
+
+const SummaryCard = styled.div<{ $color: string }>`
+  padding: 2rem;
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.$color}15 0%,
+    ${(props) => props.$color}05 100%
+  );
+  border: 2px solid ${(props) => props.$color}40;
+  border-radius: var(--border-radius-md);
+  transition: all 0.3s;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px ${(props) => props.$color}30;
+    border-color: ${(props) => props.$color};
+  }
+
+  & h4 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--color-grey-600);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+    letter-spacing: 0.5px;
+  }
+
+  & .value {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: ${(props) => props.$color};
+    margin-bottom: 0.4rem;
+  }
+
+  & .subtext {
+    font-size: 1.2rem;
+    color: var(--color-grey-500);
+  }
+`;
 
 // Styled Components
 const AnalyticsLayout = styled.div`
@@ -166,6 +214,60 @@ const ItemMetric = styled.div`
   font-size: 1.2rem;
   color: var(--color-grey-500);
 `;
+const CustomTooltip = styled.div`
+  background-color: var(--color-grey-0);
+  border: 2px solid var(--color-brand-600);
+  border-radius: var(--border-radius-md);
+  padding: 1.6rem;
+  box-shadow: var(--shadow-lg);
+
+  & .tooltip-label {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--color-grey-900);
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--color-grey-200);
+  }
+
+  & .tooltip-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    font-size: 1.3rem;
+    margin: 0.4rem 0;
+  }
+
+  & .tooltip-name {
+    color: var(--color-grey-600);
+  }
+
+  & .tooltip-value {
+    font-weight: 700;
+    color: var(--color-brand-600);
+  }
+`;
+const CustomChartTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <CustomTooltip>
+        <div className="tooltip-label">{label}</div>
+        {payload.map((item: any, index: number) => (
+          <div key={index} className="tooltip-item">
+            <span className="tooltip-name">{item.name}:</span>
+            <span className="tooltip-value">
+              {item.name.includes("Revenue") || item.name.includes("Forecast")
+                ? `${item.value.toLocaleString()} TND`
+                : item.value}
+            </span>
+          </div>
+        ))}
+      </CustomTooltip>
+    );
+  }
+  return null;
+};
 
 const TrendBadge = styled.span<{ $isPositive: boolean }>`
   display: inline-flex;
@@ -201,7 +303,7 @@ const ExportButton = styled.button`
   transition: all 0.2s;
 
   &:hover {
-    background-color: var(--color-green-800);
+    background-color: var(--color-green-100);
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
   }
@@ -373,6 +475,57 @@ const LegendLabel = styled.span`
   color: var(--color-grey-700);
   font-weight: 500;
 `;
+const PrintButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1.6rem;
+  background-color: var(--color-blue-700);
+  color: var(--color-grey-0);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-size: 1.4rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: var(--color-blue-100);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  & svg {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+`;
+
+const ChartToggle = styled.div`
+  display: flex;
+  gap: 0.4rem;
+  background-color: var(--color-grey-100);
+  padding: 0.4rem;
+  border-radius: var(--border-radius-sm);
+`;
+const ToggleButton = styled.button<{ $active: boolean }>`
+  padding: 0.6rem 1.2rem;
+  border: none;
+  background-color: ${(props) =>
+    props.$active ? "var(--color-grey-0)" : "transparent"};
+  color: ${(props) =>
+    props.$active ? "var(--color-brand-600)" : "var(--color-grey-600)"};
+  border-radius: var(--border-radius-sm);
+  font-size: 1.3rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: ${(props) => (props.$active ? "var(--shadow-sm)" : "none")};
+
+  &:hover {
+    color: var(--color-brand-600);
+  }
+`;
 
 // Mock Data
 const periodOptions = [
@@ -380,6 +533,20 @@ const periodOptions = [
   { value: "30days", label: "Last 30 Days" },
   { value: "90days", label: "Last 90 Days" },
   { value: "year", label: "This Year" },
+];
+
+// Mock comparison data:
+const comparisonData = [
+  { date: "Oct 1", current: 12500, previous: 11200 },
+  { date: "Oct 2", current: 15300, previous: 13800 },
+  { date: "Oct 3", current: 18200, previous: 16500 },
+  { date: "Oct 4", current: 14800, previous: 13900 },
+  { date: "Oct 5", current: 19500, previous: 17200 },
+  { date: "Oct 6", current: 21300, previous: 19100 },
+  { date: "Oct 7", current: 17800, previous: 16400 },
+  { date: "Oct 8", current: 22100, previous: 19800 },
+  { date: "Oct 9", current: 20500, previous: 18700 },
+  { date: "Oct 10", current: 23800, previous: 21200 },
 ];
 
 // Revenue data for the chart
@@ -523,6 +690,10 @@ function Analytics() {
   const [startDate, setStartDate] = useState("2025-09-11");
   const [endDate, setEndDate] = useState("2025-10-11");
   const [useCustomRange, setUseCustomRange] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
+  const [revenueChartType, setRevenueChartType] = useState<"area" | "bar">(
+    "area"
+  );
 
   // Calculate stats
   const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenue, 0);
@@ -628,6 +799,34 @@ function Analytics() {
             <HiOutlineArrowDownTray />
             Export Report
           </ExportButton>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.8rem",
+              cursor: "pointer",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={showComparison}
+              onChange={(e) => setShowComparison(e.target.checked)}
+              style={{ width: "1.6rem", height: "1.6rem", cursor: "pointer" }}
+            />
+            <span
+              style={{
+                fontSize: "1.4rem",
+                fontWeight: 600,
+                color: "var(--color-grey-700)",
+              }}
+            >
+              Compare Periods
+            </span>
+          </label>
+          <PrintButton onClick={() => window.print()}>
+            <HiOutlinePrinter />
+            Print Report
+          </PrintButton>
         </FiltersBar>
       </Row>
 
@@ -675,55 +874,133 @@ function Analytics() {
         />
       </StatsRow>
 
+      {/* Performance Summary */}
+      <SummaryGrid>
+        <SummaryCard $color="#145DA0">
+          <h4>Best Selling Product</h4>
+          <div className="value">Full Cream Milk</div>
+          <div className="subtext">2,450 units sold</div>
+        </SummaryCard>
+
+        <SummaryCard $color="#10b981">
+          <h4>Top Client</h4>
+          <div className="value">Carrefour Lac 2</div>
+          <div className="subtext">125,400 TND revenue</div>
+        </SummaryCard>
+
+        <SummaryCard $color="#f59e0b">
+          <h4>Busiest Zone</h4>
+          <div className="value">Tunis Center</div>
+          <div className="subtext">245 deliveries</div>
+        </SummaryCard>
+
+        <SummaryCard $color="#8b5cf6">
+          <h4>Avg Delivery Time</h4>
+          <div className="value">28 min</div>
+          <div className="subtext">98% on-time rate</div>
+        </SummaryCard>
+      </SummaryGrid>
+
       {/* Revenue & Forecast Chart */}
       <ChartCard>
         <ChartHeader>
           <ChartTitle>Revenue Trend & Forecast</ChartTitle>
-          <TrendBadge $isPositive={true}>
-            <HiOutlineArrowTrendingUp />+{revenueGrowth}% vs last period
-          </TrendBadge>
+          <div style={{ display: "flex", gap: "1.6rem", alignItems: "center" }}>
+            <ChartToggle>
+              <ToggleButton
+                $active={revenueChartType === "area"}
+                onClick={() => setRevenueChartType("area")}
+              >
+                Area Chart
+              </ToggleButton>
+              <ToggleButton
+                $active={revenueChartType === "bar"}
+                onClick={() => setRevenueChartType("bar")}
+              >
+                Bar Chart
+              </ToggleButton>
+            </ChartToggle>
+            <TrendBadge $isPositive={true}>
+              <HiOutlineArrowTrendingUp />+{revenueGrowth}% vs last period
+            </TrendBadge>
+          </div>
         </ChartHeader>
         <ResponsiveContainer width="100%" height={350}>
-          <AreaChart data={revenueData}>
-            <defs>
-              <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#145DA0" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#145DA0" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis
-              dataKey="date"
-              tick={{ fill: "#666" }}
-              tickLine={{ stroke: "#ccc" }}
-            />
-            <YAxis tick={{ fill: "#666" }} tickLine={{ stroke: "#ccc" }} />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#fff",
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-              }}
-            />
-            <Legend />
-            <Area
-              type="monotone"
-              dataKey="revenue"
-              stroke="#145DA0"
-              strokeWidth={3}
-              fill="url(#colorRevenue)"
-              name="Actual Revenue (TND)"
-            />
-            <Line
-              type="monotone"
-              dataKey="forecast"
-              stroke="#82ca9d"
-              strokeWidth={2}
-              strokeDasharray="5 5"
-              dot={false}
-              name="Forecast (TND)"
-            />
-          </AreaChart>
+          {revenueChartType === "area" ? (
+            <AreaChart data={showComparison ? comparisonData : revenueData}>
+              <defs>
+                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#145DA0" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#145DA0" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="colorPrevious" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#94a3b8" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="date" tick={{ fill: "#666" }} />
+              <YAxis tick={{ fill: "#666" }} />
+              <Tooltip content={<CustomChartTooltip />} />
+              <Legend />
+
+              {showComparison ? (
+                <>
+                  <Area
+                    type="monotone"
+                    dataKey="current"
+                    stroke="#145DA0"
+                    strokeWidth={3}
+                    fill="url(#colorRevenue)"
+                    name="Current Period (TND)"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="previous"
+                    stroke="#94a3b8"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    fill="url(#colorPrevious)"
+                    name="Previous Period (TND)"
+                  />
+                </>
+              ) : (
+                <>
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#145DA0"
+                    strokeWidth={3}
+                    fill="url(#colorRevenue)"
+                    name="Actual Revenue (TND)"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="forecast"
+                    stroke="#82ca9d"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    dot={false}
+                    name="Forecast (TND)"
+                  />
+                </>
+              )}
+            </AreaChart>
+          ) : (
+            <BarChart data={revenueData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="date" tick={{ fill: "#666" }} />
+              <YAxis tick={{ fill: "#666" }} />
+              <Tooltip content={<CustomChartTooltip />} />
+              <Legend />
+              <Bar
+                dataKey="revenue"
+                fill="#145DA0"
+                name="Actual Revenue (TND)"
+              />
+              <Bar dataKey="forecast" fill="#82ca9d" name="Forecast (TND)" />
+            </BarChart>
+          )}
         </ResponsiveContainer>
       </ChartCard>
 
@@ -743,13 +1020,7 @@ function Analytics() {
                 tickLine={{ stroke: "#ccc" }}
               />
               <YAxis tick={{ fill: "#666" }} tickLine={{ stroke: "#ccc" }} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#fff",
-                  border: "1px solid #ccc",
-                  borderRadius: "8px",
-                }}
-              />
+              <Tooltip content={<CustomChartTooltip />} />
               <Legend />
               <Bar
                 dataKey="onTime"
@@ -794,7 +1065,7 @@ function Analytics() {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip content={<CustomChartTooltip />} />
             </PieChart>
           </ResponsiveContainer>
         </ChartCard>
