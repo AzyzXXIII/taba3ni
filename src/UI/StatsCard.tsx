@@ -1,7 +1,7 @@
 import styled from "styled-components";
-import type { ReactNode } from "react";
+import type { ReactNode, CSSProperties, MouseEvent } from "react";
 
-const Card = styled.div`
+const Card = styled.div<{ $clickable?: boolean }>`
   background-color: var(--color-grey-0);
   border: 1px solid var(--color-grey-100);
   border-radius: var(--border-radius-md);
@@ -10,6 +10,7 @@ const Card = styled.div`
   flex-direction: column;
   gap: 1.6rem;
   transition: all 0.3s;
+  ${(props) => props.$clickable && "cursor: pointer;"}
 
   &:hover {
     box-shadow: var(--shadow-md);
@@ -78,11 +79,31 @@ type StatsCardProps = {
     value: string;
     isPositive: boolean;
   };
+  onClick?: () => void;
+  onMouseEnter?: (e: MouseEvent<HTMLDivElement>) => void;
+  onMouseLeave?: (e: MouseEvent<HTMLDivElement>) => void;
+  style?: CSSProperties;
 };
 
-function StatsCard({ title, value, icon, color, trend }: StatsCardProps) {
+function StatsCard({
+  title,
+  value,
+  icon,
+  color,
+  trend,
+  onClick,
+  onMouseEnter,
+  onMouseLeave,
+  style,
+}: StatsCardProps) {
   return (
-    <Card>
+    <Card
+      $clickable={!!onClick}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      style={style}
+    >
       <Header>
         <Content>
           <Title>{title}</Title>

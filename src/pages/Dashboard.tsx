@@ -469,6 +469,14 @@ function Dashboard() {
           icon={<HiOutlineCurrencyDollar />}
           color="var(--color-green-700)"
           trend={{ value: "+12.5% from last month", isPositive: true }}
+          onClick={() => navigate("/analytics")}
+          style={{ cursor: "pointer", transition: "transform 0.2s" }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-4px)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+          }}
         />
         <StatsCard
           title="Total Orders"
@@ -476,12 +484,28 @@ function Dashboard() {
           icon={<HiOutlineShoppingCart />}
           color="var(--color-blue-700)"
           trend={{ value: "+8.2% from last month", isPositive: true }}
+          onClick={() => navigate("/orders")}
+          style={{ cursor: "pointer", transition: "transform 0.2s" }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.transform = "translateY(-4px)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.transform = "translateY(0)")
+          }
         />
         <StatsCard
           title="Active Deliveries"
           value={mockStats.activeDeliveries}
           icon={<HiOutlineTruck />}
           color="var(--color-brand-600)"
+          onClick={() => navigate("/deliveries")}
+          style={{ cursor: "pointer", transition: "transform 0.2s" }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.transform = "translateY(-4px)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.transform = "translateY(0)")
+          }
         />
         <StatsCard
           title="Total Clients"
@@ -489,6 +513,14 @@ function Dashboard() {
           icon={<HiOutlineUsers />}
           color="var(--color-yellow-700)"
           trend={{ value: "+3 new this week", isPositive: true }}
+          onClick={() => navigate("/clients")}
+          style={{ cursor: "pointer", transition: "transform 0.2s" }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.transform = "translateY(-4px)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.transform = "translateY(0)")
+          }
         />
       </StatsGrid>
 
