@@ -426,7 +426,6 @@ function Products() {
         />
       </StatsRow>
 
-      {/* Filters & Search */}
       <FiltersBar>
         <SearchBar
           placeholder="Search by name or SKU..."
@@ -446,7 +445,6 @@ function Products() {
         </FilterGroup>
       </FiltersBar>
 
-      {/* Products Grid */}
       <ProductsGrid>
         {filteredProducts.length === 0 ? (
           <EmptyState>
