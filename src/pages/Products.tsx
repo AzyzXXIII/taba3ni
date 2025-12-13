@@ -284,6 +284,31 @@ const StatusToggle = styled.button<{ $active: boolean }>`
     transform: scale(1.05);
   }
 `;
+
+const BulkBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.6rem;
+  background: linear-gradient(
+    135deg,
+    var(--color-brand-50),
+    var(--color-brand-100)
+  );
+  border-radius: var(--border-radius-md);
+  margin-bottom: 2rem;
+`;
+
+const Checkbox = styled.input`
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 10;
+`;
+
 // Types
 type Product = {
   id: string;
@@ -365,6 +390,10 @@ function Products() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(
+    new Set()
+  );
+  const [bulkMode, setBulkMode] = useState(false);
 
   // Filter products
   const filteredProducts = mockProducts.filter((product) => {
@@ -472,6 +501,35 @@ function Products() {
             </FilterButton>
           ))}
         </FilterGroup>
+        <Button
+          $variation={bulkMode ? "primary" : "secondary"}
+          $size="small"
+          onClick={() => {
+            setBulkMode(!bulkMode);
+            setSelectedProducts(new Set());
+          }}
+        >
+          {bulkMode ? "✓ Bulk Mode" : "Bulk Select"}
+        </Button>
+        {bulkMode && selectedProducts.size > 0 && (
+          <BulkBar>
+            <span style={{ fontWeight: 600, marginRight: "1rem" }}>
+              {selectedProducts.size} product
+              {selectedProducts.size > 1 ? "s" : ""} selected
+            </span>
+            <div style={{ display: "flex", gap: "1rem" }}>
+              <Button $size="small" $variation="secondary">
+                Export Selected
+              </Button>
+              <Button
+                $size="small"
+                style={{ background: "var(--color-red-700)" }}
+              >
+                Delete Selected
+              </Button>
+            </div>
+          </BulkBar>
+        )}
       </FiltersBar>
 
       <ProductsGrid>
@@ -570,6 +628,22 @@ function Products() {
                 >
                   {product.active ? "● Active" : "○ Inactive"}
                 </StatusToggle>
+                {bulkMode && (
+                  <Checkbox
+                    type="checkbox"
+                    checked={selectedProducts.has(product.id)}
+                    onChange={(e) => {
+                      const newSelected = new Set(selectedProducts);
+                      if (e.target.checked) {
+                        newSelected.add(product.id);
+                      } else {
+                        newSelected.delete(product.id);
+                      }
+                      setSelectedProducts(newSelected);
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                )}
               </ProductCard>
             </Modal>
           ))
