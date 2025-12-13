@@ -398,7 +398,11 @@ function Products() {
   // Filter products
   const filteredProducts = mockProducts.filter((product) => {
     const matchesCategory =
-      categoryFilter === "all" || product.category === categoryFilter;
+      categoryFilter === "all"
+        ? true
+        : categoryFilter === "lowStock"
+        ? product.stock < product.minStock
+        : product.category === categoryFilter;
     const matchesSearch =
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.sku.toLowerCase().includes(searchQuery.toLowerCase());
@@ -490,6 +494,26 @@ function Products() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
+        <FilterButton
+          $active={categoryFilter === "lowStock"}
+          onClick={() => setCategoryFilter("lowStock")}
+          style={{
+            background:
+              categoryFilter === "lowStock"
+                ? "var(--color-red-100)"
+                : undefined,
+            color:
+              categoryFilter === "lowStock"
+                ? "var(--color-red-700)"
+                : undefined,
+            borderColor:
+              categoryFilter === "lowStock"
+                ? "var(--color-red-600)"
+                : undefined,
+          }}
+        >
+          ⚠️ Low Stock ({stats.lowStock})
+        </FilterButton>
         <FilterGroup>
           {categories.map((category) => (
             <FilterButton
