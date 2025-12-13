@@ -309,6 +309,20 @@ const Checkbox = styled.input`
   z-index: 10;
 `;
 
+const SortSelect = styled.select`
+  padding: 0.8rem 1.6rem;
+  border: 2px solid var(--color-grey-300);
+  border-radius: var(--border-radius-sm);
+  font-size: 1.4rem;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: var(--color-grey-0);
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-brand-600);
+  }
+`;
 // Types
 type Product = {
   id: string;
@@ -335,6 +349,7 @@ const mockProducts: Product[] = [
     unit: "1L",
     sku: "MLK-001",
     description: "Fresh full cream milk",
+    active: false,
   },
   {
     id: "2",
@@ -394,6 +409,7 @@ function Products() {
     new Set()
   );
   const [bulkMode, setBulkMode] = useState(false);
+  const [sortBy, setSortBy] = useState<string>("name");
 
   // Filter products
   const filteredProducts = mockProducts.filter((product) => {
@@ -409,6 +425,22 @@ function Products() {
     return matchesCategory && matchesSearch;
   });
 
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    switch (sortBy) {
+      case "name":
+        return a.name.localeCompare(b.name);
+      case "price-low":
+        return a.price - b.price;
+      case "price-high":
+        return b.price - a.price;
+      case "stock-low":
+        return a.stock - b.stock;
+      case "stock-high":
+        return b.stock - a.stock;
+      default:
+        return 0;
+    }
+  });
   // Calculate stats
   const stats = {
     total: mockProducts.length,
@@ -421,6 +453,18 @@ function Products() {
     if (stock < minStock) return "low";
     if (stock < minStock * 2) return "medium";
     return "high";
+  };
+
+  const getCategoryEmoji = (category: string) => {
+    const emojis: { [key: string]: string } = {
+      Milk: "🥛",
+      Yogurt: "🍶",
+      Cheese: "🧀",
+      Butter: "🧈",
+      Cream: "🥛",
+      Dairy: "🥛",
+    };
+    return emojis[category] || "📦";
   };
 
   const handleEdit = (product: Product) => {
@@ -554,6 +598,13 @@ function Products() {
             </div>
           </BulkBar>
         )}
+        <SortSelect value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+          <option value="name">Sort by Name</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="stock-low">Stock: Low to High</option>
+          <option value="stock-high">Stock: High to Low</option>
+        </SortSelect>
       </FiltersBar>
 
       <ProductsGrid>
@@ -566,10 +617,12 @@ function Products() {
             </p>
           </EmptyState>
         ) : (
-          filteredProducts.map((product) => (
+          sortedProducts.map((product) => (
             <Modal key={product.id}>
               <ProductCard>
-                <ProductImage>🥛</ProductImage>
+                <ProductImage>
+                  {getCategoryEmoji(product.category)}
+                </ProductImage>
                 <ProductCategory>{product.category}</ProductCategory>
                 <ProductName>{product.name}</ProductName>
                 <ProductInfo>
