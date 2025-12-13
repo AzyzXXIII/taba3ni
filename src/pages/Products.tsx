@@ -251,7 +251,7 @@ const StockButton = styled.button`
 `;
 
 const StockInput = styled.input`
-  width: 5rem;
+  width: 6rem;
   text-align: center;
   padding: 0.6rem;
   border: 1px solid var(--color-grey-300);
@@ -262,6 +262,26 @@ const StockInput = styled.input`
   &:focus {
     outline: none;
     border-color: var(--color-brand-600);
+  }
+`;
+const StatusToggle = styled.button<{ $active: boolean }>`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 100px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: ${(props) =>
+    props.$active ? "var(--color-green-100)" : "var(--color-grey-200)"};
+  color: ${(props) =>
+    props.$active ? "var(--color-green-700)" : "var(--color-grey-600)"};
+
+  &:hover {
+    transform: scale(1.05);
   }
 `;
 // Types
@@ -275,6 +295,7 @@ type Product = {
   unit: string;
   sku: string;
   description?: string;
+  active: boolean;
 };
 
 // Mock Data
@@ -300,6 +321,7 @@ const mockProducts: Product[] = [
     unit: "500g",
     sku: "YOG-001",
     description: "Creamy Greek yogurt",
+    active: true,
   },
   {
     id: "3",
@@ -311,6 +333,7 @@ const mockProducts: Product[] = [
     unit: "250g",
     sku: "BTR-001",
     description: "Premium butter",
+    active: true,
   },
   {
     id: "4",
@@ -322,6 +345,7 @@ const mockProducts: Product[] = [
     unit: "200g",
     sku: "CHZ-001",
     description: "Aged cheddar cheese",
+    active: false,
   },
   {
     id: "5",
@@ -333,6 +357,7 @@ const mockProducts: Product[] = [
     unit: "1L",
     sku: "MLK-002",
     description: "Low-fat skimmed milk",
+    active: true,
   },
 ];
 
@@ -376,6 +401,10 @@ function Products() {
   const handleStockChange = (productId: string, change: number) => {
     console.log(`Adjust stock for ${productId} by ${change}`);
     // TODO: Update stock in state/backend
+  };
+  const handleToggleStatus = (productId: string) => {
+    console.log(`Toggle status for ${productId}`);
+    // TODO: Update active status
   };
 
   const categories = [
@@ -459,10 +488,8 @@ function Products() {
             <Modal key={product.id}>
               <ProductCard>
                 <ProductImage>🥛</ProductImage>
-
                 <ProductCategory>{product.category}</ProductCategory>
                 <ProductName>{product.name}</ProductName>
-
                 <ProductInfo>
                   <InfoRow>
                     <InfoLabel>SKU:</InfoLabel>
@@ -507,7 +534,6 @@ function Products() {
                     +
                   </StockButton>
                 </QuickStockControl>
-
                 <CardActions>
                   <Modal.Open opens={`edit-${product.id}`}>
                     <ActionButton>
@@ -522,14 +548,12 @@ function Products() {
                     </ActionButton>
                   </Modal.Open>
                 </CardActions>
-
                 <Modal.Window name={`edit-${product.id}`}>
                   <ProductForm
                     productToEdit={product}
                     onCloseModal={() => {}}
                   />
                 </Modal.Window>
-
                 <Modal.Window name={`delete-${product.id}`}>
                   <ConfirmDelete
                     resourceName={`product ${product.name}`}
@@ -537,6 +561,15 @@ function Products() {
                     onCloseModal={() => {}}
                   />
                 </Modal.Window>
+                <StatusToggle
+                  $active={product.active}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleStatus(product.id);
+                  }}
+                >
+                  {product.active ? "● Active" : "○ Inactive"}
+                </StatusToggle>
               </ProductCard>
             </Modal>
           ))
