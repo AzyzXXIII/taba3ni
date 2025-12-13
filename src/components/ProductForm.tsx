@@ -9,6 +9,8 @@ import ButtonGroup from "../UI/ButtonGroup";
 import Heading from "../UI/Heading";
 import Select from "../UI/Select";
 
+import { HiOutlinePhoto } from "react-icons/hi2";
+
 const FormGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -38,6 +40,38 @@ const InfoBox = styled.div`
 
   & strong {
     font-weight: 600;
+  }
+`;
+
+const ImageUploadArea = styled.div`
+  width: 100%;
+  height: 20rem;
+  border: 2px dashed var(--color-grey-300);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: var(--color-grey-50);
+
+  &:hover {
+    border-color: var(--color-brand-600);
+    background-color: var(--color-brand-50);
+  }
+
+  & svg {
+    width: 4rem;
+    height: 4rem;
+    color: var(--color-grey-400);
+  }
+
+  & p {
+    font-size: 1.4rem;
+    color: var(--color-grey-600);
+    margin: 0;
   }
 `;
 
@@ -150,7 +184,15 @@ function ProductForm({ productToEdit, onCloseModal }: ProductFormProps) {
           </p>
         </InfoBox>
       )}
-
+      <ImageUploadArea onClick={() => alert("Image upload coming soon!")}>
+        <HiOutlinePhoto />
+        <p>
+          <strong>Click to upload</strong> product image
+        </p>
+        <p style={{ fontSize: "1.2rem", color: "var(--color-grey-500)" }}>
+          PNG, JPG up to 5MB
+        </p>
+      </ImageUploadArea>
       <FormGrid>
         {/* Product Name */}
         <FormRow

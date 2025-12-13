@@ -15,6 +15,7 @@ import Modal from "../UI/Modal";
 import ConfirmDelete from "../UI/ConfirmDelete";
 import ProductForm from "../components/ProductForm";
 import StatsCard from "../UI/StatsCard";
+import { HiOutlineDocumentDuplicate } from "react-icons/hi2";
 
 // Styled Components
 const ProductsLayout = styled.div`
@@ -483,6 +484,15 @@ function Products() {
     console.log(`Toggle status for ${productId}`);
     // TODO: Update active status
   };
+  const handleDuplicate = (product: Product) => {
+    const duplicated = {
+      ...product,
+      name: `${product.name} (Copy)`,
+      sku: `${product.sku}-COPY`,
+    };
+    setProductToEdit(duplicated);
+    // Open modal
+  };
 
   const categories = [
     "all",
@@ -682,6 +692,10 @@ function Products() {
                       Delete
                     </ActionButton>
                   </Modal.Open>
+                  <ActionButton onClick={() => handleDuplicate(product)}>
+                    <HiOutlineDocumentDuplicate />
+                    Duplicate
+                  </ActionButton>
                 </CardActions>
                 <Modal.Window name={`edit-${product.id}`}>
                   <ProductForm
