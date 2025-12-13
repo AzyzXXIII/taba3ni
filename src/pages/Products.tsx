@@ -214,7 +214,56 @@ const EmptyState = styled.div`
     color: var(--color-grey-400);
   }
 `;
+const QuickStockControl = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  padding: 0.8rem;
+  background-color: var(--color-grey-50);
+  border-radius: var(--border-radius-sm);
+`;
 
+const StockButton = styled.button`
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid var(--color-grey-300);
+  background-color: var(--color-grey-0);
+  border-radius: var(--border-radius-sm);
+  font-size: 1.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: var(--color-brand-600);
+    color: var(--color-grey-0);
+    border-color: var(--color-brand-600);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const StockInput = styled.input`
+  width: 5rem;
+  text-align: center;
+  padding: 0.6rem;
+  border: 1px solid var(--color-grey-300);
+  border-radius: var(--border-radius-sm);
+  font-size: 1.4rem;
+  font-weight: 600;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-brand-600);
+  }
+`;
 // Types
 type Product = {
   id: string;
@@ -324,6 +373,10 @@ function Products() {
     console.log("Delete product:", productId);
     // TODO: Call API to delete product
   };
+  const handleStockChange = (productId: string, change: number) => {
+    console.log(`Adjust stock for ${productId} by ${change}`);
+    // TODO: Update stock in state/backend
+  };
 
   const categories = [
     "all",
@@ -432,6 +485,30 @@ function Products() {
                     </StockBadge>
                   </InfoRow>
                 </ProductInfo>
+                <QuickStockControl>
+                  <StockButton
+                    onClick={() => handleStockChange(product.id, -10)}
+                    disabled={product.stock < 10}
+                  >
+                    −
+                  </StockButton>
+                  <StockInput
+                    type="number"
+                    value={product.stock}
+                    onChange={(e) =>
+                      handleStockChange(
+                        product.id,
+                        parseInt(e.target.value) - product.stock
+                      )
+                    }
+                    min="0"
+                  />
+                  <StockButton
+                    onClick={() => handleStockChange(product.id, 10)}
+                  >
+                    +
+                  </StockButton>
+                </QuickStockControl>
 
                 <CardActions>
                   <Modal.Open opens={`edit-${product.id}`}>
