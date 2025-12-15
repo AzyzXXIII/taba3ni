@@ -401,7 +401,7 @@ const mockProducts: Product[] = [
     active: true,
   },
 ];
-
+// hello its azyz there 
 function Products() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
