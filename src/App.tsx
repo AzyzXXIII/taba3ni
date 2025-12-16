@@ -14,6 +14,7 @@ import Clients from "./pages/Clients";
 import ClientDetails from "./pages/ClientDetails";
 import Deliveries from "./pages/Deliveries";
 import DeliveryDetails from "./pages/DeliveryDetails";
+import DeliveryForm from "./components/DeliveryForm";
 import Distributors from "./pages/Distributors";
 import DistributorDetails from "./pages/DistributorDetails";
 import Analytics from "./pages/Analytics";
@@ -124,10 +125,14 @@ function App() {
               <Route path="clients" element={<Clients />} />
               <Route path="clients/:clientId" element={<ClientDetails />} />
 
-              {/* Deliveries - NEW */}
+              {/* Deliveries ) */}
               <Route path="deliveries" element={<Deliveries />} />
               <Route
-                path="deliveries/:deliveryId"
+                path="deliveries/new"
+                element={<DeliveryForm onCloseModal={() => {}} />}
+              />
+              <Route
+                path="deliveryDetails/:deliveryId"
                 element={<DeliveryDetails />}
               />
 

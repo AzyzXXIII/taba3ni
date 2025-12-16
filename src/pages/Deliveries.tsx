@@ -17,6 +17,7 @@ import Modal from "../UI/Modal";
 import ConfirmDelete from "../UI/ConfirmDelete";
 import StatsCard from "../UI/StatsCard";
 import StatusBadge from "../UI/StatusBadge";
+import DeliveryForm from "../components/DeliveryForm";
 
 // Styled Components
 const DeliveriesLayout = styled.div`
@@ -349,9 +350,14 @@ function Deliveries() {
     <DeliveriesLayout>
       <Row type="horizontal">
         <Heading as="h1">Deliveries Management</Heading>
-        <Button $size="medium" onClick={() => navigate("/deliveries/new")}>
-          + Schedule Delivery
-        </Button>
+        <Modal>
+          <Modal.Open opens="schedule-delivery">
+            <Button $size="medium">+ Schedule Delivery</Button>
+          </Modal.Open>
+          <Modal.Window name="schedule-delivery">
+            <DeliveryForm onCloseModal={() => {}} />
+          </Modal.Window>
+        </Modal>
       </Row>
 
       <StatsRow>
