@@ -13,6 +13,7 @@ import {
   HiOutlineCheckCircle,
   HiOutlineInformationCircle,
   HiOutlineExclamationTriangle,
+  HiOutlinePrinter,
 } from "react-icons/hi2";
 import Heading from "../UI/Heading";
 import Row from "../UI/Row";
@@ -190,7 +191,14 @@ const ProofPhoto = styled.img`
     box-shadow: var(--shadow-md);
   }
 `;
-// Add these styled components after the existing ones:
+
+const PrintOnly = styled.div`
+  @media print {
+    display: block;
+  }
+  display: none;
+`;
+
 const ProofSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -357,6 +365,15 @@ const mockDeliveryDetails = {
     timestamp: "2025-10-09 14:15",
     notes: "Delivered at reception desk",
   },
+  notes: [
+    { time: "13:45", note: "Started delivery route", author: "Ahmed Mahmoudi" },
+    {
+      time: "13:50",
+      note: "Traffic on Avenue Bourguiba, slight delay",
+      author: "Ahmed Mahmoudi",
+    },
+    { time: "14:00", note: "5 minutes away", author: "Ahmed Mahmoudi" },
+  ],
 };
 
 function DeliveryDetails() {
@@ -426,6 +443,14 @@ function DeliveryDetails() {
           <Button $variation="secondary" $size="medium">
             <HiOutlinePencil style={{ width: "2rem", height: "2rem" }} />
             Edit Delivery
+          </Button>
+          <Button
+            $variation="secondary"
+            $size="medium"
+            onClick={() => window.print()}
+          >
+            <HiOutlinePrinter style={{ width: "2rem", height: "2rem" }} />
+            Print Manifest
           </Button>
           <Modal>
             <Modal.Open opens="cancel-delivery">
@@ -588,6 +613,42 @@ function DeliveryDetails() {
               <Heading as="h2">Delivery Timeline</Heading>
             </CardHeader>
             <Timeline actions={delivery.timeline} />
+            {delivery.notes && delivery.notes.length > 0 && (
+              <div
+                style={{
+                  marginTop: "2rem",
+                  paddingTop: "2rem",
+                  borderTop: "1px solid var(--color-grey-200)",
+                }}
+              >
+                <h4
+                  style={{
+                    marginBottom: "1.2rem",
+                    fontSize: "1.4rem",
+                    fontWeight: 600,
+                  }}
+                >
+                  Driver Notes:
+                </h4>
+                {delivery.notes.map((note, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      padding: "1rem",
+                      background: "var(--color-blue-50)",
+                      borderRadius: "var(--border-radius-sm)",
+                      marginBottom: "0.8rem",
+                      fontSize: "1.3rem",
+                    }}
+                  >
+                    <strong style={{ color: "var(--color-blue-700)" }}>
+                      {note.time}
+                    </strong>
+                    : {note.note}
+                  </div>
+                ))}
+              </div>
+            )}
           </Card>
 
           {/* Quick Actions */}
