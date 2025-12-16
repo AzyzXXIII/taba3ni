@@ -12,6 +12,7 @@ import {
   HiOutlineClock,
   HiOutlineCheckCircle,
   HiOutlineInformationCircle,
+  HiOutlineExclamationTriangle,
 } from "react-icons/hi2";
 import Heading from "../UI/Heading";
 import Row from "../UI/Row";
@@ -20,6 +21,10 @@ import Modal from "../UI/Modal";
 import ConfirmDelete from "../UI/ConfirmDelete";
 import Timeline from "../UI/Timeline";
 import StatusBadge from "../UI/StatusBadge";
+import Form from "../UI/Form";
+import FormRow from "../UI/FormRow";
+import Textarea from "../UI/Textarea";
+import ButtonGroup from "../UI/ButtonGroup";
 import DeliveryConfirmation from "../components/DeliveryConfirmation";
 import DeliveryMap from "../components/DeliveryMap";
 
@@ -271,6 +276,24 @@ const getDeliveryProgress = (status: string) => {
       return 0;
   }
 };
+
+const IssueForm = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+`;
+
+const IssueTypeSelect = styled.select`
+  padding: 1rem;
+  border: 2px solid var(--color-grey-300);
+  border-radius: var(--border-radius-sm);
+  font-size: 1.4rem;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-brand-600);
+  }
+`;
 
 // Mock delivery data
 const mockDeliveryDetails = {
@@ -596,7 +619,52 @@ function DeliveryDetails() {
                   <HiOutlinePhone style={{ width: "2rem", height: "2rem" }} />
                   Call Distributor
                 </Button>
+                <Modal.Open opens="report-issue">
+                  <Button $variation="danger" $size="medium">
+                    <HiOutlineExclamationTriangle
+                      style={{ width: "2rem", height: "2rem" }}
+                    />
+                    Report Issue
+                  </Button>
+                </Modal.Open>
+
+                <Modal.Window name="report-issue">
+                  <Form
+                    type="modal"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      console.log("Issue reported");
+                    }}
+                  >
+                    <Heading as="h2">Report Delivery Issue</Heading>
+                    <IssueForm>
+                      <FormRow label="Issue Type">
+                        <IssueTypeSelect>
+                          <option>Client Not Available</option>
+                          <option>Wrong Address</option>
+                          <option>Access Denied</option>
+                          <option>Vehicle Breakdown</option>
+                          <option>Traffic Delay</option>
+                          <option>Other</option>
+                        </IssueTypeSelect>
+                      </FormRow>
+                      <FormRow label="Description">
+                        <Textarea
+                          rows={4}
+                          placeholder="Describe the issue..."
+                        />
+                      </FormRow>
+                      <ButtonGroup>
+                        <Button type="button" $variation="secondary">
+                          Cancel
+                        </Button>
+                        <Button type="submit">Submit Report</Button>
+                      </ButtonGroup>
+                    </IssueForm>
+                  </Form>
+                </Modal.Window>
               </div>
+
               {delivery.status === "completed" && delivery.proofOfDelivery && (
                 <Card>
                   <CardHeader>
