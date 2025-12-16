@@ -305,6 +305,7 @@ const IssueTypeSelect = styled.select`
 
 // Mock delivery data
 const mockDeliveryDetails = {
+  etaDelay: 5,
   id: "1",
   deliveryId: "DEL-001",
   status: "completed",
@@ -469,6 +470,32 @@ function DeliveryDetails() {
           </Modal>
         </ActionButtons>
       </Row>
+      <Card>
+        <ProgressBar>
+          <ProgressStep
+            $active={getDeliveryProgress(delivery.status) >= 1}
+            $completed={getDeliveryProgress(delivery.status) > 1}
+          />
+          <ProgressStep
+            $active={getDeliveryProgress(delivery.status) >= 2}
+            $completed={getDeliveryProgress(delivery.status) > 2}
+          />
+          <ProgressStep
+            $active={getDeliveryProgress(delivery.status) >= 3}
+            $completed={getDeliveryProgress(delivery.status) > 3}
+          />
+          <ProgressStep
+            $active={getDeliveryProgress(delivery.status) >= 2}
+            $completed={getDeliveryProgress(delivery.status) >= 4}
+          />
+        </ProgressBar>
+        <ProgressLabels>
+          <span>Scheduled</span>
+          <span>En Route</span>
+          <span>At Location</span>
+          <span>Delivered</span>
+        </ProgressLabels>
+      </Card>
 
       {/* Main Content Grid */}
       <Grid>
@@ -505,6 +532,26 @@ function DeliveryDetails() {
               <HiOutlineClock />
               <InfoLabel>Duration:</InfoLabel>
               <InfoValue>{delivery.route.duration}</InfoValue>
+            </InfoRow>
+            <InfoRow>
+              <HiOutlineClock />
+              <InfoLabel>Updated ETA:</InfoLabel>
+              <InfoValue
+                style={{
+                  color:
+                    delivery.etaDelay && delivery.etaDelay > 5
+                      ? "var(--color-red-700)"
+                      : "var(--color-green-700)",
+                  fontWeight: 600,
+                }}
+              >
+                {delivery.estimatedArrival}
+                {delivery.etaDelay && delivery.etaDelay > 0 && (
+                  <span style={{ marginLeft: "0.8rem", fontSize: "1.2rem" }}>
+                    (+{delivery.etaDelay} min delay)
+                  </span>
+                )}
+              </InfoValue>
             </InfoRow>
           </Card>
 
@@ -688,122 +735,130 @@ function DeliveryDetails() {
                     Report Issue
                   </Button>
                 </Modal.Open>
-
-                <Modal.Window name="report-issue">
-                  <Form
-                    type="modal"
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      console.log("Issue reported");
-                    }}
-                  >
-                    <Heading as="h2">Report Delivery Issue</Heading>
-                    <IssueForm>
-                      <FormRow label="Issue Type">
-                        <IssueTypeSelect>
-                          <option>Client Not Available</option>
-                          <option>Wrong Address</option>
-                          <option>Access Denied</option>
-                          <option>Vehicle Breakdown</option>
-                          <option>Traffic Delay</option>
-                          <option>Other</option>
-                        </IssueTypeSelect>
-                      </FormRow>
-                      <FormRow label="Description">
-                        <Textarea
-                          rows={4}
-                          placeholder="Describe the issue..."
-                        />
-                      </FormRow>
-                      <ButtonGroup>
-                        <Button type="button" $variation="secondary">
-                          Cancel
-                        </Button>
-                        <Button type="submit">Submit Report</Button>
-                      </ButtonGroup>
-                    </IssueForm>
-                  </Form>
-                </Modal.Window>
+                <Button
+                  $variation="secondary"
+                  $size="medium"
+                  onClick={() => {
+                    console.log("Sending notification to driver...");
+                    alert(
+                      "SMS sent to driver: 'Urgent: Client requested early delivery'"
+                    );
+                  }}
+                >
+                  Send Message to Driver
+                </Button>
               </div>
 
-              {delivery.status === "completed" && delivery.proofOfDelivery && (
-                <Card>
-                  <CardHeader>
-                    <Heading as="h2">📋 Proof of Delivery</Heading>
-                  </CardHeader>
-                  <ProofSection>
-                    <InfoRow>
-                      <HiOutlineUser />
-                      <InfoLabel>Received by:</InfoLabel>
-                      <InfoValue>
-                        {delivery.proofOfDelivery.recipientName}
-                      </InfoValue>
-                    </InfoRow>
-                    <InfoRow>
-                      <HiOutlineClock />
-                      <InfoLabel>Delivered at:</InfoLabel>
-                      <InfoValue>
-                        {delivery.proofOfDelivery.timestamp}
-                      </InfoValue>
-                    </InfoRow>
-                    <InfoRow>
-                      <HiOutlineMapPin />
-                      <InfoLabel>GPS Location:</InfoLabel>
-                      <InfoValue>
-                        {delivery.proofOfDelivery.location.lat.toFixed(6)},{" "}
-                        {delivery.proofOfDelivery.location.lng.toFixed(6)}
-                      </InfoValue>
-                    </InfoRow>
-
-                    <div>
-                      <ProofLabel>✍️ Recipient Signature:</ProofLabel>
-                      <SignatureImage
-                        src={delivery.proofOfDelivery.signature}
-                        alt="Recipient signature"
-                      />
-                    </div>
-
-                    {delivery.proofOfDelivery.photos &&
-                      delivery.proofOfDelivery.photos.length > 0 && (
-                        <div>
-                          <ProofLabel>
-                            📸 Delivery Photos (
-                            {delivery.proofOfDelivery.photos.length}):
-                          </ProofLabel>
-                          <PhotoGrid>
-                            {delivery.proofOfDelivery.photos.map(
-                              (photo, index) => (
-                                <ProofPhoto
-                                  key={index}
-                                  src={photo}
-                                  alt={`Delivery proof ${index + 1}`}
-                                  onClick={() => window.open(photo, "_blank")}
-                                  title="Click to view full size"
-                                />
-                              )
-                            )}
-                          </PhotoGrid>
-                        </div>
-                      )}
-
-                    {delivery.proofOfDelivery.notes && (
-                      <InfoRow>
-                        <HiOutlineInformationCircle />
-                        <InfoLabel>Additional Notes:</InfoLabel>
-                        <InfoValue>{delivery.proofOfDelivery.notes}</InfoValue>
-                      </InfoRow>
-                    )}
-                  </ProofSection>
-                </Card>
-              )}
+              {/* Modal Windows */}
               <Modal.Window name="confirm-delivery">
                 <DeliveryConfirmation
                   deliveryId={delivery.deliveryId}
                   onCloseModal={() => {}}
                 />
               </Modal.Window>
+
+              <Modal.Window name="report-issue">
+                <Form
+                  type="modal"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    console.log("Issue reported");
+                  }}
+                >
+                  <Heading as="h2">Report Delivery Issue</Heading>
+                  <IssueForm>
+                    <FormRow label="Issue Type">
+                      <IssueTypeSelect>
+                        <option>Client Not Available</option>
+                        <option>Wrong Address</option>
+                        <option>Access Denied</option>
+                        <option>Vehicle Breakdown</option>
+                        <option>Traffic Delay</option>
+                        <option>Other</option>
+                      </IssueTypeSelect>
+                    </FormRow>
+                    <FormRow label="Description">
+                      <Textarea rows={4} placeholder="Describe the issue..." />
+                    </FormRow>
+                    <ButtonGroup>
+                      <Button type="button" $variation="secondary">
+                        Cancel
+                      </Button>
+                      <Button type="submit">Submit Report</Button>
+                    </ButtonGroup>
+                  </IssueForm>
+                </Form>
+              </Modal.Window>
             </Modal>
           </Card>
+
+          {/* ✅ PROOF OF DELIVERY CARD - MOVE IT HERE (OUTSIDE Modal) */}
+          {delivery.status === "completed" && delivery.proofOfDelivery && (
+            <Card>
+              <CardHeader>
+                <Heading as="h2">📋 Proof of Delivery</Heading>
+              </CardHeader>
+              <ProofSection>
+                <InfoRow>
+                  <HiOutlineUser />
+                  <InfoLabel>Received by:</InfoLabel>
+                  <InfoValue>
+                    {delivery.proofOfDelivery.recipientName}
+                  </InfoValue>
+                </InfoRow>
+                <InfoRow>
+                  <HiOutlineClock />
+                  <InfoLabel>Delivered at:</InfoLabel>
+                  <InfoValue>{delivery.proofOfDelivery.timestamp}</InfoValue>
+                </InfoRow>
+                <InfoRow>
+                  <HiOutlineMapPin />
+                  <InfoLabel>GPS Location:</InfoLabel>
+                  <InfoValue>
+                    {delivery.proofOfDelivery.location.lat.toFixed(6)},{" "}
+                    {delivery.proofOfDelivery.location.lng.toFixed(6)}
+                  </InfoValue>
+                </InfoRow>
+
+                <div>
+                  <ProofLabel>✍️ Recipient Signature:</ProofLabel>
+                  <SignatureImage
+                    src={delivery.proofOfDelivery.signature}
+                    alt="Recipient signature"
+                  />
+                </div>
+
+                {delivery.proofOfDelivery.photos &&
+                  delivery.proofOfDelivery.photos.length > 0 && (
+                    <div>
+                      <ProofLabel>
+                        📸 Delivery Photos (
+                        {delivery.proofOfDelivery.photos.length}):
+                      </ProofLabel>
+                      <PhotoGrid>
+                        {delivery.proofOfDelivery.photos.map((photo, index) => (
+                          <ProofPhoto
+                            key={index}
+                            src={photo}
+                            alt={`Delivery proof ${index + 1}`}
+                            onClick={() => window.open(photo, "_blank")}
+                            title="Click to view full size"
+                          />
+                        ))}
+                      </PhotoGrid>
+                    </div>
+                  )}
+
+                {delivery.proofOfDelivery.notes && (
+                  <InfoRow>
+                    <HiOutlineInformationCircle />
+                    <InfoLabel>Additional Notes:</InfoLabel>
+                    <InfoValue>{delivery.proofOfDelivery.notes}</InfoValue>
+                  </InfoRow>
+                )}
+              </ProofSection>
+            </Card>
+          )}
         </div>
       </Grid>
     </DetailsLayout>
