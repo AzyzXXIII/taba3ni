@@ -11,6 +11,7 @@ import {
   HiOutlineCalendar,
   HiOutlineClock,
   HiOutlineCheckCircle,
+  HiOutlineInformationCircle,
 } from "react-icons/hi2";
 import Heading from "../UI/Heading";
 import Row from "../UI/Row";
@@ -170,11 +171,112 @@ const OrderProducts = styled.div`
   color: var(--color-grey-600);
 `;
 
+const ProofPhoto = styled.img`
+  width: 100%;
+  height: 12rem;
+  object-fit: cover;
+  border-radius: var(--border-radius-sm);
+  border: 2px solid var(--color-grey-300);
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-md);
+  }
+`;
+// Add these styled components after the existing ones:
+const ProofSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+  margin-top: 1.6rem;
+`;
+
+const SignatureImage = styled.img`
+  width: 100%;
+  max-height: 15rem;
+  border: 2px solid var(--color-grey-300);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-grey-50);
+  object-fit: contain;
+  padding: 1rem;
+`;
+
+const PhotoGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: 1.2rem;
+`;
+
+const ProofLabel = styled.h4`
+  margin-bottom: 0.8rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--color-grey-800);
+`;
+
+const ProgressBar = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 2rem 0;
+`;
+
+const ProgressStep = styled.div<{ $active: boolean; $completed: boolean }>`
+  flex: 1;
+  height: 0.8rem;
+  background-color: ${(props) =>
+    props.$completed
+      ? "var(--color-green-600)"
+      : props.$active
+      ? "var(--color-brand-600)"
+      : "var(--color-grey-300)"};
+  border-radius: 100px;
+  transition: all 0.3s;
+  position: relative;
+
+  &::after {
+    content: "${(props) => (props.$completed ? "✓" : "")}";
+    position: absolute;
+    top: -2.4rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.2rem;
+    color: var(--color-green-700);
+    font-weight: 700;
+  }
+`;
+
+const ProgressLabels = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: var(--color-grey-600);
+`;
+
+// Add helper function:
+const getDeliveryProgress = (status: string) => {
+  switch (status) {
+    case "scheduled":
+      return 1;
+    case "in-progress":
+      return 2;
+    case "completed":
+      return 4;
+    case "failed":
+      return 0;
+    default:
+      return 0;
+  }
+};
+
 // Mock delivery data
 const mockDeliveryDetails = {
   id: "1",
   deliveryId: "DEL-001",
-  status: "in-progress",
+  status: "completed",
   scheduledTime: "2025-10-09 14:00",
   startedTime: "2025-10-09 13:45",
   estimatedArrival: "2025-10-09 14:15",
@@ -217,6 +319,20 @@ const mockDeliveryDetails = {
   route: {
     distance: "12.5 km",
     duration: "25 min",
+  },
+  proofOfDelivery: {
+    recipientName: "Ahmed Ben Ali",
+    // Replace the signature with this longer mock signature:
+    signature:
+      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTAgNTBRNTAgMjAgMTAwIDUwVDE5MCA1MFQyODAgNTBUMzkwIDUwIiBzdHJva2U9IiMwMDAiIGZpbGw9Im5vbmUiIHN0cm9rZS13aWR0aD0iMiIvPjwvc3ZnPg==",
+    photos: [
+      "https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=400&h=300&fit=crop", // Delivery truck
+      "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&h=300&fit=crop", // Boxes
+      "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&h=300&fit=crop", // Store entrance
+    ],
+    location: { lat: 36.8189, lng: 10.1658 },
+    timestamp: "2025-10-09 14:15",
+    notes: "Delivered at reception desk",
   },
 };
 
@@ -481,7 +597,76 @@ function DeliveryDetails() {
                   Call Distributor
                 </Button>
               </div>
+              {delivery.status === "completed" && delivery.proofOfDelivery && (
+                <Card>
+                  <CardHeader>
+                    <Heading as="h2">📋 Proof of Delivery</Heading>
+                  </CardHeader>
+                  <ProofSection>
+                    <InfoRow>
+                      <HiOutlineUser />
+                      <InfoLabel>Received by:</InfoLabel>
+                      <InfoValue>
+                        {delivery.proofOfDelivery.recipientName}
+                      </InfoValue>
+                    </InfoRow>
+                    <InfoRow>
+                      <HiOutlineClock />
+                      <InfoLabel>Delivered at:</InfoLabel>
+                      <InfoValue>
+                        {delivery.proofOfDelivery.timestamp}
+                      </InfoValue>
+                    </InfoRow>
+                    <InfoRow>
+                      <HiOutlineMapPin />
+                      <InfoLabel>GPS Location:</InfoLabel>
+                      <InfoValue>
+                        {delivery.proofOfDelivery.location.lat.toFixed(6)},{" "}
+                        {delivery.proofOfDelivery.location.lng.toFixed(6)}
+                      </InfoValue>
+                    </InfoRow>
 
+                    <div>
+                      <ProofLabel>✍️ Recipient Signature:</ProofLabel>
+                      <SignatureImage
+                        src={delivery.proofOfDelivery.signature}
+                        alt="Recipient signature"
+                      />
+                    </div>
+
+                    {delivery.proofOfDelivery.photos &&
+                      delivery.proofOfDelivery.photos.length > 0 && (
+                        <div>
+                          <ProofLabel>
+                            📸 Delivery Photos (
+                            {delivery.proofOfDelivery.photos.length}):
+                          </ProofLabel>
+                          <PhotoGrid>
+                            {delivery.proofOfDelivery.photos.map(
+                              (photo, index) => (
+                                <ProofPhoto
+                                  key={index}
+                                  src={photo}
+                                  alt={`Delivery proof ${index + 1}`}
+                                  onClick={() => window.open(photo, "_blank")}
+                                  title="Click to view full size"
+                                />
+                              )
+                            )}
+                          </PhotoGrid>
+                        </div>
+                      )}
+
+                    {delivery.proofOfDelivery.notes && (
+                      <InfoRow>
+                        <HiOutlineInformationCircle />
+                        <InfoLabel>Additional Notes:</InfoLabel>
+                        <InfoValue>{delivery.proofOfDelivery.notes}</InfoValue>
+                      </InfoRow>
+                    )}
+                  </ProofSection>
+                </Card>
+              )}
               <Modal.Window name="confirm-delivery">
                 <DeliveryConfirmation
                   deliveryId={delivery.deliveryId}

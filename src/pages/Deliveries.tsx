@@ -298,9 +298,8 @@ function Deliveries() {
   };
 
   const handleViewDelivery = (deliveryId: string) => {
-    navigate(`/deliveries/${deliveryId}`);
+    navigate(`/deliveryDetails/${deliveryId}`);
   };
-
   const handleDeleteDelivery = (deliveryId: string) => {
     console.log("Delete delivery:", deliveryId);
   };
