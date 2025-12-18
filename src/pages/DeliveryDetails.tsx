@@ -28,6 +28,7 @@ import Textarea from "../UI/Textarea";
 import ButtonGroup from "../UI/ButtonGroup";
 import DeliveryConfirmation from "../components/DeliveryConfirmation";
 import DeliveryMap from "../components/DeliveryMap";
+import DeliveryForm from "../components/DeliveryForm";
 
 // Styled Components
 const DetailsLayout = styled.div`
@@ -441,10 +442,31 @@ function DeliveryDetails() {
           </div>
         </div>
         <ActionButtons>
-          <Button $variation="secondary" $size="medium">
-            <HiOutlinePencil style={{ width: "2rem", height: "2rem" }} />
-            Edit Delivery
-          </Button>
+          {/* Edit Delivery with Modal */}
+          <Modal>
+            <Modal.Open opens="edit-delivery">
+              <Button $variation="secondary" $size="medium">
+                <HiOutlinePencil style={{ width: "2rem", height: "2rem" }} />
+                Edit Delivery
+              </Button>
+            </Modal.Open>
+
+            <Modal.Window name="edit-delivery">
+              <DeliveryForm
+                deliveryToEdit={{
+                  id: delivery.id,
+                  deliveryId: delivery.deliveryId,
+                  distributor: "1", // Adjust based on your actual distributor ID
+                  scheduledDate: delivery.scheduledTime.split(" ")[0],
+                  scheduledTime: delivery.scheduledTime.split(" ")[1],
+                  orders: delivery.orders.map((order) => order.id),
+                }}
+                onCloseModal={() => {}}
+              />
+            </Modal.Window>
+          </Modal>
+
+          {/* Print Manifest */}
           <Button
             $variation="secondary"
             $size="medium"
@@ -453,6 +475,8 @@ function DeliveryDetails() {
             <HiOutlinePrinter style={{ width: "2rem", height: "2rem" }} />
             Print Manifest
           </Button>
+
+          {/* Cancel Delivery */}
           <Modal>
             <Modal.Open opens="cancel-delivery">
               <Button $variation="danger" $size="medium">
@@ -485,7 +509,7 @@ function DeliveryDetails() {
             $completed={getDeliveryProgress(delivery.status) > 3}
           />
           <ProgressStep
-            $active={getDeliveryProgress(delivery.status) >= 2}
+            $active={getDeliveryProgress(delivery.status) >= 4}
             $completed={getDeliveryProgress(delivery.status) >= 4}
           />
         </ProgressBar>

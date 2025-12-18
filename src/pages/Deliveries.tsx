@@ -475,9 +475,31 @@ function Deliveries() {
                           >
                             View Details
                           </Menus.Button>
-                          <Menus.Button icon={<HiOutlinePencil />}>
-                            Edit Delivery
-                          </Menus.Button>
+                          {/* ✅ FIXED: */}
+                          <Modal.Open opens={`edit-${delivery.id}`}>
+                            <Menus.Button icon={<HiOutlinePencil />}>
+                              Edit Delivery
+                            </Menus.Button>
+                          </Modal.Open>
+
+                          <Modal.Window name={`edit-${delivery.id}`}>
+                            <DeliveryForm
+                              deliveryToEdit={{
+                                id: delivery.id,
+                                deliveryId: delivery.deliveryId,
+                                distributor: "1",
+                                scheduledDate:
+                                  delivery.scheduledTime.split(" ")[0],
+                                scheduledTime:
+                                  delivery.scheduledTime.split(" ")[1],
+                                orders: Array.from(
+                                  { length: delivery.orderCount },
+                                  (_, i) => String(i + 1)
+                                ),
+                              }}
+                              onCloseModal={() => {}}
+                            />
+                          </Modal.Window>
                           <Modal.Open opens={`delete-${delivery.id}`}>
                             <Menus.Button icon={<HiOutlineTrash />}>
                               Cancel Delivery
