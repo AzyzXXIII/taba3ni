@@ -10,6 +10,12 @@ import {
   HiOutlineMapPin,
   HiOutlineCurrencyDollar,
 } from "react-icons/hi2";
+import {
+  HiArrowUp,
+  HiArrowDown,
+  HiOutlineArrowDownTray,
+  HiOutlineCalendar,
+} from "react-icons/hi2";
 import Heading from "../UI/Heading";
 import Row from "../UI/Row";
 import Button from "../UI/Button";
@@ -213,6 +219,70 @@ const EmptyState = styled.div`
     color: var(--color-grey-400);
   }
 `;
+const SortButton = styled.button<{ $active?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  color: ${(props) =>
+    props.$active ? "var(--color-brand-600)" : "var(--color-grey-600)"};
+  font-weight: 600;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    color: var(--color-brand-600);
+  }
+
+  & svg {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+`;
+
+const CreditBar = styled.div`
+  min-width: 14rem;
+
+  .credit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+    color: var(--color-grey-600);
+  }
+
+  .credit-amount {
+    font-weight: 600;
+  }
+
+  .credit-percentage {
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 0.6rem;
+    background-color: var(--color-grey-200);
+    border-radius: 10rem;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+    border-radius: 10rem;
+  }
+`;
+
+const ExportButton = styled(Button)`
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+`;
 
 // Types
 type ClientType = "supermarket" | "grocery" | "restaurant" | "cafe" | "other";
@@ -328,6 +398,11 @@ function Clients() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [sortBy, setSortBy] = useState<"name" | "orders" | "spent" | "credit">(
+    "name"
+  );
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
   // Filter clients
   const filteredClients = mockClients.filter((client) => {
     const matchesType = typeFilter === "all" || client.type === typeFilter;
@@ -346,6 +421,90 @@ function Clients() {
     active: mockClients.filter((c) => c.status === "active").length,
     totalRevenue: mockClients.reduce((sum, c) => sum + c.totalSpent, 0),
     totalBalance: mockClients.reduce((sum, c) => sum + c.balance, 0),
+  };
+
+  // NEW: Sort clients
+  const sortedClients = [...filteredClients].sort((a, b) => {
+    let comparison = 0;
+
+    switch (sortBy) {
+      case "name":
+        comparison = a.name.localeCompare(b.name);
+        break;
+      case "orders":
+        comparison = a.totalOrders - b.totalOrders;
+        break;
+      case "spent":
+        comparison = a.totalSpent - b.totalSpent;
+        break;
+      case "credit":
+        const aUsage = (a.balance / a.creditLimit) * 100;
+        const bUsage = (b.balance / b.creditLimit) * 100;
+        comparison = aUsage - bUsage;
+        break;
+    }
+
+    return sortOrder === "asc" ? comparison : -comparison;
+  });
+
+  // NEW: Handle sort
+  const handleSort = (field: "name" | "orders" | "spent" | "credit") => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(field);
+      setSortOrder("asc");
+    }
+  };
+
+  // NEW: Export to CSV
+  const handleExport = () => {
+    const csvData = [
+      [
+        "Name",
+        "Type",
+        "Status",
+        "Phone",
+        "Email",
+        "City",
+        "Total Orders",
+        "Total Spent",
+        "Balance",
+        "Credit Limit",
+        "Last Order",
+      ],
+      ...sortedClients.map((c) => [
+        c.name,
+        c.type,
+        c.status,
+        c.phone,
+        c.email,
+        c.city,
+        c.totalOrders,
+        c.totalSpent,
+        c.balance,
+        c.creditLimit,
+        c.lastOrderDate || "N/A",
+      ]),
+    ];
+
+    const csvContent = csvData.map((row) => row.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `clients-export-${
+      new Date().toISOString().split("T")[0]
+    }.csv`;
+    link.click();
+  };
+
+  // NEW: Calculate credit utilization color
+  const getCreditColor = (percentage: number) => {
+    if (percentage >= 90) return "#dc2626"; // Red
+    if (percentage >= 70) return "#f59e0b"; // Orange
+    if (percentage >= 50) return "#eab308"; // Yellow
+    return "#10b981"; // Green
   };
 
   const handleViewClient = (clientId: string) => {
@@ -564,6 +723,16 @@ function Clients() {
           )}
         </Table>
       </TableCard>
+      <div
+        style={{
+          textAlign: "center",
+          padding: "1.6rem",
+          color: "var(--color-grey-600)",
+          fontSize: "1.4rem",
+        }}
+      >
+        Showing {sortedClients.length} of {mockClients.length} clients
+      </div>
     </ClientsLayout>
   );
 }
