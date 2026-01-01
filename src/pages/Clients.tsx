@@ -123,6 +123,8 @@ const ExportButton = styled(Button)`
   align-items: center;
   gap: 0.8rem;
   font-size: 1.4rem;
+  color: #000000ff;
+  background-color: var(--color-green-100);
 
   & svg {
     width: 1.8rem;
@@ -576,7 +578,6 @@ function Clients() {
     }
   };
 
-  // Export to CSV
   const handleExport = () => {
     const csvData = [
       [
@@ -769,7 +770,7 @@ function Clients() {
           </ResultsCount>
           <ExportButton
             $variation="secondary"
-            $size="small"
+            $size="medium"
             onClick={handleExport}
           >
             <HiOutlineArrowDownTray />
