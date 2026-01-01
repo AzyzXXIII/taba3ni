@@ -13,6 +13,7 @@ import {
   HiArrowDown,
   HiOutlineArrowDownTray,
   HiOutlineCalendar,
+  HiOutlineShoppingCart,
 } from "react-icons/hi2";
 import Heading from "../UI/Heading";
 import Row from "../UI/Row";
@@ -90,6 +91,11 @@ const TableCard = styled.div`
   border: 1px solid var(--color-grey-100);
   border-radius: var(--border-radius-md);
   overflow: hidden;
+
+  @media (max-width: 1024px) {
+    border: none;
+    background-color: transparent;
+  }
 `;
 
 const TableControls = styled.div`
@@ -123,8 +129,6 @@ const ExportButton = styled(Button)`
   align-items: center;
   gap: 0.8rem;
   font-size: 1.4rem;
-  color: #000000ff;
-  background-color: var(--color-green-100);
 
   & svg {
     width: 1.8rem;
@@ -135,6 +139,10 @@ const ExportButton = styled(Button)`
 const Table = styled.div`
   width: 100%;
   overflow-x: auto;
+
+  @media (max-width: 1024px) {
+    overflow-x: visible;
+  }
 `;
 
 const TableHeader = styled.div`
@@ -151,6 +159,10 @@ const TableHeader = styled.div`
 
   @media (max-width: 1400px) {
     grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 1.5fr 0.5fr;
+  }
+
+  @media (max-width: 1024px) {
+    display: none;
   }
 `;
 
@@ -194,6 +206,166 @@ const TableRow = styled.div`
 
   @media (max-width: 1400px) {
     grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 1.5fr 0.5fr;
+  }
+
+  @media (max-width: 1024px) {
+    display: none;
+  }
+`;
+
+// Mobile Card View
+const MobileCardList = styled.div`
+  display: none;
+
+  @media (max-width: 1024px) {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+    padding: 1.6rem;
+  }
+`;
+
+const MobileCard = styled.div`
+  background-color: var(--color-grey-0);
+  border: 1px solid var(--color-grey-100);
+  border-radius: var(--border-radius-md);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: var(--shadow-md);
+  }
+`;
+
+const MobileCardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.6rem;
+  padding-bottom: 1.6rem;
+  border-bottom: 1px solid var(--color-grey-200);
+`;
+
+const MobileClientInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex: 1;
+`;
+
+const MobileClientDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+`;
+
+const MobileClientName = styled.h3`
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-grey-900);
+  margin: 0;
+`;
+
+const MobileClientType = styled.span`
+  font-size: 1.3rem;
+  color: var(--color-grey-500);
+  text-transform: capitalize;
+`;
+
+const MobileCardBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+`;
+
+const MobileInfoRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 0;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--color-grey-100);
+  }
+`;
+
+const MobileLabel = styled.span`
+  font-size: 1.3rem;
+  color: var(--color-grey-600);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
+  & svg {
+    width: 1.6rem;
+    height: 1.6rem;
+    color: var(--color-brand-600);
+  }
+`;
+
+const MobileValue = styled.span`
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--color-grey-900);
+  text-align: right;
+`;
+
+const MobileCreditSection = styled.div`
+  margin-top: 1.2rem;
+  padding-top: 1.2rem;
+  border-top: 2px solid var(--color-grey-200);
+`;
+
+const MobileCreditLabel = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-grey-700);
+`;
+
+const MobileActionsRow = styled.div`
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1.6rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--color-grey-200);
+`;
+
+const MobileActionButton = styled.button`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1rem 1.6rem;
+  background-color: var(--color-grey-0);
+  border: 2px solid var(--color-grey-300);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-grey-700);
+  font-size: 1.3rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  & svg {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+
+  &:hover {
+    border-color: var(--color-brand-600);
+    color: var(--color-brand-600);
+    background-color: var(--color-brand-50);
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 `;
 
@@ -549,12 +721,11 @@ function Clients() {
       case "spent":
         comparison = a.totalSpent - b.totalSpent;
         break;
-      case "credit": {
+      case "credit":
         const aUsage = (a.balance / a.creditLimit) * 100;
         const bUsage = (b.balance / b.creditLimit) * 100;
         comparison = aUsage - bUsage;
         break;
-      }
     }
 
     return sortOrder === "asc" ? comparison : -comparison;
@@ -578,6 +749,7 @@ function Clients() {
     }
   };
 
+  // Export to CSV
   const handleExport = () => {
     const csvData = [
       [
@@ -770,7 +942,7 @@ function Clients() {
           </ResultsCount>
           <ExportButton
             $variation="secondary"
-            $size="medium"
+            $size="small"
             onClick={handleExport}
           >
             <HiOutlineArrowDownTray />
@@ -833,118 +1005,254 @@ function Clients() {
               </Modal>
             </EmptyState>
           ) : (
-            <Menus>
-              {sortedClients.map((client) => {
-                const creditUsage = (client.balance / client.creditLimit) * 100;
-                const creditColor = getCreditColor(creditUsage);
+            <>
+              {/* Desktop Table View */}
+              <Menus>
+                {sortedClients.map((client) => {
+                  const creditUsage =
+                    (client.balance / client.creditLimit) * 100;
+                  const creditColor = getCreditColor(creditUsage);
 
-                return (
-                  <TableRow key={client.id}>
-                    <ClientInfo>
-                      <ClientIcon>{getClientInitials(client.name)}</ClientIcon>
-                      <ClientDetails>
-                        <ClientName>{client.name}</ClientName>
-                        <ClientType>{client.type}</ClientType>
-                      </ClientDetails>
-                    </ClientInfo>
+                  return (
+                    <TableRow key={client.id}>
+                      <ClientInfo>
+                        <ClientIcon>
+                          {getClientInitials(client.name)}
+                        </ClientIcon>
+                        <ClientDetails>
+                          <ClientName>{client.name}</ClientName>
+                          <ClientType>{client.type}</ClientType>
+                        </ClientDetails>
+                      </ClientInfo>
 
-                    <ContactInfo>
-                      <div>
-                        <HiOutlinePhone />
-                        {client.phone}
+                      <ContactInfo>
+                        <div>
+                          <HiOutlinePhone />
+                          {client.phone}
+                        </div>
+                      </ContactInfo>
+
+                      <ContactInfo>
+                        <div>
+                          <HiOutlineMapPin />
+                          {client.city}
+                        </div>
+                      </ContactInfo>
+
+                      <div style={{ fontWeight: 600, fontSize: "1.4rem" }}>
+                        {client.totalOrders}
                       </div>
-                    </ContactInfo>
 
-                    <ContactInfo>
-                      <div>
-                        <HiOutlineMapPin />
-                        {client.city}
-                      </div>
-                    </ContactInfo>
+                      <Amount>{client.totalSpent.toLocaleString()} TND</Amount>
 
-                    <div style={{ fontWeight: 600, fontSize: "1.4rem" }}>
-                      {client.totalOrders}
-                    </div>
+                      <CreditBar>
+                        <CreditHeader>
+                          <CreditAmount>
+                            {client.balance.toLocaleString()} TND
+                          </CreditAmount>
+                          <CreditPercentage $color={creditColor}>
+                            {creditUsage.toFixed(0)}%
+                          </CreditPercentage>
+                        </CreditHeader>
+                        <ProgressBarContainer>
+                          <ProgressBarFill
+                            $percentage={creditUsage}
+                            $color={creditColor}
+                          />
+                        </ProgressBarContainer>
+                      </CreditBar>
 
-                    <Amount>{client.totalSpent.toLocaleString()} TND</Amount>
-
-                    <CreditBar>
-                      <CreditHeader>
-                        <CreditAmount>
-                          {client.balance.toLocaleString()} TND
-                        </CreditAmount>
-                        <CreditPercentage $color={creditColor}>
-                          {creditUsage.toFixed(0)}%
-                        </CreditPercentage>
-                      </CreditHeader>
-                      <ProgressBarContainer>
-                        <ProgressBarFill
-                          $percentage={creditUsage}
-                          $color={creditColor}
-                        />
-                      </ProgressBarContainer>
-                    </CreditBar>
-
-                    <LastOrderDate>
-                      <span className="date">
-                        {client.lastOrderDate
-                          ? new Date(client.lastOrderDate).toLocaleDateString(
-                              "en-GB",
-                              { day: "2-digit", month: "short" }
-                            )
-                          : "N/A"}
-                      </span>
-                      {client.lastOrderDate && (
-                        <span className="time-ago">
-                          {getTimeAgo(client.lastOrderDate)}
+                      <LastOrderDate>
+                        <span className="date">
+                          {client.lastOrderDate
+                            ? new Date(client.lastOrderDate).toLocaleDateString(
+                                "en-GB",
+                                { day: "2-digit", month: "short" }
+                              )
+                            : "N/A"}
                         </span>
-                      )}
-                    </LastOrderDate>
+                        {client.lastOrderDate && (
+                          <span className="time-ago">
+                            {getTimeAgo(client.lastOrderDate)}
+                          </span>
+                        )}
+                      </LastOrderDate>
 
-                    <div>
-                      <Modal>
-                        <Menus.Menu>
-                          <Menus.Toggle id={client.id} />
-                          <Menus.List id={client.id}>
-                            <Menus.Button
-                              icon={<HiOutlineEye />}
-                              onClick={() => handleViewClient(client.id)}
-                            >
-                              View Details
-                            </Menus.Button>
-                            <Modal.Open opens={`edit-${client.id}`}>
-                              <Menus.Button icon={<HiOutlinePencil />}>
-                                Edit Client
+                      <div>
+                        <Modal>
+                          <Menus.Menu>
+                            <Menus.Toggle id={client.id} />
+                            <Menus.List id={client.id}>
+                              <Menus.Button
+                                icon={<HiOutlineEye />}
+                                onClick={() => handleViewClient(client.id)}
+                              >
+                                View Details
                               </Menus.Button>
-                            </Modal.Open>
-                            <Modal.Open opens={`delete-${client.id}`}>
-                              <Menus.Button icon={<HiOutlineTrash />}>
-                                Delete Client
-                              </Menus.Button>
-                            </Modal.Open>
-                          </Menus.List>
-                        </Menus.Menu>
+                              <Modal.Open opens={`edit-${client.id}`}>
+                                <Menus.Button icon={<HiOutlinePencil />}>
+                                  Edit Client
+                                </Menus.Button>
+                              </Modal.Open>
+                              <Modal.Open opens={`delete-${client.id}`}>
+                                <Menus.Button icon={<HiOutlineTrash />}>
+                                  Delete Client
+                                </Menus.Button>
+                              </Modal.Open>
+                            </Menus.List>
+                          </Menus.Menu>
 
-                        <Modal.Window name={`edit-${client.id}`}>
-                          <ClientForm
-                            clientToEdit={client}
-                            onCloseModal={() => {}}
-                          />
-                        </Modal.Window>
+                          <Modal.Window name={`edit-${client.id}`}>
+                            <ClientForm
+                              clientToEdit={client}
+                              onCloseModal={() => {}}
+                            />
+                          </Modal.Window>
 
-                        <Modal.Window name={`delete-${client.id}`}>
-                          <ConfirmDelete
-                            resourceName={`client ${client.name}`}
-                            onConfirm={() => handleDeleteClient(client.id)}
-                            onCloseModal={() => {}}
+                          <Modal.Window name={`delete-${client.id}`}>
+                            <ConfirmDelete
+                              resourceName={`client ${client.name}`}
+                              onConfirm={() => handleDeleteClient(client.id)}
+                              onCloseModal={() => {}}
+                            />
+                          </Modal.Window>
+                        </Modal>
+                      </div>
+                    </TableRow>
+                  );
+                })}
+              </Menus>
+
+              {/* Mobile Card View */}
+              <MobileCardList>
+                {sortedClients.map((client) => {
+                  const creditUsage =
+                    (client.balance / client.creditLimit) * 100;
+                  const creditColor = getCreditColor(creditUsage);
+
+                  return (
+                    <MobileCard key={client.id}>
+                      <MobileCardHeader>
+                        <MobileClientInfo>
+                          <ClientIcon>
+                            {getClientInitials(client.name)}
+                          </ClientIcon>
+                          <MobileClientDetails>
+                            <MobileClientName>{client.name}</MobileClientName>
+                            <MobileClientType>{client.type}</MobileClientType>
+                          </MobileClientDetails>
+                        </MobileClientInfo>
+                        <StatusBadge $status={client.status}>
+                          {client.status}
+                        </StatusBadge>
+                      </MobileCardHeader>
+
+                      <MobileCardBody>
+                        <MobileInfoRow>
+                          <MobileLabel>
+                            <HiOutlinePhone />
+                            Phone
+                          </MobileLabel>
+                          <MobileValue>{client.phone}</MobileValue>
+                        </MobileInfoRow>
+
+                        <MobileInfoRow>
+                          <MobileLabel>
+                            <HiOutlineMapPin />
+                            Location
+                          </MobileLabel>
+                          <MobileValue>{client.city}</MobileValue>
+                        </MobileInfoRow>
+
+                        <MobileInfoRow>
+                          <MobileLabel>
+                            <HiOutlineShoppingCart />
+                            Total Orders
+                          </MobileLabel>
+                          <MobileValue>{client.totalOrders}</MobileValue>
+                        </MobileInfoRow>
+
+                        <MobileInfoRow>
+                          <MobileLabel>
+                            <HiOutlineCurrencyDollar />
+                            Total Spent
+                          </MobileLabel>
+                          <MobileValue>
+                            {client.totalSpent.toLocaleString()} TND
+                          </MobileValue>
+                        </MobileInfoRow>
+
+                        <MobileInfoRow>
+                          <MobileLabel>
+                            <HiOutlineCalendar />
+                            Last Order
+                          </MobileLabel>
+                          <MobileValue>
+                            {client.lastOrderDate
+                              ? getTimeAgo(client.lastOrderDate)
+                              : "N/A"}
+                          </MobileValue>
+                        </MobileInfoRow>
+                      </MobileCardBody>
+
+                      <MobileCreditSection>
+                        <MobileCreditLabel>
+                          <span>Credit Usage</span>
+                          <span style={{ color: creditColor }}>
+                            {creditUsage.toFixed(0)}%
+                          </span>
+                        </MobileCreditLabel>
+                        <ProgressBarContainer>
+                          <ProgressBarFill
+                            $percentage={creditUsage}
+                            $color={creditColor}
                           />
-                        </Modal.Window>
-                      </Modal>
-                    </div>
-                  </TableRow>
-                );
-              })}
-            </Menus>
+                        </ProgressBarContainer>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            marginTop: "0.8rem",
+                            fontSize: "1.2rem",
+                            color: "var(--color-grey-600)",
+                          }}
+                        >
+                          <span>
+                            {client.balance.toLocaleString()} TND used
+                          </span>
+                          <span>
+                            {client.creditLimit.toLocaleString()} TND limit
+                          </span>
+                        </div>
+                      </MobileCreditSection>
+
+                      <MobileActionsRow>
+                        <MobileActionButton
+                          onClick={() => handleViewClient(client.id)}
+                        >
+                          <HiOutlineEye />
+                          View
+                        </MobileActionButton>
+                        <Modal>
+                          <Modal.Open opens={`edit-mobile-${client.id}`}>
+                            <MobileActionButton>
+                              <HiOutlinePencil />
+                              Edit
+                            </MobileActionButton>
+                          </Modal.Open>
+                          <Modal.Window name={`edit-mobile-${client.id}`}>
+                            <ClientForm
+                              clientToEdit={client}
+                              onCloseModal={() => {}}
+                            />
+                          </Modal.Window>
+                        </Modal>
+                      </MobileActionsRow>
+                    </MobileCard>
+                  );
+                })}
+              </MobileCardList>
+            </>
           )}
         </Table>
       </TableCard>
