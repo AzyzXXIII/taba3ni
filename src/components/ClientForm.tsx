@@ -9,6 +9,10 @@ import ButtonGroup from "../UI/ButtonGroup";
 import Heading from "../UI/Heading";
 import Select from "../UI/Select";
 
+/* =======================
+   Styled Components
+======================= */
+
 const FormGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -39,19 +43,28 @@ const InfoBox = styled.div`
   padding: 1.6rem;
   background-color: var(--color-blue-100);
   border-radius: var(--border-radius-sm);
-  margin-bottom: 1.6rem;
 
   & p {
     font-size: 1.3rem;
     color: var(--color-blue-700);
-    margin-bottom: 0;
+    margin: 0;
   }
 `;
 
-type ClientType = "supermarket" | "grocery" | "restaurant" | "cafe" | "other";
-type ClientStatus = "active" | "inactive" | "pending";
+/* =======================
+   Types
+======================= */
 
-type Client = {
+export type ClientType =
+  | "supermarket"
+  | "grocery"
+  | "restaurant"
+  | "cafe"
+  | "other";
+
+export type ClientStatus = "active" | "inactive" | "pending";
+
+export type Client = {
   id: string;
   name: string;
   type: ClientType;
@@ -60,10 +73,7 @@ type Client = {
   email: string;
   address: string;
   city: string;
-  totalOrders: number;
-  totalSpent: number;
   creditLimit: number;
-  balance: number;
   contactPerson: string;
   taxId?: string;
   paymentTerms: string;
@@ -73,6 +83,10 @@ type ClientFormProps = {
   clientToEdit?: Client;
   onCloseModal: () => void;
 };
+
+/* =======================
+   Select Options
+======================= */
 
 const clientTypeOptions = [
   { value: "", label: "Select client type..." },
@@ -84,7 +98,7 @@ const clientTypeOptions = [
 ];
 
 const statusOptions = [
-  { value: "pending", label: "Pending Approval" },
+  { value: "pending", label: "Pending" },
   { value: "active", label: "Active" },
   { value: "inactive", label: "Inactive" },
 ];
@@ -102,281 +116,206 @@ const tunisianCities = [
   { value: "", label: "Select city..." },
   { value: "Tunis", label: "Tunis" },
   { value: "Ariana", label: "Ariana" },
-  { value: "Ben Arous", label: "Ben Arous" },
-  { value: "La Marsa", label: "La Marsa" },
-  { value: "Carthage", label: "Carthage" },
   { value: "Sfax", label: "Sfax" },
   { value: "Sousse", label: "Sousse" },
   { value: "Bizerte", label: "Bizerte" },
   { value: "Gabes", label: "Gabès" },
-  { value: "Kairouan", label: "Kairouan" },
 ];
+
+/* =======================
+   Component
+======================= */
 
 function ClientForm({ clientToEdit, onCloseModal }: ClientFormProps) {
   const isEditMode = Boolean(clientToEdit);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Basic Information
-  const [name, setName] = useState(clientToEdit?.name || "");
-  const [type, setType] = useState(clientToEdit?.type || "");
-  const [status, setStatus] = useState(clientToEdit?.status || "pending");
-  const [contactPerson, setContactPerson] = useState(
-    clientToEdit?.contactPerson || ""
-  );
+  const [formData, setFormData] = useState({
+    name: clientToEdit?.name ?? "",
+    type: clientToEdit?.type ?? "",
+    status: clientToEdit?.status ?? "pending",
+    contactPerson: clientToEdit?.contactPerson ?? "",
+    phone: clientToEdit?.phone ?? "",
+    email: clientToEdit?.email ?? "",
+    address: clientToEdit?.address ?? "",
+    city: clientToEdit?.city ?? "",
+    creditLimit: clientToEdit?.creditLimit?.toString() ?? "10000",
+    paymentTerms: clientToEdit?.paymentTerms ?? "",
+    taxId: clientToEdit?.taxId ?? "",
+  });
 
-  // Contact Information
-  const [phone, setPhone] = useState(clientToEdit?.phone || "");
-  const [email, setEmail] = useState(clientToEdit?.email || "");
-  const [address, setAddress] = useState(clientToEdit?.address || "");
-  const [city, setCity] = useState(clientToEdit?.city || "");
-
-  // Financial Information
-  const [creditLimit, setCreditLimit] = useState(
-    clientToEdit?.creditLimit?.toString() || "10000"
-  );
-  const [paymentTerms, setPaymentTerms] = useState(
-    clientToEdit?.paymentTerms || ""
-  );
-  const [taxId, setTaxId] = useState(clientToEdit?.taxId || "");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validation
-    if (
-      !name ||
-      !type ||
-      !phone ||
-      !email ||
-      !address ||
-      !city ||
-      !contactPerson
-    ) {
-      alert("Please fill in all required fields");
-      return;
-    }
-
-    const clientData = {
-      name,
-      type,
-      status,
-      phone,
-      email,
-      address,
-      city,
-      contactPerson,
-      creditLimit: parseFloat(creditLimit),
-      paymentTerms,
-      taxId,
+  const handleChange =
+    (field: keyof typeof formData) =>
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >
+    ) => {
+      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
     };
 
-    console.log(
-      isEditMode ? "Updating client:" : "Creating client:",
-      clientData
-    );
+  const validate = () => {
+    if (
+      !formData.name ||
+      !formData.type ||
+      !formData.phone ||
+      !formData.email ||
+      !formData.address ||
+      !formData.city ||
+      !formData.contactPerson ||
+      !formData.paymentTerms
+    ) {
+      alert("Please fill in all required fields");
+      return false;
+    }
 
-    // TODO: Call API to create/update client
-    onCloseModal();
+    if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      alert("Invalid email format");
+      return false;
+    }
+
+    if (Number(formData.creditLimit) <= 0) {
+      alert("Credit limit must be greater than 0");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    setIsSubmitting(true);
+
+    const payload = {
+      ...formData,
+      creditLimit: Number(formData.creditLimit),
+    };
+
+    console.log(isEditMode ? "Updating client:" : "Creating client:", payload);
+
+    // 🔥 TODO: call API or React Query mutation here
+
+    setTimeout(() => {
+      setIsSubmitting(false);
+      onCloseModal();
+    }, 500);
   };
 
   return (
     <Form type="modal" onSubmit={handleSubmit}>
-      <Heading as="h2">
-        {isEditMode ? `Edit Client: ${clientToEdit.name}` : "Add New Client"}
-      </Heading>
+      <Heading as="h2">{isEditMode ? "Edit Client" : "Add New Client"}</Heading>
 
       {!isEditMode && (
         <InfoBox>
           <p>
-            <strong>📋 Note:</strong> New clients will be created with "Pending"
-            status and require approval before they can place orders.
+            📋 New clients are created with <strong>Pending</strong> status.
           </p>
         </InfoBox>
       )}
 
       <FormGrid>
-        {/* Basic Information Section */}
-        <SectionTitle>📋 Basic Information</SectionTitle>
+        <SectionTitle>Basic Information</SectionTitle>
 
         <FullWidth>
-          <FormRow
-            label="Business Name *"
-            style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
-          >
-            <Input
-              type="text"
-              id="name"
-              placeholder="e.g., Carrefour Lac 2"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
+          <FormRow label="Business Name *">
+            <Input value={formData.name} onChange={handleChange("name")} />
           </FormRow>
         </FullWidth>
 
-        <FormRow
-          label="Client Type *"
-          style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
-        >
+        <FormRow label="Client Type *">
           <Select
-            id="type"
+            value={formData.type}
             options={clientTypeOptions}
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            required
+            onChange={handleChange("type")}
           />
         </FormRow>
 
-        <FormRow
-          label="Status *"
-          style={{ gridTemplateColumns: "10rem 1fr 1.2fr" }}
-        >
+        <FormRow label="Status *">
           <Select
-            id="status"
+            value={formData.status}
             options={statusOptions}
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            required
+            onChange={handleChange("status")}
           />
         </FormRow>
 
         <FullWidth>
-          <FormRow
-            label="Contact Person *"
-            style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
-          >
+          <FormRow label="Contact Person *">
             <Input
-              type="text"
-              id="contactPerson"
-              placeholder="e.g., Ahmed Ben Ali"
-              value={contactPerson}
-              onChange={(e) => setContactPerson(e.target.value)}
-              required
+              value={formData.contactPerson}
+              onChange={handleChange("contactPerson")}
             />
           </FormRow>
         </FullWidth>
 
-        {/* Contact Information Section */}
-        <SectionTitle>📞 Contact Information</SectionTitle>
+        <SectionTitle>Contact Information</SectionTitle>
 
-        <FormRow
-          label="Phone Number *"
-          style={{ gridTemplateColumns: "15rem 1fr 1.2fr" }}
-        >
-          <Input
-            type="tel"
-            id="phone"
-            placeholder="+216 71 123 456"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            required
-          />
+        <FormRow label="Phone *">
+          <Input value={formData.phone} onChange={handleChange("phone")} />
         </FormRow>
 
-        <FormRow
-          label="Email Address *"
-          style={{ gridTemplateColumns: "12rem 1fr 1.2fr" }}
-        >
+        <FormRow label="Email *">
           <Input
             type="email"
-            id="email"
-            placeholder="client@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+            value={formData.email}
+            onChange={handleChange("email")}
           />
         </FormRow>
 
-        <FormRow
-          label="City *"
-          style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
-        >
+        <FormRow label="City *">
           <Select
-            id="city"
+            value={formData.city}
             options={tunisianCities}
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            required
+            onChange={handleChange("city")}
           />
         </FormRow>
 
         <FullWidth>
-          <FormRow
-            label="Full Address *"
-            style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
-          >
+          <FormRow label="Address *">
             <Textarea
-              id="address"
-              placeholder="Street address, building number, floor..."
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
               rows={2}
-              required
+              value={formData.address}
+              onChange={handleChange("address")}
             />
           </FormRow>
         </FullWidth>
 
-        {/* Financial Information Section */}
-        <SectionTitle>💰 Financial Information</SectionTitle>
+        <SectionTitle>Financial Information</SectionTitle>
 
-        <FormRow
-          label="Credit Limit (TND) *"
-          style={{ gridTemplateColumns: "18rem 1fr 1.2fr" }}
-        >
+        <FormRow label="Credit Limit (TND) *">
           <Input
             type="number"
-            id="creditLimit"
-            placeholder="10000"
-            min="0"
-            step="100"
-            value={creditLimit}
-            onChange={(e) => setCreditLimit(e.target.value)}
-            required
+            value={formData.creditLimit}
+            onChange={handleChange("creditLimit")}
           />
         </FormRow>
 
-        <FormRow
-          label="Payment Terms *"
-          style={{ gridTemplateColumns: "15rem 1fr 1.2fr" }}
-        >
+        <FormRow label="Payment Terms *">
           <Select
-            id="paymentTerms"
+            value={formData.paymentTerms}
             options={paymentTermsOptions}
-            value={paymentTerms}
-            onChange={(e) => setPaymentTerms(e.target.value)}
-            required
+            onChange={handleChange("paymentTerms")}
           />
         </FormRow>
 
         <FullWidth>
-          <FormRow label="Tax ID / Registration Number">
-            <Input
-              type="text"
-              id="taxId"
-              placeholder="e.g., 123456789"
-              value={taxId}
-              onChange={(e) => setTaxId(e.target.value)}
-            />
+          <FormRow label="Tax ID">
+            <Input value={formData.taxId} onChange={handleChange("taxId")} />
           </FormRow>
         </FullWidth>
       </FormGrid>
-
-      {/* Credit Limit Warning */}
-      {parseFloat(creditLimit) > 50000 && (
-        <InfoBox style={{ backgroundColor: "var(--color-yellow-100)" }}>
-          <p style={{ color: "var(--color-yellow-700)" }}>
-            ⚠️ <strong>High Credit Limit:</strong> This client will have a
-            credit limit above 50,000 TND. Make sure this is approved by
-            management.
-          </p>
-        </InfoBox>
-      )}
 
       <ButtonGroup>
         <Button type="button" $variation="secondary" onClick={onCloseModal}>
           Cancel
         </Button>
-        <Button type="submit">
-          {isEditMode ? "Update Client" : "Add Client"}
+        <Button disabled={isSubmitting}>
+          {isSubmitting
+            ? "Saving..."
+            : isEditMode
+            ? "Update Client"
+            : "Add Client"}
         </Button>
       </ButtonGroup>
     </Form>
