@@ -129,6 +129,8 @@ const ExportButton = styled(Button)`
   align-items: center;
   gap: 0.8rem;
   font-size: 1.4rem;
+  background-color: var(--color-green-500);
+  color: var(--color-grey-900);
 
   & svg {
     width: 1.8rem;
@@ -940,11 +942,7 @@ function Clients() {
             Showing <strong>{sortedClients.length}</strong> of{" "}
             <strong>{mockClients.length}</strong> clients
           </ResultsCount>
-          <ExportButton
-            $variation="secondary"
-            $size="small"
-            onClick={handleExport}
-          >
+          <ExportButton $variation="secondary" $size="" onClick={handleExport}>
             <HiOutlineArrowDownTray />
             Export to CSV
           </ExportButton>
