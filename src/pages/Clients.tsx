@@ -9,8 +9,6 @@ import {
   HiOutlinePhone,
   HiOutlineMapPin,
   HiOutlineCurrencyDollar,
-} from "react-icons/hi2";
-import {
   HiArrowUp,
   HiArrowDown,
   HiOutlineArrowDownTray,
@@ -38,11 +36,21 @@ const FiltersBar = styled.div`
   gap: 1.6rem;
   align-items: center;
   flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 `;
 
 const FilterGroup = styled.div`
   display: flex;
   gap: 0.8rem;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 const FilterButton = styled.button<{ $active?: boolean }>`
@@ -64,6 +72,11 @@ const FilterButton = styled.button<{ $active?: boolean }>`
     border-color: var(--color-brand-600);
     color: var(--color-brand-600);
   }
+
+  @media (max-width: 768px) {
+    flex: 1;
+    justify-content: center;
+  }
 `;
 
 const StatsRow = styled.div`
@@ -79,6 +92,44 @@ const TableCard = styled.div`
   overflow: hidden;
 `;
 
+const TableControls = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.6rem 2.4rem;
+  background-color: var(--color-grey-50);
+  border-bottom: 1px solid var(--color-grey-100);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 1.2rem;
+    align-items: stretch;
+  }
+`;
+
+const ResultsCount = styled.div`
+  font-size: 1.4rem;
+  color: var(--color-grey-600);
+  font-weight: 500;
+
+  & strong {
+    color: var(--color-grey-900);
+    font-weight: 700;
+  }
+`;
+
+const ExportButton = styled(Button)`
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 1.4rem;
+
+  & svg {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+`;
+
 const Table = styled.div`
   width: 100%;
   overflow-x: auto;
@@ -86,20 +137,45 @@ const Table = styled.div`
 
 const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 1fr 0.5fr;
+  grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 1.5fr 1fr 0.5fr;
   gap: 1.6rem;
   padding: 1.6rem 2.4rem;
-  background-color: var(--color-grey-50);
+  background-color: var(--color-grey-0);
   font-weight: 600;
   font-size: 1.3rem;
   text-transform: uppercase;
   color: var(--color-grey-600);
-  border-bottom: 1px solid var(--color-grey-100);
+  border-bottom: 2px solid var(--color-grey-200);
+
+  @media (max-width: 1400px) {
+    grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 1.5fr 0.5fr;
+  }
+`;
+
+const SortableHeader = styled.div<{ $active?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+  color: ${(props) =>
+    props.$active ? "var(--color-brand-600)" : "var(--color-grey-600)"};
+
+  &:hover {
+    color: var(--color-brand-600);
+  }
+
+  & svg {
+    width: 1.4rem;
+    height: 1.4rem;
+    transition: transform 0.2s;
+  }
 `;
 
 const TableRow = styled.div`
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 1fr 0.5fr;
+  grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 1.5fr 1fr 0.5fr;
   gap: 1.6rem;
   padding: 1.6rem 2.4rem;
   border-bottom: 1px solid var(--color-grey-100);
@@ -112,6 +188,10 @@ const TableRow = styled.div`
 
   &:last-child {
     border-bottom: none;
+  }
+
+  @media (max-width: 1400px) {
+    grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 1.5fr 0.5fr;
   }
 `;
 
@@ -136,18 +216,23 @@ const ClientIcon = styled.div`
   color: var(--color-grey-0);
   font-weight: 700;
   font-size: 1.6rem;
+  flex-shrink: 0;
 `;
 
 const ClientDetails = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+  min-width: 0;
 `;
 
 const ClientName = styled.span`
   font-weight: 600;
   font-size: 1.4rem;
   color: var(--color-grey-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const ClientType = styled.span`
@@ -173,6 +258,7 @@ const ContactInfo = styled.div`
     width: 1.4rem;
     height: 1.4rem;
     color: var(--color-brand-600);
+    flex-shrink: 0;
   }
 `;
 
@@ -184,6 +270,7 @@ const StatusBadge = styled.span<{ $status: "active" | "inactive" | "pending" }>`
   font-size: 1.2rem;
   font-weight: 600;
   text-transform: uppercase;
+  white-space: nowrap;
   background-color: ${(props) => {
     if (props.$status === "active") return "var(--color-green-100)";
     if (props.$status === "pending") return "var(--color-yellow-100)";
@@ -198,90 +285,99 @@ const StatusBadge = styled.span<{ $status: "active" | "inactive" | "pending" }>`
 
 const Amount = styled.span<{ $negative?: boolean }>`
   font-weight: 600;
+  font-size: 1.4rem;
   color: ${(props) =>
     props.$negative ? "var(--color-red-700)" : "var(--color-grey-900)"};
 `;
 
+const CreditBar = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 12rem;
+`;
+
+const CreditHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+  color: var(--color-grey-600);
+`;
+
+const CreditAmount = styled.span`
+  font-weight: 600;
+  font-size: 1.2rem;
+`;
+
+const CreditPercentage = styled.span<{ $color: string }>`
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: ${(props) => props.$color};
+`;
+
+const ProgressBarContainer = styled.div`
+  width: 100%;
+  height: 0.8rem;
+  background-color: var(--color-grey-200);
+  border-radius: 10rem;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+const ProgressBarFill = styled.div<{ $percentage: number; $color: string }>`
+  height: 100%;
+  width: ${(props) => props.$percentage}%;
+  background: linear-gradient(
+    90deg,
+    ${(props) => props.$color},
+    ${(props) => props.$color}dd
+  );
+  border-radius: 10rem;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 8px ${(props) => props.$color}88;
+`;
+
+const LastOrderDate = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 1.3rem;
+
+  & .date {
+    color: var(--color-grey-900);
+    font-weight: 500;
+  }
+
+  & .time-ago {
+    color: var(--color-grey-500);
+    font-size: 1.1rem;
+  }
+`;
+
 const EmptyState = styled.div`
-  padding: 6rem 2rem;
+  padding: 8rem 2rem;
   text-align: center;
   color: var(--color-grey-500);
 
-  & p {
-    font-size: 1.8rem;
-    margin-bottom: 1.6rem;
-  }
-
   & svg {
-    width: 8rem;
-    height: 8rem;
-    margin: 0 auto 2rem;
-    color: var(--color-grey-400);
-  }
-`;
-const SortButton = styled.button<{ $active?: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  background: none;
-  border: none;
-  color: ${(props) =>
-    props.$active ? "var(--color-brand-600)" : "var(--color-grey-600)"};
-  font-weight: 600;
-  font-size: 1.3rem;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    color: var(--color-brand-600);
+    width: 10rem;
+    height: 10rem;
+    margin: 0 auto 2.4rem;
+    color: var(--color-grey-300);
   }
 
-  & svg {
-    width: 1.4rem;
-    height: 1.4rem;
-  }
-`;
-
-const CreditBar = styled.div`
-  min-width: 14rem;
-
-  .credit-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 1.1rem;
-    margin-bottom: 0.4rem;
-    color: var(--color-grey-600);
-  }
-
-  .credit-amount {
+  & h3 {
+    font-size: 2rem;
     font-weight: 600;
+    color: var(--color-grey-700);
+    margin-bottom: 0.8rem;
   }
 
-  .credit-percentage {
-    font-weight: 700;
-    font-size: 1.2rem;
+  & p {
+    font-size: 1.5rem;
+    margin-bottom: 2.4rem;
   }
-
-  .progress-bar {
-    width: 100%;
-    height: 0.6rem;
-    background-color: var(--color-grey-200);
-    border-radius: 10rem;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    transition: width 0.3s ease;
-    border-radius: 10rem;
-  }
-`;
-
-const ExportButton = styled(Button)`
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
 `;
 
 // Types
@@ -304,9 +400,10 @@ type Client = {
   contactPerson: string;
   taxId?: string;
   paymentTerms: string;
+  lastOrderDate?: string; // FIXED: Added this property
 };
 
-// Mock Data
+// Mock Data - UPDATED with lastOrderDate
 const mockClients: Client[] = [
   {
     id: "1",
@@ -320,10 +417,11 @@ const mockClients: Client[] = [
     totalOrders: 145,
     totalSpent: 125400,
     creditLimit: 50000,
-    balance: 12500,
+    balance: 45000,
     contactPerson: "Ahmed Ben Ali",
     taxId: "123456789",
     paymentTerms: "30 days",
+    lastOrderDate: "2025-12-28",
   },
   {
     id: "2",
@@ -337,10 +435,11 @@ const mockClients: Client[] = [
     totalOrders: 98,
     totalSpent: 87500,
     creditLimit: 40000,
-    balance: 8900,
+    balance: 28000,
     contactPerson: "Fatma Trabelsi",
     taxId: "987654321",
     paymentTerms: "30 days",
+    lastOrderDate: "2025-12-27",
   },
   {
     id: "3",
@@ -354,9 +453,10 @@ const mockClients: Client[] = [
     totalOrders: 67,
     totalSpent: 45200,
     creditLimit: 20000,
-    balance: 5600,
+    balance: 10000,
     contactPerson: "Mohamed Sassi",
     paymentTerms: "15 days",
+    lastOrderDate: "2025-12-25",
   },
   {
     id: "4",
@@ -373,6 +473,7 @@ const mockClients: Client[] = [
     balance: 3200,
     contactPerson: "Salah Gharbi",
     paymentTerms: "Cash",
+    lastOrderDate: "2025-12-20",
   },
   {
     id: "5",
@@ -389,6 +490,24 @@ const mockClients: Client[] = [
     balance: 0,
     contactPerson: "Karim Jlassi",
     paymentTerms: "Cash",
+    lastOrderDate: "2025-11-15",
+  },
+  {
+    id: "6",
+    name: "Restaurant Le Gourmet",
+    type: "restaurant",
+    status: "active",
+    phone: "+216 71 678 901",
+    email: "legourmet@email.com",
+    address: "Avenue de France",
+    city: "Tunis",
+    totalOrders: 89,
+    totalSpent: 67800,
+    creditLimit: 35000,
+    balance: 15000,
+    contactPerson: "Leila Mansour",
+    paymentTerms: "30 days",
+    lastOrderDate: "2025-12-29",
   },
 ];
 
@@ -397,7 +516,6 @@ function Clients() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-
   const [sortBy, setSortBy] = useState<"name" | "orders" | "spent" | "credit">(
     "name"
   );
@@ -415,15 +533,7 @@ function Clients() {
     return matchesType && matchesStatus && matchesSearch;
   });
 
-  // Calculate stats
-  const stats = {
-    total: mockClients.length,
-    active: mockClients.filter((c) => c.status === "active").length,
-    totalRevenue: mockClients.reduce((sum, c) => sum + c.totalSpent, 0),
-    totalBalance: mockClients.reduce((sum, c) => sum + c.balance, 0),
-  };
-
-  // NEW: Sort clients
+  // Sort clients
   const sortedClients = [...filteredClients].sort((a, b) => {
     let comparison = 0;
 
@@ -437,17 +547,26 @@ function Clients() {
       case "spent":
         comparison = a.totalSpent - b.totalSpent;
         break;
-      case "credit":
+      case "credit": {
         const aUsage = (a.balance / a.creditLimit) * 100;
         const bUsage = (b.balance / b.creditLimit) * 100;
         comparison = aUsage - bUsage;
         break;
+      }
     }
 
     return sortOrder === "asc" ? comparison : -comparison;
   });
 
-  // NEW: Handle sort
+  // Calculate stats
+  const stats = {
+    total: mockClients.length,
+    active: mockClients.filter((c) => c.status === "active").length,
+    totalRevenue: mockClients.reduce((sum, c) => sum + c.totalSpent, 0),
+    totalBalance: mockClients.reduce((sum, c) => sum + c.balance, 0),
+  };
+
+  // Handle sort
   const handleSort = (field: "name" | "orders" | "spent" | "credit") => {
     if (sortBy === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -457,7 +576,7 @@ function Clients() {
     }
   };
 
-  // NEW: Export to CSV
+  // Export to CSV
   const handleExport = () => {
     const csvData = [
       [
@@ -468,10 +587,11 @@ function Clients() {
         "Email",
         "City",
         "Total Orders",
-        "Total Spent",
-        "Balance",
-        "Credit Limit",
-        "Last Order",
+        "Total Spent (TND)",
+        "Balance (TND)",
+        "Credit Limit (TND)",
+        "Credit Usage %",
+        "Last Order Date",
       ],
       ...sortedClients.map((c) => [
         c.name,
@@ -484,27 +604,45 @@ function Clients() {
         c.totalSpent,
         c.balance,
         c.creditLimit,
+        ((c.balance / c.creditLimit) * 100).toFixed(1),
         c.lastOrderDate || "N/A",
       ]),
     ];
 
     const csvContent = csvData.map((row) => row.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv" });
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `clients-export-${
+    link.download = `taba3ni-clients-export-${
       new Date().toISOString().split("T")[0]
     }.csv`;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   };
 
-  // NEW: Calculate credit utilization color
+  // Calculate credit utilization color
   const getCreditColor = (percentage: number) => {
     if (percentage >= 90) return "#dc2626"; // Red
     if (percentage >= 70) return "#f59e0b"; // Orange
     if (percentage >= 50) return "#eab308"; // Yellow
     return "#10b981"; // Green
+  };
+
+  // Format relative time
+  const getTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+    if (diffInDays === 0) return "Today";
+    if (diffInDays === 1) return "Yesterday";
+    if (diffInDays < 7) return `${diffInDays} days ago`;
+    if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
+    return `${Math.floor(diffInDays / 30)} months ago`;
   };
 
   const handleViewClient = (clientId: string) => {
@@ -624,115 +762,191 @@ function Clients() {
 
       {/* Clients Table */}
       <TableCard>
+        <TableControls>
+          <ResultsCount>
+            Showing <strong>{sortedClients.length}</strong> of{" "}
+            <strong>{mockClients.length}</strong> clients
+          </ResultsCount>
+          <ExportButton
+            $variation="secondary"
+            $size="small"
+            onClick={handleExport}
+          >
+            <HiOutlineArrowDownTray />
+            Export to CSV
+          </ExportButton>
+        </TableControls>
+
         <Table>
           <TableHeader>
-            <div>Client</div>
+            <SortableHeader
+              $active={sortBy === "name"}
+              onClick={() => handleSort("name")}
+            >
+              Client
+              {sortBy === "name" &&
+                (sortOrder === "asc" ? <HiArrowUp /> : <HiArrowDown />)}
+            </SortableHeader>
             <div>Contact</div>
             <div>Location</div>
-            <div>Orders</div>
-            <div>Total Spent</div>
-            <div>Status</div>
+            <SortableHeader
+              $active={sortBy === "orders"}
+              onClick={() => handleSort("orders")}
+            >
+              Orders
+              {sortBy === "orders" &&
+                (sortOrder === "asc" ? <HiArrowUp /> : <HiArrowDown />)}
+            </SortableHeader>
+            <SortableHeader
+              $active={sortBy === "spent"}
+              onClick={() => handleSort("spent")}
+            >
+              Total Spent
+              {sortBy === "spent" &&
+                (sortOrder === "asc" ? <HiArrowUp /> : <HiArrowDown />)}
+            </SortableHeader>
+            <SortableHeader
+              $active={sortBy === "credit"}
+              onClick={() => handleSort("credit")}
+            >
+              Credit Usage
+              {sortBy === "credit" &&
+                (sortOrder === "asc" ? <HiArrowUp /> : <HiArrowDown />)}
+            </SortableHeader>
+            <div>Last Order</div>
             <div></div>
           </TableHeader>
 
-          {filteredClients.length === 0 ? (
+          {sortedClients.length === 0 ? (
             <EmptyState>
               <HiOutlineBuildingStorefront />
-              <p>🔍 No clients found</p>
-              <p style={{ fontSize: "1.4rem" }}>
-                Try adjusting your filters or search query
-              </p>
+              <h3>No clients found</h3>
+              <p>Try adjusting your filters or search query</p>
+              <Modal>
+                <Modal.Open opens="create-client-empty">
+                  <Button $size="medium">+ Add Your First Client</Button>
+                </Modal.Open>
+                <Modal.Window name="create-client-empty">
+                  <ClientForm onCloseModal={() => {}} />
+                </Modal.Window>
+              </Modal>
             </EmptyState>
           ) : (
             <Menus>
-              {filteredClients.map((client) => (
-                <TableRow key={client.id}>
-                  <ClientInfo>
-                    <ClientIcon>{getClientInitials(client.name)}</ClientIcon>
-                    <ClientDetails>
-                      <ClientName>{client.name}</ClientName>
-                      <ClientType>{client.type}</ClientType>
-                    </ClientDetails>
-                  </ClientInfo>
+              {sortedClients.map((client) => {
+                const creditUsage = (client.balance / client.creditLimit) * 100;
+                const creditColor = getCreditColor(creditUsage);
 
-                  <ContactInfo>
-                    <div>
-                      <HiOutlinePhone />
-                      {client.phone}
+                return (
+                  <TableRow key={client.id}>
+                    <ClientInfo>
+                      <ClientIcon>{getClientInitials(client.name)}</ClientIcon>
+                      <ClientDetails>
+                        <ClientName>{client.name}</ClientName>
+                        <ClientType>{client.type}</ClientType>
+                      </ClientDetails>
+                    </ClientInfo>
+
+                    <ContactInfo>
+                      <div>
+                        <HiOutlinePhone />
+                        {client.phone}
+                      </div>
+                    </ContactInfo>
+
+                    <ContactInfo>
+                      <div>
+                        <HiOutlineMapPin />
+                        {client.city}
+                      </div>
+                    </ContactInfo>
+
+                    <div style={{ fontWeight: 600, fontSize: "1.4rem" }}>
+                      {client.totalOrders}
                     </div>
-                  </ContactInfo>
 
-                  <ContactInfo>
+                    <Amount>{client.totalSpent.toLocaleString()} TND</Amount>
+
+                    <CreditBar>
+                      <CreditHeader>
+                        <CreditAmount>
+                          {client.balance.toLocaleString()} TND
+                        </CreditAmount>
+                        <CreditPercentage $color={creditColor}>
+                          {creditUsage.toFixed(0)}%
+                        </CreditPercentage>
+                      </CreditHeader>
+                      <ProgressBarContainer>
+                        <ProgressBarFill
+                          $percentage={creditUsage}
+                          $color={creditColor}
+                        />
+                      </ProgressBarContainer>
+                    </CreditBar>
+
+                    <LastOrderDate>
+                      <span className="date">
+                        {client.lastOrderDate
+                          ? new Date(client.lastOrderDate).toLocaleDateString(
+                              "en-GB",
+                              { day: "2-digit", month: "short" }
+                            )
+                          : "N/A"}
+                      </span>
+                      {client.lastOrderDate && (
+                        <span className="time-ago">
+                          {getTimeAgo(client.lastOrderDate)}
+                        </span>
+                      )}
+                    </LastOrderDate>
+
                     <div>
-                      <HiOutlineMapPin />
-                      {client.city}
+                      <Modal>
+                        <Menus.Menu>
+                          <Menus.Toggle id={client.id} />
+                          <Menus.List id={client.id}>
+                            <Menus.Button
+                              icon={<HiOutlineEye />}
+                              onClick={() => handleViewClient(client.id)}
+                            >
+                              View Details
+                            </Menus.Button>
+                            <Modal.Open opens={`edit-${client.id}`}>
+                              <Menus.Button icon={<HiOutlinePencil />}>
+                                Edit Client
+                              </Menus.Button>
+                            </Modal.Open>
+                            <Modal.Open opens={`delete-${client.id}`}>
+                              <Menus.Button icon={<HiOutlineTrash />}>
+                                Delete Client
+                              </Menus.Button>
+                            </Modal.Open>
+                          </Menus.List>
+                        </Menus.Menu>
+
+                        <Modal.Window name={`edit-${client.id}`}>
+                          <ClientForm
+                            clientToEdit={client}
+                            onCloseModal={() => {}}
+                          />
+                        </Modal.Window>
+
+                        <Modal.Window name={`delete-${client.id}`}>
+                          <ConfirmDelete
+                            resourceName={`client ${client.name}`}
+                            onConfirm={() => handleDeleteClient(client.id)}
+                            onCloseModal={() => {}}
+                          />
+                        </Modal.Window>
+                      </Modal>
                     </div>
-                  </ContactInfo>
-
-                  <div style={{ fontWeight: 600 }}>{client.totalOrders}</div>
-
-                  <Amount>{client.totalSpent.toLocaleString()} TND</Amount>
-
-                  <StatusBadge $status={client.status}>
-                    {client.status}
-                  </StatusBadge>
-
-                  <div>
-                    <Modal>
-                      <Menus.Menu>
-                        <Menus.Toggle id={client.id} />
-                        <Menus.List id={client.id}>
-                          <Menus.Button
-                            icon={<HiOutlineEye />}
-                            onClick={() => handleViewClient(client.id)}
-                          >
-                            View Details
-                          </Menus.Button>
-                          <Modal.Open opens={`edit-${client.id}`}>
-                            <Menus.Button icon={<HiOutlinePencil />}>
-                              Edit Client
-                            </Menus.Button>
-                          </Modal.Open>
-                          <Modal.Open opens={`delete-${client.id}`}>
-                            <Menus.Button icon={<HiOutlineTrash />}>
-                              Delete Client
-                            </Menus.Button>
-                          </Modal.Open>
-                        </Menus.List>
-                      </Menus.Menu>
-
-                      <Modal.Window name={`edit-${client.id}`}>
-                        <ClientForm
-                          clientToEdit={client}
-                          onCloseModal={() => {}}
-                        />
-                      </Modal.Window>
-
-                      <Modal.Window name={`delete-${client.id}`}>
-                        <ConfirmDelete
-                          resourceName={`client ${client.name}`}
-                          onConfirm={() => handleDeleteClient(client.id)}
-                          onCloseModal={() => {}}
-                        />
-                      </Modal.Window>
-                    </Modal>
-                  </div>
-                </TableRow>
-              ))}
+                  </TableRow>
+                );
+              })}
             </Menus>
           )}
         </Table>
       </TableCard>
-      <div
-        style={{
-          textAlign: "center",
-          padding: "1.6rem",
-          color: "var(--color-grey-600)",
-          fontSize: "1.4rem",
-        }}
-      >
-        Showing {sortedClients.length} of {mockClients.length} clients
-      </div>
     </ClientsLayout>
   );
 }
