@@ -579,8 +579,7 @@ type Client = {
   lastOrderDate?: string; // FIXED: Added this property
 };
 
-// Mock Data - UPDATED with lastOrderDate
-const mockClients: Client[] = [
+// Mock Data 
   {
     id: "1",
     name: "Carrefour Lac 2",
