@@ -25,7 +25,6 @@ import ConfirmDelete from "../UI/ConfirmDelete";
 import ClientForm from "../components/ClientForm";
 import StatsCard from "../UI/StatsCard";
 
-// Styled Components
 const ClientsLayout = styled.div`
   display: flex;
   flex-direction: column;
@@ -579,7 +578,8 @@ type Client = {
   lastOrderDate?: string; // FIXED: Added this property
 };
 
-// Mock Data 
+// Mock Data
+const mockClients: Client[] = [
   {
     id: "1",
     name: "Carrefour Lac 2",
@@ -799,9 +799,9 @@ function Clients() {
 
   // Calculate credit utilization color
   const getCreditColor = (percentage: number) => {
-    if (percentage >= 90) return "#dc2626"; // Red
-    if (percentage >= 70) return "#f59e0b"; // Orange
-    if (percentage >= 50) return "#eab308"; // Yellow
+    if (percentage >= 90) return "#dc2626";
+    if (percentage >= 70) return "#f59e0b";
+    if (percentage >= 50) return "#eab308";
     return "#10b981"; // Green
   };
 
