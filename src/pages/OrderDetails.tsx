@@ -9,6 +9,7 @@ import {
   HiOutlineEnvelope,
   HiOutlineCalendar,
   HiOutlineClock,
+  HiOutlinePrinter,
 } from "react-icons/hi2";
 import Heading from "../UI/Heading";
 import Row from "../UI/Row";
@@ -52,6 +53,31 @@ const BackButton = styled.button`
 const ActionButtons = styled.div`
   display: flex;
   gap: 1.2rem;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    width: 100%;
+
+    & > * {
+      flex: 1;
+    }
+  }
+`;
+
+const HeaderRow = styled(Row)`
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 1.6rem;
+  }
+`;
+
+const HeaderContent = styled.div`
+  @media (max-width: 768px) {
+    & > div {
+      flex-wrap: wrap;
+    }
+  }
 `;
 
 const Grid = styled.div`
@@ -69,6 +95,10 @@ const Card = styled.div`
   border: 1px solid var(--color-grey-100);
   border-radius: var(--border-radius-md);
   padding: 2.4rem;
+
+  @media (max-width: 768px) {
+    padding: 1.6rem;
+  }
 `;
 
 const CardHeader = styled.div`
@@ -78,6 +108,12 @@ const CardHeader = styled.div`
   margin-bottom: 2rem;
   padding-bottom: 1.6rem;
   border-bottom: 1px solid var(--color-grey-200);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
 `;
 
 const InfoRow = styled.div`
@@ -95,6 +131,14 @@ const InfoRow = styled.div`
     width: 2rem;
     height: 2rem;
     color: var(--color-brand-600);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    padding: 1rem 0;
   }
 `;
 
@@ -102,15 +146,31 @@ const InfoLabel = styled.span`
   font-weight: 600;
   color: var(--color-grey-700);
   min-width: 12rem;
+
+  @media (max-width: 768px) {
+    min-width: auto;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
 `;
 
 const InfoValue = styled.span`
   color: var(--color-grey-600);
+  flex: 1;
+
+  @media (max-width: 768px) {
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--color-grey-900);
+  }
 `;
 
 const ProductsTable = styled.div`
   width: 100%;
   margin-top: 1.6rem;
+  overflow-x: auto;
 `;
 
 const TableHeader = styled.div`
@@ -124,6 +184,10 @@ const TableHeader = styled.div`
   font-size: 1.3rem;
   text-transform: uppercase;
   color: var(--color-grey-600);
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const TableRow = styled.div`
@@ -135,6 +199,52 @@ const TableRow = styled.div`
 
   &:last-child {
     border-bottom: none;
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+// Mobile Product Card
+const MobileProductList = styled.div`
+  display: none;
+
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    margin-top: 1.6rem;
+  }
+`;
+
+const MobileProductCard = styled.div`
+  background-color: var(--color-grey-50);
+  padding: 1.6rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--color-grey-200);
+`;
+
+const MobileProductName = styled.div`
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: var(--color-grey-900);
+  margin-bottom: 1rem;
+`;
+
+const MobileProductRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  font-size: 1.3rem;
+
+  & .label {
+    color: var(--color-grey-600);
+  }
+
+  & .value {
+    font-weight: 600;
+    color: var(--color-grey-900);
   }
 `;
 
@@ -155,6 +265,10 @@ const TotalRow = styled.div<{ $isFinal?: boolean }>`
   font-weight: ${(props) => (props.$isFinal ? "700" : "500")};
   color: ${(props) =>
     props.$isFinal ? "var(--color-brand-600)" : "var(--color-grey-700)"};
+
+  @media (max-width: 768px) {
+    font-size: ${(props) => (props.$isFinal ? "1.8rem" : "1.4rem")};
+  }
 `;
 
 // Mock order data
@@ -225,6 +339,11 @@ function OrderDetails() {
     navigate("/orders");
   };
 
+  const handlePrint = () => {
+    console.log("Print order:", orderId);
+    window.print();
+  };
+
   return (
     <DetailsLayout>
       {/* Back Button */}
@@ -234,8 +353,8 @@ function OrderDetails() {
       </BackButton>
 
       {/* Header */}
-      <Row type="horizontal">
-        <div>
+      <HeaderRow type="horizontal">
+        <HeaderContent>
           <Heading as="h1">Order #{order.orderNumber}</Heading>
           <div style={{ display: "flex", gap: "1.2rem", marginTop: "1.2rem" }}>
             <StatusBadge $status={order.status}>
@@ -245,11 +364,15 @@ function OrderDetails() {
               {paymentStatus.icon} {paymentStatus.label}
             </StatusBadge>
           </div>
-        </div>
+        </HeaderContent>
         <ActionButtons>
+          <Button $variation="secondary" $size="medium" onClick={handlePrint}>
+            <HiOutlinePrinter style={{ width: "2rem", height: "2rem" }} />
+            Print
+          </Button>
           <Button $variation="secondary" $size="medium" onClick={handleEdit}>
             <HiOutlinePencil style={{ width: "2rem", height: "2rem" }} />
-            Edit Order
+            Edit
           </Button>
           <Modal>
             <Modal.Open opens="delete-order">
@@ -267,7 +390,7 @@ function OrderDetails() {
             </Modal.Window>
           </Modal>
         </ActionButtons>
-      </Row>
+      </HeaderRow>
 
       {/* Main Content Grid */}
       <Grid>
@@ -281,13 +404,17 @@ function OrderDetails() {
               <Heading as="h2">Order Details</Heading>
             </CardHeader>
             <InfoRow>
-              <HiOutlineCalendar />
-              <InfoLabel>Created Date:</InfoLabel>
+              <InfoLabel>
+                <HiOutlineCalendar />
+                Created Date:
+              </InfoLabel>
               <InfoValue>{order.createdDate}</InfoValue>
             </InfoRow>
             <InfoRow>
-              <HiOutlineClock />
-              <InfoLabel>Delivery Date:</InfoLabel>
+              <InfoLabel>
+                <HiOutlineClock />
+                Delivery Date:
+              </InfoLabel>
               <InfoValue>{order.deliveryDate}</InfoValue>
             </InfoRow>
           </Card>
@@ -298,23 +425,31 @@ function OrderDetails() {
               <Heading as="h2">Client Information</Heading>
             </CardHeader>
             <InfoRow>
-              <HiOutlineMapPin />
-              <InfoLabel>Store Name:</InfoLabel>
+              <InfoLabel>
+                <HiOutlineMapPin />
+                Store Name:
+              </InfoLabel>
               <InfoValue>{order.client.name}</InfoValue>
             </InfoRow>
             <InfoRow>
-              <HiOutlineMapPin />
-              <InfoLabel>Address:</InfoLabel>
+              <InfoLabel>
+                <HiOutlineMapPin />
+                Address:
+              </InfoLabel>
               <InfoValue>{order.client.address}</InfoValue>
             </InfoRow>
             <InfoRow>
-              <HiOutlinePhone />
-              <InfoLabel>Phone:</InfoLabel>
+              <InfoLabel>
+                <HiOutlinePhone />
+                Phone:
+              </InfoLabel>
               <InfoValue>{order.client.phone}</InfoValue>
             </InfoRow>
             <InfoRow>
-              <HiOutlineEnvelope />
-              <InfoLabel>Email:</InfoLabel>
+              <InfoLabel>
+                <HiOutlineEnvelope />
+                Email:
+              </InfoLabel>
               <InfoValue>{order.client.email}</InfoValue>
             </InfoRow>
           </Card>
@@ -324,6 +459,8 @@ function OrderDetails() {
             <CardHeader>
               <Heading as="h2">Products</Heading>
             </CardHeader>
+
+            {/* Desktop Table */}
             <ProductsTable>
               <TableHeader>
                 <div>Product</div>
@@ -340,6 +477,27 @@ function OrderDetails() {
                 </TableRow>
               ))}
             </ProductsTable>
+
+            {/* Mobile Cards */}
+            <MobileProductList>
+              {order.products.map((product) => (
+                <MobileProductCard key={product.id}>
+                  <MobileProductName>{product.name}</MobileProductName>
+                  <MobileProductRow>
+                    <span className="label">Quantity:</span>
+                    <span className="value">{product.quantity}</span>
+                  </MobileProductRow>
+                  <MobileProductRow>
+                    <span className="label">Price:</span>
+                    <span className="value">{product.price} TND</span>
+                  </MobileProductRow>
+                  <MobileProductRow>
+                    <span className="label">Total:</span>
+                    <span className="value">{product.total} TND</span>
+                  </MobileProductRow>
+                </MobileProductCard>
+              ))}
+            </MobileProductList>
 
             <TotalSection>
               <TotalRow>
@@ -375,7 +533,15 @@ function OrderDetails() {
               <CardHeader>
                 <Heading as="h2">Notes</Heading>
               </CardHeader>
-              <p style={{ color: "var(--color-grey-600)" }}>{order.notes}</p>
+              <p
+                style={{
+                  color: "var(--color-grey-600)",
+                  lineHeight: "1.6",
+                  fontSize: "1.4rem",
+                }}
+              >
+                {order.notes}
+              </p>
             </Card>
           )}
         </div>
