@@ -535,12 +535,12 @@ type OrdersProps = {
   userName?: string;
 };
 
-// Mock Data
+// Mock Data - FIXED: Match userId with clientId
 const mockOrders: Order[] = [
   {
     id: "1",
     orderNumber: "ORD-001",
-    clientId: "1",
+    clientId: "client@taba3ni.tn",
     client: "Carrefour Lac 2",
     products: "Milk (50L), Yogurt (30)",
     amount: 1250,
@@ -552,7 +552,7 @@ const mockOrders: Order[] = [
   {
     id: "2",
     orderNumber: "ORD-002",
-    clientId: "2",
+    clientId: "monoprix.menzah@email.com", // FIXED: Use email as ID
     client: "Monoprix Menzah",
     products: "Cheese (20kg), Butter (10kg)",
     amount: 890,
@@ -564,7 +564,7 @@ const mockOrders: Order[] = [
   {
     id: "3",
     orderNumber: "ORD-003",
-    clientId: "3",
+    clientId: "general.marsa@email.com",
     client: "Magasin Général Marsa",
     products: "Milk (100L), Yogurt (50)",
     amount: 2100,
@@ -576,7 +576,7 @@ const mockOrders: Order[] = [
   {
     id: "4",
     orderNumber: "ORD-004",
-    clientId: "1",
+    clientId: "client@taba3ni.tn", // FIXED: Same client, multiple orders
     client: "Carrefour Lac 2",
     products: "Butter (15kg), Cream (20L)",
     amount: 650,
@@ -587,7 +587,7 @@ const mockOrders: Order[] = [
   {
     id: "5",
     orderNumber: "ORD-005",
-    clientId: "4",
+    clientId: "superette.ariana@email.com",
     client: "Superette Ariana",
     products: "Milk (30L), Yogurt (20)",
     amount: 580,
@@ -599,7 +599,7 @@ const mockOrders: Order[] = [
   {
     id: "6",
     orderNumber: "ORD-006",
-    clientId: "2",
+    clientId: "monoprix.menzah@email.com", // FIXED: Same client
     client: "Monoprix Menzah",
     products: "Milk (80L)",
     amount: 1200,
