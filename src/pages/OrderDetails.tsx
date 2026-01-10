@@ -20,6 +20,7 @@ import type { OrderStatus, PaymentStatus } from "../types/status";
 import Timeline from "../UI/Timeline";
 import Modal from "../UI/Modal";
 import ConfirmDelete from "../UI/ConfirmDelete";
+import OrderForm from "../components/OrderForm";
 
 // Styled Components
 const DetailsLayout = styled.div`
@@ -330,7 +331,7 @@ function OrderDetails() {
 
   const handleEdit = () => {
     console.log("Edit order:", orderId);
-    // TODO: Open edit modal or navigate to edit page
+    // Now handled by Modal - no need for extra logic
   };
 
   const handleDelete = () => {
@@ -370,10 +371,37 @@ function OrderDetails() {
             <HiOutlinePrinter style={{ width: "2rem", height: "2rem" }} />
             Print
           </Button>
-          <Button $variation="secondary" $size="medium" onClick={handleEdit}>
-            <HiOutlinePencil style={{ width: "2rem", height: "2rem" }} />
-            Edit
-          </Button>
+
+          {/* Edit Button with Modal */}
+          <Modal>
+            <Modal.Open opens="edit-order">
+              <Button $variation="secondary" $size="medium">
+                <HiOutlinePencil style={{ width: "2rem", height: "2rem" }} />
+                Edit
+              </Button>
+            </Modal.Open>
+            <Modal.Window name="edit-order">
+              <OrderForm
+                orderToEdit={{
+                  id: order.id,
+                  orderNumber: order.orderNumber,
+                  client: order.client.name,
+                  deliveryDate: order.deliveryDate,
+                  products: order.products.map((p) => ({
+                    id: p.id,
+                    productId: p.id,
+                    name: p.name,
+                    quantity: p.quantity,
+                    price: p.price,
+                  })),
+                  notes: order.notes,
+                }}
+                onCloseModal={() => {}}
+              />
+            </Modal.Window>
+          </Modal>
+
+          {/* Delete Button with Modal */}
           <Modal>
             <Modal.Open opens="delete-order">
               <Button $variation="danger" $size="medium">
