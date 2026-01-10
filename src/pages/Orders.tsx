@@ -185,6 +185,8 @@ const ExportButton = styled(Button)`
   align-items: center;
   gap: 0.8rem;
   font-size: 1.4rem;
+  background-color: var(--color-green-500);
+  color: var(--color-grey-900);
 
   & svg {
     width: 1.8rem;
@@ -994,7 +996,7 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
           </ResultsCount>
           <ExportButton
             $variation="secondary"
-            $size="small"
+            $size="medium"
             onClick={handleExport}
           >
             <HiOutlineArrowDownTray />

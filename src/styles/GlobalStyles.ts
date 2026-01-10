@@ -66,7 +66,7 @@ const GlobalStyles = createGlobalStyle`
 :root.dark-mode {
   /* Brand Colors Inverted */
   --color-brand-50: #0c2d48;
-  --color-brand-100: #145da0;
+  --color-brand-100: #1e1f1fff;
   --color-brand-200: #2e8bc0;
   --color-brand-500: #b1d4e0;
   --color-brand-600: #2e8bc0;
