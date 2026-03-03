@@ -61,7 +61,6 @@ const StepItem = styled.div<{ $status: "done" | "active" | "upcoming" }>`
   gap: 0.6rem;
   flex: 1;
   position: relative;
-
   &:not(:last-child)::after {
     content: "";
     position: absolute;
@@ -489,12 +488,15 @@ const initials = (name: string) =>
     .slice(0, 2);
 const newInvNum = () =>
   `INV-${new Date().getFullYear()}-${Math.floor(Math.random() * 900) + 100}`;
-
 const STEPS = ["Client", "Order", "Details", "Review"];
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-function InvoiceForm() {
+type Props = {
+  onCloseModal?: () => void;
+};
+
+function InvoiceForm({ onCloseModal }: Props) {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
@@ -519,12 +521,33 @@ function InvoiceForm() {
 
   const canNext = [!!clientId, !!orderId, !!issueDate && !!dueDate, true][step];
 
+  // When used as a modal, "go back to invoices" just closes the modal
+  const handleCancel = () => {
+    if (onCloseModal) onCloseModal();
+    else navigate("/invoices");
+  };
+
+  const handleDone = () => {
+    if (onCloseModal) onCloseModal();
+    else navigate("/invoices");
+  };
+
+  const handleCreateAnother = () => {
+    setStep(0);
+    setDone(false);
+    setClientId("");
+    setOrderId("");
+  };
+
   if (done)
     return (
       <PageLayout>
-        <BackButton onClick={() => navigate("/invoices")}>
-          <HiOutlineArrowLeft /> Back to Invoices
-        </BackButton>
+        {/* Only show back button when used as a standalone page */}
+        {!onCloseModal && (
+          <BackButton onClick={handleCancel}>
+            <HiOutlineArrowLeft /> Back to Invoices
+          </BackButton>
+        )}
         <SuccessWrapper>
           <HiOutlineCheckCircle />
           <h3>Invoice Created!</h3>
@@ -542,22 +565,10 @@ function InvoiceForm() {
             {total.toLocaleString()} TND
           </p>
           <div style={{ display: "flex", gap: "1.2rem" }}>
-            <Button
-              $variation="secondary"
-              $size="medium"
-              onClick={() => navigate("/invoices")}
-            >
-              Go to Invoices
+            <Button $variation="secondary" $size="medium" onClick={handleDone}>
+              {onCloseModal ? "Close" : "Go to Invoices"}
             </Button>
-            <Button
-              $size="medium"
-              onClick={() => {
-                setStep(0);
-                setDone(false);
-                setClientId("");
-                setOrderId("");
-              }}
-            >
+            <Button $size="medium" onClick={handleCreateAnother}>
               Create Another
             </Button>
           </div>
@@ -567,9 +578,12 @@ function InvoiceForm() {
 
   return (
     <PageLayout>
-      <BackButton onClick={() => navigate("/invoices")}>
-        <HiOutlineArrowLeft /> Back to Invoices
-      </BackButton>
+      {/* Only show back button when used as a standalone page */}
+      {!onCloseModal && (
+        <BackButton onClick={handleCancel}>
+          <HiOutlineArrowLeft /> Back to Invoices
+        </BackButton>
+      )}
 
       <Heading as="h1">Generate New Invoice</Heading>
 
@@ -929,7 +943,7 @@ function InvoiceForm() {
               type="button"
               $variation="secondary"
               $size="medium"
-              onClick={() => navigate("/invoices")}
+              onClick={handleCancel}
             >
               Cancel
             </Button>
