@@ -295,7 +295,7 @@ function Invoices() {
       {
         duration: 3000,
         persistent: true,
-      }
+      },
     );
     navigate(`/invoices/${invoiceId}`);
   };
@@ -316,7 +316,7 @@ function Invoices() {
     paidAmount: mockInvoices.reduce((sum, inv) => sum + inv.paidAmount, 0),
     outstanding: mockInvoices.reduce(
       (sum, inv) => sum + (inv.amount - inv.paidAmount),
-      0
+      0,
     ),
     overdue: mockInvoices.filter((inv) => inv.status === "overdue").length,
   };
@@ -327,7 +327,7 @@ function Invoices() {
     addNotification(
       "⬇️ Downloading",
       `Invoice ${invoice.invoiceNumber} is being prepared...`,
-      "info"
+      "info",
     );
     console.log("Download invoice:", invoice.invoiceNumber);
 
@@ -336,7 +336,7 @@ function Invoices() {
       addNotification(
         "✅ Download Complete",
         `Invoice ${invoice.invoiceNumber} downloaded successfully`,
-        "success"
+        "success",
       );
     }, 2000);
   };
@@ -345,7 +345,7 @@ function Invoices() {
     addNotification(
       "📧 Sending Reminder",
       `Payment reminder being sent to ${invoice.client.email}...`,
-      "info"
+      "info",
     );
 
     // Simulate sending
@@ -354,7 +354,7 @@ function Invoices() {
         "✅ Reminder Sent",
         `Payment reminder sent to ${invoice.client.name}`,
         "success",
-        5000
+        5000,
       );
     }, 1500);
   };
