@@ -364,163 +364,222 @@ function InvoiceDetails() {
 
   // PDF Generation Function
   const handleDownloadPDF = () => {
-    console.log("Generating PDF for:", invoice.invoiceNumber);
+    import("jspdf").then(({ default: jsPDF }) => {
+      const doc = new jsPDF({ unit: "mm", format: "a4" });
+      const pageW = doc.internal.pageSize.getWidth();
+      const margin = 20;
+      let y = 20;
 
-    // Create HTML content for PDF
-    const invoiceHTML = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Invoice ${invoice.invoiceNumber}</title>
-        <style>
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
-          .header { display: flex; justify-content: space-between; margin-bottom: 40px; border-bottom: 3px solid #145DA0; padding-bottom: 20px; }
-          .company-info h1 { color: #145DA0; font-size: 28px; margin-bottom: 10px; }
-          .company-info p { font-size: 12px; color: #666; line-height: 1.6; }
-          .invoice-info { text-align: right; }
-          .invoice-info h2 { font-size: 32px; color: #333; margin-bottom: 10px; }
-          .invoice-info p { font-size: 12px; color: #666; line-height: 1.6; }
-          .section { margin-bottom: 30px; }
-          .section-title { font-size: 14px; font-weight: bold; text-transform: uppercase; color: #145DA0; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px; }
-          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-          .info-block h3 { font-size: 11px; text-transform: uppercase; color: #999; margin-bottom: 8px; }
-          .info-block p { font-size: 13px; margin: 4px 0; }
-          table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-          th { background: #f5f5f5; padding: 12px; text-align: left; font-size: 11px; text-transform: uppercase; color: #666; border-bottom: 2px solid #ddd; }
-          td { padding: 12px; font-size: 13px; border-bottom: 1px solid #eee; }
-          .text-right { text-align: right; }
-          .total-section { margin-top: 30px; padding-top: 20px; border-top: 2px solid #ddd; }
-          .total-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
-          .total-row.highlight { font-size: 18px; font-weight: bold; color: #145DA0; margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd; }
-          .paid { color: #10b981; }
-          .due { color: #ef4444; }
-          .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #ddd; font-size: 11px; color: #666; font-style: italic; }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <div class="company-info">
-            <h1>🥛 Taba3ni Dairy</h1>
-            <p>Distribution Management</p>
-            <p>Avenue Habib Bourguiba, Tunis</p>
-            <p>Phone: +216 71 000 000</p>
-            <p>Tax ID: TN-123456789</p>
-          </div>
-          <div class="invoice-info">
-            <h2>INVOICE</h2>
-            <p><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
-            <p><strong>Issue Date:</strong> ${invoice.issueDate}</p>
-            <p><strong>Due Date:</strong> ${invoice.dueDate}</p>
-          </div>
-        </div>
+      // ── Header ────────────────────────────────────────────────────────────────
+      doc.setFillColor(20, 93, 160);
+      doc.rect(0, 0, pageW, 38, "F");
 
-        <div class="section">
-          <div class="section-title">Bill To</div>
-          <div class="info-grid">
-            <div class="info-block">
-              <h3>Client Information</h3>
-              <p><strong>${invoice.client.name}</strong></p>
-              <p>${invoice.client.address}, ${invoice.client.city}</p>
-            </div>
-            <div class="info-block">
-              <h3>Contact Details</h3>
-              <p>Phone: ${invoice.client.phone}</p>
-              <p>Email: ${invoice.client.email}</p>
-              <p>Tax ID: ${invoice.client.taxId}</p>
-            </div>
-          </div>
-        </div>
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(22);
+      doc.setFont("helvetica", "bold");
+      doc.text("Taba3ni Dairy", margin, 16);
 
-        <div class="section">
-          <div class="section-title">Order Details</div>
-          <p>Related Order: <strong>#${invoice.orderId}</strong></p>
-        </div>
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text(
+        "Distribution Management  |  Avenue Habib Bourguiba, Tunis",
+        margin,
+        23,
+      );
+      doc.text("Tel: +216 71 000 000  |  Tax ID: TN-123456789", margin, 29);
 
-        <div class="section">
-          <div class="section-title">Items</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Description</th>
-                <th class="text-right">Quantity</th>
-                <th class="text-right">Unit Price</th>
-                <th class="text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${invoice.items
-                .map(
-                  (item) => `
-                <tr>
-                  <td>${item.name}</td>
-                  <td class="text-right">${item.quantity}</td>
-                  <td class="text-right">${item.price.toFixed(2)} TND</td>
-                  <td class="text-right"><strong>${item.total.toFixed(
-                    2
-                  )} TND</strong></td>
-                </tr>
-              `
-                )
-                .join("")}
-            </tbody>
-          </table>
+      doc.setFontSize(20);
+      doc.setFont("helvetica", "bold");
+      doc.text("INVOICE", pageW - margin, 16, { align: "right" });
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text(`#${invoice.invoiceNumber}`, pageW - margin, 23, {
+        align: "right",
+      });
+      doc.text(`Issue: ${invoice.issueDate}`, pageW - margin, 29, {
+        align: "right",
+      });
+      doc.text(`Due:   ${invoice.dueDate}`, pageW - margin, 35, {
+        align: "right",
+      });
 
-          <div class="total-section">
-            <div class="total-row">
-              <span>Subtotal:</span>
-              <span>${invoice.subtotal.toFixed(2)} TND</span>
-            </div>
-            <div class="total-row">
-              <span>Tax (18% TVA):</span>
-              <span>${invoice.tax.toFixed(2)} TND</span>
-            </div>
-            <div class="total-row highlight">
-              <span>Total Amount:</span>
-              <span>${invoice.total.toFixed(2)} TND</span>
-            </div>
-            <div class="total-row paid">
-              <span>Paid Amount:</span>
-              <span>-${invoice.paidAmount.toFixed(2)} TND</span>
-            </div>
-            <div class="total-row highlight due">
-              <span>Amount Due:</span>
-              <span>${invoice.remainingAmount.toFixed(2)} TND</span>
-            </div>
-          </div>
-        </div>
+      y = 50;
 
-        <div class="footer">
-          <p><strong>Payment Terms:</strong> Payment is due within 30 days of invoice date. Late payments may be subject to additional charges.</p>
-          <p><strong>Bank Details:</strong> IBAN: TN59 1000 0000 0000 0000 0000 0000 | BIC: BFTNTNTT</p>
-          <p style="margin-top: 20px; text-align: center;">Thank you for your business!</p>
-        </div>
-      </body>
-      </html>
-    `;
+      // ── Bill To ───────────────────────────────────────────────────────────────
+      doc.setTextColor(20, 93, 160);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text("BILL TO", margin, y);
 
-    // Create a blob and download
-    const blob = new Blob([invoiceHTML], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `Invoice_${invoice.invoiceNumber}.html`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+      doc.setDrawColor(20, 93, 160);
+      doc.setLineWidth(0.5);
+      doc.line(margin, y + 2, margin + 30, y + 2);
+      y += 8;
 
-    // Note: For actual PDF, you would use a library like jsPDF or call a backend API
-    console.log(
-      "✅ Invoice HTML downloaded. You can open it and print to PDF from your browser."
-    );
+      doc.setTextColor(30, 30, 30);
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.text(invoice.client.name, margin, y);
+      y += 6;
+
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(90, 90, 90);
+      doc.text(`${invoice.client.address}, ${invoice.client.city}`, margin, y);
+      y += 5;
+      doc.text(`Phone: ${invoice.client.phone}`, margin, y);
+      y += 5;
+      doc.text(`Email: ${invoice.client.email}`, margin, y);
+      y += 5;
+      if (invoice.client.taxId) {
+        doc.text(`Tax ID: ${invoice.client.taxId}`, margin, y);
+        y += 5;
+      }
+
+      y += 6;
+
+      // ── Related Order ─────────────────────────────────────────────────────────
+      doc.setFontSize(9);
+      doc.setTextColor(90, 90, 90);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Related Order: `, margin, y);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(20, 93, 160);
+      doc.text(`#${invoice.orderId}`, margin + 28, y);
+      y += 10;
+
+      // ── Items Table ───────────────────────────────────────────────────────────
+      // Header row
+      doc.setFillColor(245, 247, 250);
+      doc.rect(margin, y, pageW - margin * 2, 8, "F");
+
+      doc.setTextColor(90, 90, 90);
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "bold");
+      const col = { desc: margin + 2, qty: 120, unit: 145, total: 175 };
+      doc.text("DESCRIPTION", col.desc, y + 5.5);
+      doc.text("QTY", col.qty, y + 5.5, { align: "right" });
+      doc.text("UNIT PRICE", col.unit + 10, y + 5.5, { align: "right" });
+      doc.text("TOTAL", col.total, y + 5.5, { align: "right" });
+      y += 8;
+
+      // Item rows
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      let rowAlt = false;
+      for (const item of invoice.items) {
+        if (rowAlt) {
+          doc.setFillColor(250, 251, 253);
+          doc.rect(margin, y, pageW - margin * 2, 7, "F");
+        }
+        doc.setTextColor(30, 30, 30);
+        doc.text(item.name, col.desc, y + 5);
+        doc.text(String(item.quantity), col.qty, y + 5, { align: "right" });
+        doc.text(`${item.price.toFixed(2)} TND`, col.unit + 10, y + 5, {
+          align: "right",
+        });
+        doc.setFont("helvetica", "bold");
+        doc.text(`${item.total.toFixed(2)} TND`, col.total, y + 5, {
+          align: "right",
+        });
+        doc.setFont("helvetica", "normal");
+        y += 7;
+        rowAlt = !rowAlt;
+      }
+
+      // Divider
+      doc.setDrawColor(220, 220, 220);
+      doc.setLineWidth(0.3);
+      doc.line(margin, y + 2, pageW - margin, y + 2);
+      y += 8;
+
+      // Totals block (right-aligned)
+      const totalsX = pageW - margin - 60;
+      const totalsLabelX = totalsX;
+      const totalsValueX = pageW - margin;
+
+      const drawTotalRow = (
+        label: string,
+        value: string,
+        bold = false,
+        color?: [number, number, number],
+      ) => {
+        doc.setFontSize(bold ? 10 : 9);
+        doc.setFont("helvetica", bold ? "bold" : "normal");
+        doc.setTextColor(
+          ...(color ?? ([90, 90, 90] as [number, number, number])),
+        );
+        doc.text(label, totalsLabelX, y);
+        doc.setTextColor(
+          ...(color ?? ([30, 30, 30] as [number, number, number])),
+        );
+        doc.text(value, totalsValueX, y, { align: "right" });
+        y += bold ? 7 : 6;
+      };
+
+      drawTotalRow("Subtotal:", `${invoice.subtotal.toFixed(2)} TND`);
+      drawTotalRow("Tax (18% TVA):", `${invoice.tax.toFixed(2)} TND`);
+
+      doc.setDrawColor(20, 93, 160);
+      doc.line(totalsX, y, totalsValueX, y);
+      y += 4;
+      drawTotalRow(
+        "Total:",
+        `${invoice.total.toFixed(2)} TND`,
+        true,
+        [20, 93, 160],
+      );
+      drawTotalRow(
+        "Paid:",
+        `-${invoice.paidAmount.toFixed(2)} TND`,
+        false,
+        [22, 163, 74],
+      );
+      drawTotalRow(
+        "Amount Due:",
+        `${invoice.remainingAmount.toFixed(2)} TND`,
+        true,
+        [220, 38, 38],
+      );
+
+      y += 8;
+
+      // ── Footer ────────────────────────────────────────────────────────────────
+      doc.setDrawColor(220, 220, 220);
+      doc.line(margin, y, pageW - margin, y);
+      y += 6;
+
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(120, 120, 120);
+      doc.text(
+        "Payment Terms: Payment is due within 30 days. Late payments may incur additional charges.",
+        margin,
+        y,
+      );
+      y += 5;
+      doc.text(
+        "Bank Details: IBAN: TN59 1000 0000 0000 0000 0000  |  BIC: BFTNTNTT",
+        margin,
+        y,
+      );
+      y += 8;
+
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(20, 93, 160);
+      doc.text("Thank you for your business!", pageW / 2, y, {
+        align: "center",
+      });
+
+      doc.save(`Invoice_${invoice.invoiceNumber}.pdf`);
+    });
   };
 
   const handleSendReminder = () => {
     console.log("Sending reminder to:", invoice.client.email);
     alert(
-      `📧 Payment reminder sent to ${invoice.client.email}\n\nReminder: Invoice ${invoice.invoiceNumber} - Amount Due: ${invoice.remainingAmount} TND`
+      `📧 Payment reminder sent to ${invoice.client.email}\n\nReminder: Invoice ${invoice.invoiceNumber} - Amount Due: ${invoice.remainingAmount} TND`,
     );
   };
 
