@@ -126,7 +126,16 @@ function App() {
               <Route path="clients/:clientId" element={<ClientDetails />} />
 
               {/* Deliveries ) */}
-              <Route path="deliveries" element={<Deliveries />} />
+              <Route
+                path="deliveries"
+                element={
+                  <Deliveries
+                    userRole={user?.role}
+                    userId={user?.email}
+                    userName={user?.name}
+                  />
+                }
+              />
               <Route
                 path="deliveries/new"
                 element={<DeliveryForm onCloseModal={() => {}} />}

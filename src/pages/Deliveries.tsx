@@ -497,11 +497,13 @@ type Delivery = {
   id: string;
   deliveryId: string;
   orderId: string;
+  clientId: string; // NEW: For client filtering
   client: {
     name: string;
     address: string;
     city: string;
   };
+  distributorId: string; // NEW: For distributor filtering
   distributor: {
     name: string;
     phone: string;
@@ -513,22 +515,30 @@ type Delivery = {
   totalAmount: number;
 };
 
-// Mock Data
+type DeliveriesProps = {
+  userRole?: "admin" | "distributor" | "client";
+  userId?: string;
+  userName?: string;
+};
+
+// Mock Data - UPDATED with clientId and distributorId (using emails)
 const mockDeliveries: Delivery[] = [
   {
     id: "1",
     deliveryId: "DEL-001",
     orderId: "ORD-001",
+    clientId: "carrefour.lac2@email.com", // Email-based ID
     client: {
       name: "Carrefour Lac 2",
       address: "Avenue de la Bourse, Lac 2",
       city: "Tunis",
     },
+    distributorId: "ahmed.mahmoudi@taba3ni.com", // Email-based ID
     distributor: {
       name: "Ahmed Mahmoudi",
       phone: "+216 98 123 456",
     },
-    scheduledTime: "2025-10-09 14:00",
+    scheduledTime: "2025-12-29 14:00",
     status: "in-progress",
     orderCount: 3,
     totalAmount: 3450,
@@ -537,16 +547,18 @@ const mockDeliveries: Delivery[] = [
     id: "2",
     deliveryId: "DEL-002",
     orderId: "ORD-002",
+    clientId: "monoprix.menzah@email.com",
     client: {
       name: "Monoprix Menzah",
       address: "Avenue Habib Bourguiba",
       city: "Ariana",
     },
+    distributorId: "karim.belaid@taba3ni.com",
     distributor: {
       name: "Karim Belaid",
       phone: "+216 98 234 567",
     },
-    scheduledTime: "2025-10-09 15:30",
+    scheduledTime: "2025-12-29 15:30",
     status: "scheduled",
     orderCount: 2,
     totalAmount: 2100,
@@ -555,17 +567,19 @@ const mockDeliveries: Delivery[] = [
     id: "3",
     deliveryId: "DEL-003",
     orderId: "ORD-003",
+    clientId: "general.marsa@email.com",
     client: {
       name: "Magasin Général Marsa",
       address: "Rue de la République",
       city: "La Marsa",
     },
+    distributorId: "ahmed.mahmoudi@taba3ni.com",
     distributor: {
       name: "Ahmed Mahmoudi",
       phone: "+216 98 123 456",
     },
-    scheduledTime: "2025-10-08 16:00",
-    deliveredTime: "2025-10-08 16:15",
+    scheduledTime: "2025-12-28 16:00",
+    deliveredTime: "2025-12-28 16:15",
     status: "completed",
     orderCount: 1,
     totalAmount: 1500,
@@ -574,31 +588,71 @@ const mockDeliveries: Delivery[] = [
     id: "4",
     deliveryId: "DEL-004",
     orderId: "ORD-004",
+    clientId: "superette.ariana@email.com",
     client: {
       name: "Superette Ariana",
       address: "Avenue de la Liberté",
       city: "Ariana",
     },
+    distributorId: "mohamed.trabelsi@taba3ni.com",
     distributor: {
       name: "Mohamed Trabelsi",
       phone: "+216 98 345 678",
     },
-    scheduledTime: "2025-10-08 10:00",
+    scheduledTime: "2025-12-27 10:00",
     status: "failed",
     orderCount: 1,
     totalAmount: 890,
   },
+  {
+    id: "5",
+    deliveryId: "DEL-005",
+    orderId: "ORD-005",
+    clientId: "carrefour.lac2@email.com", // Same client, another delivery
+    client: {
+      name: "Carrefour Lac 2",
+      address: "Avenue de la Bourse, Lac 2",
+      city: "Tunis",
+    },
+    distributorId: "karim.belaid@taba3ni.com",
+    distributor: {
+      name: "Karim Belaid",
+      phone: "+216 98 234 567",
+    },
+    scheduledTime: "2025-12-30 09:00",
+    status: "scheduled",
+    orderCount: 2,
+    totalAmount: 1800,
+  },
 ];
 
-function Deliveries() {
+function Deliveries({ userRole = "admin", userId, userName }: DeliveriesProps) {
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
+  // ROLE-BASED DATA FILTERING
+  const getRoleFilteredDeliveries = (): Delivery[] => {
+    if (userRole === "client") {
+      // Clients see deliveries for THEIR orders only
+      return mockDeliveries.filter((delivery) => delivery.clientId === userId);
+    }
+    if (userRole === "distributor") {
+      // Distributors see only ASSIGNED deliveries
+      return mockDeliveries.filter(
+        (delivery) => delivery.distributorId === userId,
+      );
+    }
+    // Admins see ALL deliveries
+    return mockDeliveries;
+  };
+
+  const roleFilteredDeliveries = getRoleFilteredDeliveries();
+
   // Filter deliveries by status, search, and date range
-  const filteredDeliveries = mockDeliveries.filter((delivery) => {
+  const filteredDeliveries = roleFilteredDeliveries.filter((delivery) => {
     const matchesStatus =
       statusFilter === "all" || delivery.status === statusFilter;
     const matchesSearch =
@@ -627,13 +681,16 @@ function Deliveries() {
     return matchesStatus && matchesSearch && matchesDateRange;
   });
 
-  // Stats
+  // Stats - calculated from role-filtered data
   const stats = {
-    total: mockDeliveries.length,
-    scheduled: mockDeliveries.filter((d) => d.status === "scheduled").length,
-    inProgress: mockDeliveries.filter((d) => d.status === "in-progress").length,
-    completed: mockDeliveries.filter((d) => d.status === "completed").length,
-    failed: mockDeliveries.filter((d) => d.status === "failed").length,
+    total: roleFilteredDeliveries.length,
+    scheduled: roleFilteredDeliveries.filter((d) => d.status === "scheduled")
+      .length,
+    inProgress: roleFilteredDeliveries.filter((d) => d.status === "in-progress")
+      .length,
+    completed: roleFilteredDeliveries.filter((d) => d.status === "completed")
+      .length,
+    failed: roleFilteredDeliveries.filter((d) => d.status === "failed").length,
   };
 
   // Clear all filters
@@ -736,18 +793,27 @@ function Deliveries() {
   const hasActiveFilters =
     statusFilter !== "all" || searchQuery || dateFrom || dateTo;
 
+  // Get page title based on role
+  const getPageTitle = () => {
+    if (userRole === "client") return "My Deliveries";
+    if (userRole === "distributor") return "My Assigned Deliveries";
+    return "Deliveries Management";
+  };
+
   return (
     <DeliveriesLayout>
       <Row type="horizontal">
-        <Heading as="h1">Deliveries Management</Heading>
-        <Modal>
-          <Modal.Open opens="schedule-delivery">
-            <Button $size="medium">+ Schedule Delivery</Button>
-          </Modal.Open>
-          <Modal.Window name="schedule-delivery">
-            <DeliveryForm onCloseModal={() => {}} />
-          </Modal.Window>
-        </Modal>
+        <Heading as="h1">{getPageTitle()}</Heading>
+        {userRole !== "distributor" && userRole !== "client" && (
+          <Modal>
+            <Modal.Open opens="schedule-delivery">
+              <Button $size="medium">+ Schedule Delivery</Button>
+            </Modal.Open>
+            <Modal.Window name="schedule-delivery">
+              <DeliveryForm onCloseModal={() => {}} />
+            </Modal.Window>
+          </Modal>
+        )}
       </Row>
 
       <StatsRow>
@@ -833,7 +899,7 @@ function Deliveries() {
         <TableControls>
           <ResultsCount>
             Showing <strong>{filteredDeliveries.length}</strong> of{" "}
-            <strong>{mockDeliveries.length}</strong> deliveries
+            <strong>{roleFilteredDeliveries.length}</strong> deliveries
           </ResultsCount>
           <ExportButton
             $variation="secondary"
@@ -861,15 +927,25 @@ function Deliveries() {
             <EmptyState>
               <HiOutlineTruck />
               <h3>No deliveries found</h3>
-              <p>Try adjusting your filters or search query</p>
-              <Modal>
-                <Modal.Open opens="schedule-first-delivery">
-                  <Button $size="medium">+ Schedule First Delivery</Button>
-                </Modal.Open>
-                <Modal.Window name="schedule-first-delivery">
-                  <DeliveryForm onCloseModal={() => {}} />
-                </Modal.Window>
-              </Modal>
+              <p>
+                {roleFilteredDeliveries.length === 0
+                  ? userRole === "client"
+                    ? "You don't have any deliveries yet"
+                    : userRole === "distributor"
+                      ? "No deliveries assigned to you yet"
+                      : "No deliveries scheduled yet"
+                  : "Try adjusting your filters or search query"}
+              </p>
+              {userRole === "admin" && roleFilteredDeliveries.length === 0 && (
+                <Modal>
+                  <Modal.Open opens="schedule-first-delivery">
+                    <Button $size="medium">+ Schedule First Delivery</Button>
+                  </Modal.Open>
+                  <Modal.Window name="schedule-first-delivery">
+                    <DeliveryForm onCloseModal={() => {}} />
+                  </Modal.Window>
+                </Modal>
+              )}
             </EmptyState>
           ) : (
             <>
