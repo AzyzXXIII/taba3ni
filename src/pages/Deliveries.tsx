@@ -12,6 +12,8 @@ import {
   HiOutlineShoppingCart,
   HiOutlineCurrencyDollar,
   HiOutlineCalendar,
+  HiOutlineArrowDownTray,
+  HiOutlineXCircle,
 } from "react-icons/hi2";
 import Heading from "../UI/Heading";
 import Row from "../UI/Row";
@@ -40,6 +42,72 @@ const FiltersBar = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: stretch;
+  }
+`;
+
+const DateFilterGroup = styled.div`
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  background-color: var(--color-grey-0);
+  padding: 0.8rem 1.2rem;
+  border: 2px solid var(--color-grey-300);
+  border-radius: var(--border-radius-sm);
+
+  & label {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--color-grey-700);
+    white-space: nowrap;
+  }
+
+  & input[type="date"] {
+    border: 1px solid var(--color-grey-300);
+    padding: 0.6rem 1rem;
+    border-radius: var(--border-radius-sm);
+    font-size: 1.3rem;
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-brand-600);
+    }
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+
+    & input[type="date"] {
+      width: 100%;
+    }
+  }
+`;
+
+const ClearFiltersButton = styled.button`
+  padding: 0.8rem 1.6rem;
+  background-color: var(--color-grey-0);
+  border: 2px solid var(--color-grey-300);
+  color: var(--color-grey-700);
+  border-radius: var(--border-radius-sm);
+  font-size: 1.3rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+
+  & svg {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+
+  &:hover {
+    border-color: var(--color-red-600);
+    color: var(--color-red-600);
+    background-color: var(--color-red-50);
   }
 `;
 
@@ -94,6 +162,44 @@ const TableCard = styled.div`
   @media (max-width: 1024px) {
     border: none;
     background-color: transparent;
+  }
+`;
+
+const TableControls = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.6rem 2.4rem;
+  background-color: var(--color-grey-50);
+  border-bottom: 1px solid var(--color-grey-100);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 1.2rem;
+    align-items: stretch;
+  }
+`;
+
+const ResultsCount = styled.div`
+  font-size: 1.4rem;
+  color: var(--color-grey-600);
+  font-weight: 500;
+
+  & strong {
+    color: var(--color-grey-900);
+    font-weight: 700;
+  }
+`;
+
+const ExportButton = styled(Button)`
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 1.4rem;
+
+  & svg {
+    width: 1.8rem;
+    height: 1.8rem;
   }
 `;
 
@@ -488,8 +594,10 @@ function Deliveries() {
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
-  // Filter deliveries
+  // Filter deliveries by status, search, and date range
   const filteredDeliveries = mockDeliveries.filter((delivery) => {
     const matchesStatus =
       statusFilter === "all" || delivery.status === statusFilter;
@@ -499,7 +607,24 @@ function Deliveries() {
       delivery.distributor.name
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesSearch;
+
+    // Date filtering
+    let matchesDateRange = true;
+    if (dateFrom || dateTo) {
+      const deliveryDate = new Date(delivery.scheduledTime);
+      if (dateFrom) {
+        const fromDate = new Date(dateFrom);
+        fromDate.setHours(0, 0, 0, 0);
+        matchesDateRange = matchesDateRange && deliveryDate >= fromDate;
+      }
+      if (dateTo) {
+        const toDate = new Date(dateTo);
+        toDate.setHours(23, 59, 59, 999);
+        matchesDateRange = matchesDateRange && deliveryDate <= toDate;
+      }
+    }
+
+    return matchesStatus && matchesSearch && matchesDateRange;
   });
 
   // Stats
@@ -509,6 +634,55 @@ function Deliveries() {
     inProgress: mockDeliveries.filter((d) => d.status === "in-progress").length,
     completed: mockDeliveries.filter((d) => d.status === "completed").length,
     failed: mockDeliveries.filter((d) => d.status === "failed").length,
+  };
+
+  // Clear all filters
+  const handleClearFilters = () => {
+    setStatusFilter("all");
+    setSearchQuery("");
+    setDateFrom("");
+    setDateTo("");
+  };
+
+  // Export to CSV
+  const handleExport = () => {
+    const csvData = [
+      [
+        "Delivery ID",
+        "Client",
+        "Address",
+        "City",
+        "Distributor",
+        "Scheduled Time",
+        "Status",
+        "Order Count",
+        "Total Amount (TND)",
+      ],
+      ...filteredDeliveries.map((d) => [
+        d.deliveryId,
+        d.client.name,
+        d.client.address,
+        d.client.city,
+        d.distributor.name,
+        d.scheduledTime,
+        d.status,
+        d.orderCount,
+        d.totalAmount,
+      ]),
+    ];
+
+    const csvContent = csvData.map((row) => row.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `taba3ni-deliveries-export-${
+      new Date().toISOString().split("T")[0]
+    }.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   };
 
   const handleViewDelivery = (deliveryId: string) => {
@@ -559,6 +733,9 @@ function Deliveries() {
     }
   };
 
+  const hasActiveFilters =
+    statusFilter !== "all" || searchQuery || dateFrom || dateTo;
+
   return (
     <DeliveriesLayout>
       <Row type="horizontal">
@@ -606,6 +783,24 @@ function Deliveries() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
+
+        {/* Date Range Filter */}
+        <DateFilterGroup>
+          <label>From:</label>
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+          />
+          <label>To:</label>
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+          />
+        </DateFilterGroup>
+
+        {/* Status Filters */}
         <FilterGroup>
           {["all", "scheduled", "in-progress", "completed", "failed"].map(
             (status) => (
@@ -623,9 +818,32 @@ function Deliveries() {
             ),
           )}
         </FilterGroup>
+
+        {/* Clear Filters Button */}
+        {hasActiveFilters && (
+          <ClearFiltersButton onClick={handleClearFilters}>
+            <HiOutlineXCircle />
+            Clear Filters
+          </ClearFiltersButton>
+        )}
       </FiltersBar>
 
       <TableCard>
+        {/* Table Controls with Export Button */}
+        <TableControls>
+          <ResultsCount>
+            Showing <strong>{filteredDeliveries.length}</strong> of{" "}
+            <strong>{mockDeliveries.length}</strong> deliveries
+          </ResultsCount>
+          <ExportButton
+            $variation="secondary"
+            $size="small"
+            onClick={handleExport}
+          >
+            <HiOutlineArrowDownTray />
+            Export to CSV
+          </ExportButton>
+        </TableControls>
         <Table>
           {/* Desktop Table Header */}
           <TableHeader>
