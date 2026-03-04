@@ -7,6 +7,11 @@ import {
   HiOutlineTrash,
   HiOutlineTruck,
   HiOutlineClock,
+  HiOutlineMapPin,
+  HiOutlineUser,
+  HiOutlineShoppingCart,
+  HiOutlineCurrencyDollar,
+  HiOutlineCalendar,
 } from "react-icons/hi2";
 import Heading from "../UI/Heading";
 import Row from "../UI/Row";
@@ -31,11 +36,21 @@ const FiltersBar = styled.div`
   gap: 1.6rem;
   align-items: center;
   flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 `;
 
 const FilterGroup = styled.div`
   display: flex;
   gap: 0.8rem;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 const FilterButton = styled.button<{ $active?: boolean }>`
@@ -57,6 +72,11 @@ const FilterButton = styled.button<{ $active?: boolean }>`
     border-color: var(--color-brand-600);
     color: var(--color-brand-600);
   }
+
+  @media (max-width: 768px) {
+    flex: 1;
+    justify-content: center;
+  }
 `;
 
 const StatsRow = styled.div`
@@ -70,11 +90,20 @@ const TableCard = styled.div`
   border: 1px solid var(--color-grey-100);
   border-radius: var(--border-radius-md);
   overflow: hidden;
+
+  @media (max-width: 1024px) {
+    border: none;
+    background-color: transparent;
+  }
 `;
 
 const Table = styled.div`
   width: 100%;
   overflow-x: auto;
+
+  @media (max-width: 1024px) {
+    overflow-x: visible;
+  }
 `;
 
 const TableHeader = styled.div`
@@ -88,6 +117,10 @@ const TableHeader = styled.div`
   text-transform: uppercase;
   color: var(--color-grey-600);
   border-bottom: 1px solid var(--color-grey-100);
+
+  @media (max-width: 1024px) {
+    display: none;
+  }
 `;
 
 const TableRow = styled.div`
@@ -105,6 +138,10 @@ const TableRow = styled.div`
 
   &:last-child {
     border-bottom: none;
+  }
+
+  @media (max-width: 1024px) {
+    display: none;
   }
 `;
 
@@ -153,20 +190,197 @@ const DistributorAvatar = styled.div`
 `;
 
 const EmptyState = styled.div`
-  padding: 6rem 2rem;
+  padding: 8rem 2rem;
   text-align: center;
   color: var(--color-grey-500);
 
-  & p {
-    font-size: 1.8rem;
-    margin-bottom: 1.6rem;
+  & svg {
+    width: 10rem;
+    height: 10rem;
+    margin: 0 auto 2.4rem;
+    color: var(--color-grey-300);
   }
 
+  & h3 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--color-grey-700);
+    margin-bottom: 0.8rem;
+  }
+
+  & p {
+    font-size: 1.5rem;
+    margin-bottom: 2.4rem;
+  }
+`;
+
+// Mobile Card View Components
+const MobileCardList = styled.div`
+  display: none;
+
+  @media (max-width: 1024px) {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+    padding: 1.6rem;
+  }
+`;
+
+const MobileCard = styled.div`
+  background-color: var(--color-grey-0);
+  border: 1px solid var(--color-grey-100);
+  border-radius: var(--border-radius-md);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: var(--shadow-md);
+  }
+`;
+
+const MobileCardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.6rem;
+  padding-bottom: 1.6rem;
+  border-bottom: 1px solid var(--color-grey-200);
+`;
+
+const MobileDeliveryId = styled.div`
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-brand-600);
+  margin-bottom: 0.4rem;
+`;
+
+const MobileClientName = styled.div`
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-grey-900);
+  margin-bottom: 0.4rem;
+`;
+
+const MobileClientAddress = styled.div`
+  font-size: 1.3rem;
+  color: var(--color-grey-500);
+`;
+
+const MobileCardBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+`;
+
+const MobileInfoRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 0;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--color-grey-100);
+  }
+`;
+
+const MobileLabel = styled.span`
+  font-size: 1.3rem;
+  color: var(--color-grey-600);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
   & svg {
-    width: 8rem;
-    height: 8rem;
-    margin: 0 auto 2rem;
-    color: var(--color-grey-400);
+    width: 1.6rem;
+    height: 1.6rem;
+    color: var(--color-brand-600);
+    flex-shrink: 0;
+  }
+`;
+
+const MobileValue = styled.span`
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--color-grey-900);
+  text-align: right;
+`;
+
+const MobileDistributorInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const MobileDistributorAvatar = styled.div`
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    var(--color-brand-600),
+    var(--color-brand-700)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.4rem;
+`;
+
+const MobileDistributorName = styled.div`
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--color-grey-900);
+`;
+
+const MobileStatusRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.2rem;
+  padding-top: 1.2rem;
+  border-top: 2px solid var(--color-grey-200);
+`;
+
+const MobileActionsRow = styled.div`
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1.6rem;
+`;
+
+const MobileActionButton = styled.button`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1rem 1.6rem;
+  background-color: var(--color-grey-0);
+  border: 2px solid var(--color-grey-300);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-grey-700);
+  font-size: 1.3rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  & svg {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+
+  &:hover {
+    border-color: var(--color-brand-600);
+    color: var(--color-brand-600);
+    background-color: var(--color-brand-50);
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 `;
 
@@ -300,11 +514,11 @@ function Deliveries() {
   const handleViewDelivery = (deliveryId: string) => {
     navigate(`/deliveryDetails/${deliveryId}`);
   };
+
   const handleDeleteDelivery = (deliveryId: string) => {
     console.log("Delete delivery:", deliveryId);
   };
 
-  // ✅ FIXED getInitials
   const getInitials = (name: string) => {
     if (!name || typeof name !== "string") return "";
     return name
@@ -402,15 +616,18 @@ function Deliveries() {
               >
                 {status === "all"
                   ? "All"
-                  : status.charAt(0).toUpperCase() + status.slice(1)}
+                  : status === "in-progress"
+                    ? "In Progress"
+                    : status.charAt(0).toUpperCase() + status.slice(1)}
               </FilterButton>
-            )
+            ),
           )}
         </FilterGroup>
       </FiltersBar>
 
       <TableCard>
         <Table>
+          {/* Desktop Table Header */}
           <TableHeader>
             <div>Delivery ID</div>
             <div>Client</div>
@@ -425,101 +642,224 @@ function Deliveries() {
           {filteredDeliveries.length === 0 ? (
             <EmptyState>
               <HiOutlineTruck />
-              <p>🔍 No deliveries found</p>
-              <p style={{ fontSize: "1.4rem" }}>
-                Try adjusting your filters or search query
-              </p>
+              <h3>No deliveries found</h3>
+              <p>Try adjusting your filters or search query</p>
+              <Modal>
+                <Modal.Open opens="schedule-first-delivery">
+                  <Button $size="medium">+ Schedule First Delivery</Button>
+                </Modal.Open>
+                <Modal.Window name="schedule-first-delivery">
+                  <DeliveryForm onCloseModal={() => {}} />
+                </Modal.Window>
+              </Modal>
             </EmptyState>
           ) : (
-            <Menus>
-              {filteredDeliveries.map((delivery) => (
-                <TableRow key={delivery.id}>
-                  <DeliveryId>#{delivery.deliveryId}</DeliveryId>
+            <>
+              {/* Desktop Table View */}
+              <Menus>
+                {filteredDeliveries.map((delivery) => (
+                  <TableRow key={delivery.id}>
+                    <DeliveryId>#{delivery.deliveryId}</DeliveryId>
 
-                  <ClientInfo>
-                    <ClientName>{delivery.client.name}</ClientName>
-                    <ClientAddress>
-                      {delivery.client.address}, {delivery.client.city}
-                    </ClientAddress>
-                  </ClientInfo>
+                    <ClientInfo>
+                      <ClientName>{delivery.client.name}</ClientName>
+                      <ClientAddress>
+                        {delivery.client.address}, {delivery.client.city}
+                      </ClientAddress>
+                    </ClientInfo>
 
-                  <DistributorInfo>
-                    <DistributorAvatar>
-                      {getInitials(delivery.distributor.name)}
-                    </DistributorAvatar>
-                    <span>{delivery.distributor.name}</span>
-                  </DistributorInfo>
+                    <DistributorInfo>
+                      <DistributorAvatar>
+                        {getInitials(delivery.distributor.name)}
+                      </DistributorAvatar>
+                      <span>{delivery.distributor.name}</span>
+                    </DistributorInfo>
 
-                  <div style={{ fontSize: "1.3rem" }}>
-                    {delivery.scheduledTime}
-                  </div>
+                    <div style={{ fontSize: "1.3rem" }}>
+                      {delivery.scheduledTime}
+                    </div>
 
-                  <div style={{ fontWeight: 600 }}>{delivery.orderCount}</div>
+                    <div style={{ fontWeight: 600 }}>{delivery.orderCount}</div>
 
-                  <div style={{ fontWeight: 600 }}>
-                    {delivery.totalAmount.toLocaleString()} TND
-                  </div>
+                    <div style={{ fontWeight: 600 }}>
+                      {delivery.totalAmount.toLocaleString()} TND
+                    </div>
 
-                  <StatusBadge $status={getStatusColor(delivery.status)}>
-                    {getStatusLabel(delivery.status)}
-                  </StatusBadge>
+                    <StatusBadge $status={getStatusColor(delivery.status)}>
+                      {getStatusLabel(delivery.status)}
+                    </StatusBadge>
 
-                  <div>
-                    <Modal>
-                      <Menus.Menu>
-                        <Menus.Toggle id={delivery.id} />
-                        <Menus.List id={delivery.id}>
-                          <Menus.Button
-                            icon={<HiOutlineEye />}
-                            onClick={() => handleViewDelivery(delivery.id)}
-                          >
-                            View Details
-                          </Menus.Button>
-                          {/* ✅ FIXED: */}
-                          <Modal.Open opens={`edit-${delivery.id}`}>
-                            <Menus.Button icon={<HiOutlinePencil />}>
-                              Edit Delivery
+                    <div>
+                      <Modal>
+                        <Menus.Menu>
+                          <Menus.Toggle id={delivery.id} />
+                          <Menus.List id={delivery.id}>
+                            <Menus.Button
+                              icon={<HiOutlineEye />}
+                              onClick={() => handleViewDelivery(delivery.id)}
+                            >
+                              View Details
                             </Menus.Button>
-                          </Modal.Open>
+                            <Modal.Open opens={`edit-${delivery.id}`}>
+                              <Menus.Button icon={<HiOutlinePencil />}>
+                                Edit Delivery
+                              </Menus.Button>
+                            </Modal.Open>
+                            <Modal.Open opens={`delete-${delivery.id}`}>
+                              <Menus.Button icon={<HiOutlineTrash />}>
+                                Cancel Delivery
+                              </Menus.Button>
+                            </Modal.Open>
+                          </Menus.List>
+                        </Menus.Menu>
 
-                          <Modal.Window name={`edit-${delivery.id}`}>
-                            <DeliveryForm
-                              deliveryToEdit={{
-                                id: delivery.id,
-                                deliveryId: delivery.deliveryId,
-                                distributor: "1",
-                                scheduledDate:
-                                  delivery.scheduledTime.split(" ")[0],
-                                scheduledTime:
-                                  delivery.scheduledTime.split(" ")[1],
-                                orders: Array.from(
-                                  { length: delivery.orderCount },
-                                  (_, i) => String(i + 1)
-                                ),
-                              }}
-                              onCloseModal={() => {}}
-                            />
-                          </Modal.Window>
-                          <Modal.Open opens={`delete-${delivery.id}`}>
-                            <Menus.Button icon={<HiOutlineTrash />}>
-                              Cancel Delivery
-                            </Menus.Button>
-                          </Modal.Open>
-                        </Menus.List>
-                      </Menus.Menu>
+                        <Modal.Window name={`edit-${delivery.id}`}>
+                          <DeliveryForm
+                            deliveryToEdit={{
+                              id: delivery.id,
+                              deliveryId: delivery.deliveryId,
+                              distributor: "1",
+                              scheduledDate:
+                                delivery.scheduledTime.split(" ")[0],
+                              scheduledTime:
+                                delivery.scheduledTime.split(" ")[1],
+                              orders: Array.from(
+                                { length: delivery.orderCount },
+                                (_, i) => String(i + 1),
+                              ),
+                            }}
+                            onCloseModal={() => {}}
+                          />
+                        </Modal.Window>
 
-                      <Modal.Window name={`delete-${delivery.id}`}>
-                        <ConfirmDelete
-                          resourceName={`delivery ${delivery.deliveryId}`}
-                          onConfirm={() => handleDeleteDelivery(delivery.id)}
-                          onCloseModal={() => {}}
-                        />
-                      </Modal.Window>
-                    </Modal>
-                  </div>
-                </TableRow>
-              ))}
-            </Menus>
+                        <Modal.Window name={`delete-${delivery.id}`}>
+                          <ConfirmDelete
+                            resourceName={`delivery ${delivery.deliveryId}`}
+                            onConfirm={() => handleDeleteDelivery(delivery.id)}
+                            onCloseModal={() => {}}
+                          />
+                        </Modal.Window>
+                      </Modal>
+                    </div>
+                  </TableRow>
+                ))}
+              </Menus>
+
+              {/* Mobile Card View */}
+              <MobileCardList>
+                {filteredDeliveries.map((delivery) => (
+                  <MobileCard key={delivery.id}>
+                    <MobileCardHeader>
+                      <div style={{ flex: 1 }}>
+                        <MobileDeliveryId>
+                          #{delivery.deliveryId}
+                        </MobileDeliveryId>
+                        <MobileClientName>
+                          {delivery.client.name}
+                        </MobileClientName>
+                        <MobileClientAddress>
+                          {delivery.client.address}, {delivery.client.city}
+                        </MobileClientAddress>
+                      </div>
+                    </MobileCardHeader>
+
+                    <MobileCardBody>
+                      <MobileInfoRow>
+                        <MobileLabel>
+                          <HiOutlineUser />
+                          Distributor
+                        </MobileLabel>
+                        <MobileDistributorInfo>
+                          <MobileDistributorAvatar>
+                            {getInitials(delivery.distributor.name)}
+                          </MobileDistributorAvatar>
+                          <MobileDistributorName>
+                            {delivery.distributor.name}
+                          </MobileDistributorName>
+                        </MobileDistributorInfo>
+                      </MobileInfoRow>
+
+                      <MobileInfoRow>
+                        <MobileLabel>
+                          <HiOutlineCalendar />
+                          Scheduled
+                        </MobileLabel>
+                        <MobileValue>
+                          {new Date(delivery.scheduledTime).toLocaleDateString(
+                            "en-GB",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
+                        </MobileValue>
+                      </MobileInfoRow>
+
+                      <MobileInfoRow>
+                        <MobileLabel>
+                          <HiOutlineShoppingCart />
+                          Orders
+                        </MobileLabel>
+                        <MobileValue>{delivery.orderCount}</MobileValue>
+                      </MobileInfoRow>
+
+                      <MobileInfoRow>
+                        <MobileLabel>
+                          <HiOutlineCurrencyDollar />
+                          Amount
+                        </MobileLabel>
+                        <MobileValue>
+                          {delivery.totalAmount.toLocaleString()} TND
+                        </MobileValue>
+                      </MobileInfoRow>
+                    </MobileCardBody>
+
+                    <MobileStatusRow>
+                      <StatusBadge $status={getStatusColor(delivery.status)}>
+                        {getStatusLabel(delivery.status)}
+                      </StatusBadge>
+                    </MobileStatusRow>
+
+                    <MobileActionsRow>
+                      <MobileActionButton
+                        onClick={() => handleViewDelivery(delivery.id)}
+                      >
+                        <HiOutlineEye />
+                        View
+                      </MobileActionButton>
+                      <Modal>
+                        <Modal.Open opens={`edit-mobile-${delivery.id}`}>
+                          <MobileActionButton>
+                            <HiOutlinePencil />
+                            Edit
+                          </MobileActionButton>
+                        </Modal.Open>
+                        <Modal.Window name={`edit-mobile-${delivery.id}`}>
+                          <DeliveryForm
+                            deliveryToEdit={{
+                              id: delivery.id,
+                              deliveryId: delivery.deliveryId,
+                              distributor: "1",
+                              scheduledDate:
+                                delivery.scheduledTime.split(" ")[0],
+                              scheduledTime:
+                                delivery.scheduledTime.split(" ")[1],
+                              orders: Array.from(
+                                { length: delivery.orderCount },
+                                (_, i) => String(i + 1),
+                              ),
+                            }}
+                            onCloseModal={() => {}}
+                          />
+                        </Modal.Window>
+                      </Modal>
+                    </MobileActionsRow>
+                  </MobileCard>
+                ))}
+              </MobileCardList>
+            </>
           )}
         </Table>
       </TableCard>
