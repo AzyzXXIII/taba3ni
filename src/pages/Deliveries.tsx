@@ -26,6 +26,8 @@ import StatsCard from "../UI/StatsCard";
 import StatusBadge from "../UI/StatusBadge";
 import DeliveryForm from "../components/DeliveryForm";
 
+import { useNotifications } from "../hooks/useNotifications";
+
 // Styled Components
 const DeliveriesLayout = styled.div`
   display: flex;
@@ -527,7 +529,7 @@ const mockDeliveries: Delivery[] = [
     id: "1",
     deliveryId: "DEL-001",
     orderId: "ORD-001",
-    clientId: "carrefour.lac2@email.com", // Email-based ID
+    clientId: "client@taba3ni.tn", // Email-based ID
     client: {
       name: "Carrefour Lac 2",
       address: "Avenue de la Bourse, Lac 2",
@@ -553,7 +555,7 @@ const mockDeliveries: Delivery[] = [
       address: "Avenue Habib Bourguiba",
       city: "Ariana",
     },
-    distributorId: "karim.belaid@taba3ni.com",
+    distributorId: "karim.belaid@taba3ni.tn",
     distributor: {
       name: "Karim Belaid",
       phone: "+216 98 234 567",
@@ -594,7 +596,7 @@ const mockDeliveries: Delivery[] = [
       address: "Avenue de la Liberté",
       city: "Ariana",
     },
-    distributorId: "mohamed.trabelsi@taba3ni.com",
+    distributorId: "mohamed.trabelsi@taba3ni.tn",
     distributor: {
       name: "Mohamed Trabelsi",
       phone: "+216 98 345 678",
@@ -608,7 +610,7 @@ const mockDeliveries: Delivery[] = [
     id: "5",
     deliveryId: "DEL-005",
     orderId: "ORD-005",
-    clientId: "carrefour.lac2@email.com", // Same client, another delivery
+    clientId: "client@taba3ni.tn", // Same client, another delivery
     client: {
       name: "Carrefour Lac 2",
       address: "Avenue de la Bourse, Lac 2",
@@ -633,20 +635,17 @@ function Deliveries({ userRole = "admin", userId, userName }: DeliveriesProps) {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
+  const { addNotification } = useNotifications();
+
   // ROLE-BASED DATA FILTERING
   const getRoleFilteredDeliveries = (): Delivery[] => {
     if (userRole === "client") {
-      // Clients see deliveries for THEIR orders only
-      return mockDeliveries.filter((delivery) => delivery.clientId === userId);
+      return deliveries.filter((d) => d.clientId === userId);
     }
     if (userRole === "distributor") {
-      // Distributors see only ASSIGNED deliveries
-      return mockDeliveries.filter(
-        (delivery) => delivery.distributorId === userId,
-      );
+      return deliveries.filter((d) => d.distributorId === userId);
     }
-    // Admins see ALL deliveries
-    return mockDeliveries;
+    return deliveries;
   };
 
   const roleFilteredDeliveries = getRoleFilteredDeliveries();
@@ -699,8 +698,13 @@ function Deliveries({ userRole = "admin", userId, userName }: DeliveriesProps) {
     setSearchQuery("");
     setDateFrom("");
     setDateTo("");
+    addNotification(
+      "Filters Cleared",
+      "All delivery filters have been reset",
+      "info",
+      { duration: 3000 },
+    );
   };
-
   // Export to CSV
   const handleExport = () => {
     const csvData = [
@@ -710,7 +714,9 @@ function Deliveries({ userRole = "admin", userId, userName }: DeliveriesProps) {
         "Address",
         "City",
         "Distributor",
+        "Phone",
         "Scheduled Time",
+        "Delivered Time",
         "Status",
         "Order Count",
         "Total Amount (TND)",
@@ -721,7 +727,9 @@ function Deliveries({ userRole = "admin", userId, userName }: DeliveriesProps) {
         d.client.address,
         d.client.city,
         d.distributor.name,
+        d.distributor.phone,
         d.scheduledTime,
+        d.deliveredTime || "N/A",
         d.status,
         d.orderCount,
         d.totalAmount,
@@ -733,21 +741,34 @@ function Deliveries({ userRole = "admin", userId, userName }: DeliveriesProps) {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `taba3ni-deliveries-export-${
-      new Date().toISOString().split("T")[0]
-    }.csv`;
+    link.download = `taba3ni-deliveries-${new Date().toISOString().split("T")[0]}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
+
+    addNotification(
+      "✅ Export Successful",
+      `Exported ${filteredDeliveries.length} deliveries to CSV`,
+      "success",
+      { duration: 4000, persistent: true },
+    );
   };
 
   const handleViewDelivery = (deliveryId: string) => {
     navigate(`/deliveryDetails/${deliveryId}`);
   };
 
-  const handleDeleteDelivery = (deliveryId: string) => {
-    console.log("Delete delivery:", deliveryId);
+  const [deliveries, setDeliveries] = useState(mockDeliveries);
+
+  const handleDeleteDelivery = (id: string, deliveryId: string) => {
+    setDeliveries((prev) => prev.filter((d) => d.id !== id));
+    addNotification(
+      "🗑️ Delivery Cancelled",
+      `Delivery #${deliveryId} has been cancelled`,
+      "warning",
+      { duration: 4000, persistent: true },
+    );
   };
 
   const getInitials = (name: string) => {
@@ -810,7 +831,17 @@ function Deliveries({ userRole = "admin", userId, userName }: DeliveriesProps) {
               <Button $size="medium">+ Schedule Delivery</Button>
             </Modal.Open>
             <Modal.Window name="schedule-delivery">
-              <DeliveryForm onCloseModal={() => {}} />
+              <DeliveryForm
+                o
+                onCloseModal={() => {
+                  addNotification(
+                    "✅ Delivery Scheduled",
+                    "New delivery has been successfully scheduled",
+                    "success",
+                    { duration: 4000, persistent: true },
+                  );
+                }}
+              />
             </Modal.Window>
           </Modal>
         )}
@@ -1022,14 +1053,26 @@ function Deliveries({ userRole = "admin", userId, userName }: DeliveriesProps) {
                                 (_, i) => String(i + 1),
                               ),
                             }}
-                            onCloseModal={() => {}}
+                            onCloseModal={() => {
+                              addNotification(
+                                "✅ Delivery Updated",
+                                `Delivery #${delivery.deliveryId} has been updated`,
+                                "success",
+                                { duration: 4000, persistent: true },
+                              );
+                            }}
                           />
                         </Modal.Window>
 
                         <Modal.Window name={`delete-${delivery.id}`}>
                           <ConfirmDelete
                             resourceName={`delivery ${delivery.deliveryId}`}
-                            onConfirm={() => handleDeleteDelivery(delivery.id)}
+                            onConfirm={() =>
+                              handleDeleteDelivery(
+                                delivery.id,
+                                delivery.deliveryId,
+                              )
+                            }
                             onCloseModal={() => {}}
                           />
                         </Modal.Window>
