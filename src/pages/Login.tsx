@@ -163,8 +163,8 @@ function Login() {
           selectedRole === "admin"
             ? "Sarrour Hcini"
             : selectedRole === "distributor"
-            ? "Ahmed Mahmoudi"
-            : "Carrefour Lac 2",
+              ? "Ahmed Mahmoudi"
+              : "Carrefour Lac 2",
         email: email,
         role: selectedRole,
         notifications: Math.floor(Math.random() * 10), // Random notifications for demo
@@ -180,15 +180,14 @@ function Login() {
 
   const fillDemoCredentials = (role: Role) => {
     setSelectedRole(role);
-
     if (role === "admin") {
       setEmail("admin@taba3ni.tn");
       setPassword("admin123");
     } else if (role === "distributor") {
-      setEmail("distributor@taba3ni.tn");
+      setEmail("ahmed.mahmoudi@taba3ni.tn"); // matches Distributors.tsx email
       setPassword("dist123");
     } else {
-      setEmail("client@taba3ni.tn");
+      setEmail("client@taba3ni.tn"); // matches Orders.tsx clientId
       setPassword("client123");
     }
   };
