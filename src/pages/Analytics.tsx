@@ -15,6 +15,7 @@ import { HiOutlinePrinter } from "react-icons/hi2";
 import {
   LineChart,
   Line,
+  ComposedChart,
   BarChart,
   Bar,
   PieChart,
@@ -533,6 +534,7 @@ const periodOptions = [
   { value: "30days", label: "Last 30 Days" },
   { value: "90days", label: "Last 90 Days" },
   { value: "year", label: "This Year" },
+  { value: "custom", label: "Custom Range" },
 ];
 
 // Mock comparison data:
@@ -692,7 +694,7 @@ function Analytics() {
   const [useCustomRange, setUseCustomRange] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [revenueChartType, setRevenueChartType] = useState<"area" | "bar">(
-    "area"
+    "area",
   );
 
   // Calculate stats
@@ -755,7 +757,7 @@ function Analytics() {
     link.setAttribute("href", url);
     link.setAttribute(
       "download",
-      `analytics_report_${new Date().toISOString().split("T")[0]}.csv`
+      `analytics_report_${new Date().toISOString().split("T")[0]}.csv`,
     );
     link.style.visibility = "hidden";
     document.body.appendChild(link);
@@ -927,7 +929,8 @@ function Analytics() {
         </ChartHeader>
         <ResponsiveContainer width="100%" height={350}>
           {revenueChartType === "area" ? (
-            <AreaChart data={showComparison ? comparisonData : revenueData}>
+            <ComposedChart data={showComparison ? comparisonData : revenueData}>
+              {" "}
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#145DA0" stopOpacity={0.3} />
@@ -943,7 +946,6 @@ function Analytics() {
               <YAxis tick={{ fill: "#666" }} />
               <Tooltip content={<CustomChartTooltip />} />
               <Legend />
-
               {showComparison ? (
                 <>
                   <Area
@@ -985,7 +987,7 @@ function Analytics() {
                   />
                 </>
               )}
-            </AreaChart>
+            </ComposedChart>
           ) : (
             <BarChart data={revenueData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
