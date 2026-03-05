@@ -14,6 +14,7 @@ import {
   HiOutlineCheckCircle,
   HiOutlineArrowPath,
   HiOutlineClock,
+  HiOutlineUser,
 } from "react-icons/hi2";
 import Heading from "../UI/Heading";
 import Row from "../UI/Row";
@@ -29,7 +30,8 @@ import ConfirmDelete from "../UI/ConfirmDelete";
 import OrderForm from "../components/OrderForm";
 import { useNotifications } from "../hooks/useNotifications";
 
-// Styled Components
+// ─── Styled Components ────────────────────────────────────────────────────────
+
 const OrdersLayout = styled.div`
   display: flex;
   flex-direction: column;
@@ -41,7 +43,6 @@ const FiltersBar = styled.div`
   gap: 1.6rem;
   align-items: center;
   flex-wrap: wrap;
-
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: stretch;
@@ -56,31 +57,26 @@ const DateFilterGroup = styled.div`
   padding: 0.8rem 1.2rem;
   border: 2px solid var(--color-grey-300);
   border-radius: var(--border-radius-sm);
-
   & label {
     font-size: 1.3rem;
     font-weight: 600;
     color: var(--color-grey-700);
     white-space: nowrap;
   }
-
   & input[type="date"] {
     border: 1px solid var(--color-grey-300);
     padding: 0.6rem 1rem;
     border-radius: var(--border-radius-sm);
     font-size: 1.3rem;
-
     &:focus {
       outline: none;
       border-color: var(--color-brand-600);
     }
   }
-
   @media (max-width: 768px) {
     width: 100%;
     flex-direction: column;
     align-items: stretch;
-
     & input[type="date"] {
       width: 100%;
     }
@@ -98,7 +94,6 @@ const ClearFiltersButton = styled.button`
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
-
   &:hover {
     border-color: var(--color-red-600);
     color: var(--color-red-600);
@@ -110,7 +105,6 @@ const FilterGroup = styled.div`
   display: flex;
   gap: 0.8rem;
   flex-wrap: wrap;
-
   @media (max-width: 768px) {
     width: 100%;
   }
@@ -119,26 +113,22 @@ const FilterGroup = styled.div`
 const FilterButton = styled.button<{ $active?: boolean }>`
   padding: 0.8rem 1.6rem;
   border: 2px solid
-    ${(props) =>
-      props.$active ? "var(--color-brand-600)" : "var(--color-grey-300)"};
-  background-color: ${(props) =>
-    props.$active ? "var(--color-brand-50)" : "var(--color-grey-0)"};
-  color: ${(props) =>
-    props.$active ? "var(--color-brand-600)" : "var(--color-grey-600)"};
+    ${(p) => (p.$active ? "var(--color-brand-600)" : "var(--color-grey-300)")};
+  background-color: ${(p) =>
+    p.$active ? "var(--color-brand-50)" : "var(--color-grey-0)"};
+  color: ${(p) =>
+    p.$active ? "var(--color-brand-600)" : "var(--color-grey-600)"};
   border-radius: var(--border-radius-sm);
   font-size: 1.4rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-
   &:hover {
     border-color: var(--color-brand-600);
     color: var(--color-brand-600);
   }
-
   @media (max-width: 768px) {
     flex: 1;
-    justify-content: center;
   }
 `;
 
@@ -147,7 +137,6 @@ const TableCard = styled.div`
   border: 1px solid var(--color-grey-100);
   border-radius: var(--border-radius-md);
   overflow: hidden;
-
   @media (max-width: 1024px) {
     border: none;
     background-color: transparent;
@@ -161,7 +150,6 @@ const TableControls = styled.div`
   padding: 1.6rem 2.4rem;
   background-color: var(--color-grey-50);
   border-bottom: 1px solid var(--color-grey-100);
-
   @media (max-width: 768px) {
     flex-direction: column;
     gap: 1.2rem;
@@ -173,7 +161,6 @@ const ResultsCount = styled.div`
   font-size: 1.4rem;
   color: var(--color-grey-600);
   font-weight: 500;
-
   & strong {
     color: var(--color-grey-900);
     font-weight: 700;
@@ -185,9 +172,6 @@ const ExportButton = styled(Button)`
   align-items: center;
   gap: 0.8rem;
   font-size: 1.4rem;
-  background-color: var(--color-green-500);
-  color: var(--color-grey-900);
-
   & svg {
     width: 1.8rem;
     height: 1.8rem;
@@ -197,7 +181,6 @@ const ExportButton = styled(Button)`
 const Table = styled.div`
   width: 100%;
   overflow-x: auto;
-
   @media (max-width: 1024px) {
     overflow-x: visible;
   }
@@ -205,7 +188,7 @@ const Table = styled.div`
 
 const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 1fr 2fr 1.5fr 1fr 1fr 1fr 0.5fr;
+  grid-template-columns: 1fr 1.8fr 1.5fr 1.5fr 1fr 1fr 1fr 0.5fr;
   gap: 1.6rem;
   padding: 1.6rem 2.4rem;
   background-color: var(--color-grey-50);
@@ -214,7 +197,6 @@ const TableHeader = styled.div`
   text-transform: uppercase;
   color: var(--color-grey-600);
   border-bottom: 1px solid var(--color-grey-100);
-
   @media (max-width: 1024px) {
     display: none;
   }
@@ -222,21 +204,18 @@ const TableHeader = styled.div`
 
 const TableRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 2fr 1.5fr 1fr 1fr 1fr 0.5fr;
+  grid-template-columns: 1fr 1.8fr 1.5fr 1.5fr 1fr 1fr 1fr 0.5fr;
   gap: 1.6rem;
   padding: 1.6rem 2.4rem;
   border-bottom: 1px solid var(--color-grey-100);
   align-items: center;
   transition: background-color 0.2s;
-
   &:hover {
     background-color: var(--color-grey-50);
   }
-
   &:last-child {
     border-bottom: none;
   }
-
   @media (max-width: 1024px) {
     display: none;
   }
@@ -256,25 +235,70 @@ const Amount = styled.span`
   color: var(--color-grey-900);
 `;
 
+// ── Distributor Cell ──────────────────────────────────────────────────────────
+
+const DistributorCell = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+`;
+
+const DistributorAvatar = styled.div`
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    var(--color-brand-600),
+    var(--color-brand-700)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+`;
+
+const DistributorName = styled.div`
+  display: flex;
+  flex-direction: column;
+  & .name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--color-grey-800);
+  }
+  & .label {
+    font-size: 1.1rem;
+    color: var(--color-grey-500);
+  }
+`;
+
+const UnassignedBadge = styled.span`
+  font-size: 1.2rem;
+  color: var(--color-grey-400);
+  font-style: italic;
+`;
+
+// ── Empty State ───────────────────────────────────────────────────────────────
+
 const EmptyState = styled.div`
   padding: 8rem 2rem;
   text-align: center;
   color: var(--color-grey-500);
-
   & svg {
     width: 10rem;
     height: 10rem;
     margin: 0 auto 2.4rem;
     color: var(--color-grey-300);
   }
-
   & h3 {
     font-size: 2rem;
     font-weight: 600;
     color: var(--color-grey-700);
     margin-bottom: 0.8rem;
   }
-
   & p {
     font-size: 1.5rem;
     margin-bottom: 2.4rem;
@@ -294,14 +318,12 @@ const StatCard = styled.div`
   border-radius: var(--border-radius-md);
   padding: 1.6rem;
   text-align: center;
-
   & h3 {
     font-size: 2.4rem;
     font-weight: 700;
     color: var(--color-brand-600);
     margin-bottom: 0.4rem;
   }
-
   & p {
     font-size: 1.3rem;
     color: var(--color-grey-600);
@@ -310,10 +332,10 @@ const StatCard = styled.div`
   }
 `;
 
-// Mobile Card View
+// ── Mobile Cards ──────────────────────────────────────────────────────────────
+
 const MobileCardList = styled.div`
   display: none;
-
   @media (max-width: 1024px) {
     display: flex;
     flex-direction: column;
@@ -328,12 +350,6 @@ const MobileCard = styled.div`
   border-radius: var(--border-radius-md);
   padding: 2rem;
   box-shadow: var(--shadow-sm);
-  transition: all 0.2s;
-
-  &:active {
-    transform: scale(0.98);
-    box-shadow: var(--shadow-md);
-  }
 `;
 
 const MobileCardHeader = styled.div`
@@ -369,7 +385,6 @@ const MobileInfoRow = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0.8rem 0;
-
   &:not(:last-child) {
     border-bottom: 1px solid var(--color-grey-100);
   }
@@ -382,7 +397,6 @@ const MobileLabel = styled.span`
   display: flex;
   align-items: center;
   gap: 0.8rem;
-
   & svg {
     width: 1.6rem;
     height: 1.6rem;
@@ -404,6 +418,7 @@ const MobileStatusRow = styled.div`
   margin-top: 1.2rem;
   padding-top: 1.2rem;
   border-top: 2px solid var(--color-grey-200);
+  flex-wrap: wrap;
 `;
 
 const MobileActionsRow = styled.div`
@@ -427,24 +442,19 @@ const MobileActionButton = styled.button`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-
   & svg {
     width: 1.6rem;
     height: 1.6rem;
   }
-
   &:hover {
     border-color: var(--color-brand-600);
     color: var(--color-brand-600);
     background-color: var(--color-brand-50);
   }
-
-  &:active {
-    transform: scale(0.95);
-  }
 `;
 
-// Status Update Modal
+// ── Status Update Modal ───────────────────────────────────────────────────────
+
 const StatusUpdateContainer = styled.div`
   padding: 2.4rem;
 `;
@@ -462,21 +472,18 @@ const StatusOption = styled.button<{ $selected?: boolean }>`
   align-items: center;
   gap: 1.6rem;
   padding: 1.6rem;
-  background-color: ${(props) =>
-    props.$selected ? "var(--color-brand-50)" : "var(--color-grey-0)"};
+  background-color: ${(p) =>
+    p.$selected ? "var(--color-brand-50)" : "var(--color-grey-0)"};
   border: 2px solid
-    ${(props) =>
-      props.$selected ? "var(--color-brand-600)" : "var(--color-grey-300)"};
+    ${(p) => (p.$selected ? "var(--color-brand-600)" : "var(--color-grey-300)")};
   border-radius: var(--border-radius-md);
   cursor: pointer;
   transition: all 0.2s;
   text-align: left;
-
   &:hover {
     border-color: var(--color-brand-600);
     background-color: var(--color-brand-50);
   }
-
   & svg {
     width: 2.4rem;
     height: 2.4rem;
@@ -486,14 +493,12 @@ const StatusOption = styled.button<{ $selected?: boolean }>`
 
 const StatusOptionContent = styled.div`
   flex: 1;
-
   & h4 {
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--color-grey-900);
     margin-bottom: 0.4rem;
   }
-
   & p {
     font-size: 1.3rem;
     color: var(--color-grey-600);
@@ -501,22 +506,7 @@ const StatusOptionContent = styled.div`
   }
 `;
 
-// Types
-type Product = {
-  productId: string;
-  name: string;
-  quantity: number;
-  price: number;
-};
-
-type EditableOrder = {
-  id: string;
-  orderNumber: string;
-  client: string;
-  deliveryDate: string;
-  products: Product[];
-  notes: string;
-} | null;
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type Order = {
   id: string;
@@ -529,6 +519,7 @@ type Order = {
   paymentStatus: PaymentStatus;
   date: string;
   distributorId?: string;
+  distributorName?: string;
 };
 
 type OrdersProps = {
@@ -537,81 +528,115 @@ type OrdersProps = {
   userName?: string;
 };
 
-// Mock Data - FIXED: Match userId with clientId
+// ─── Mock Data ────────────────────────────────────────────────────────────────
+// clientId    must match Login fillDemoCredentials client  email → "client@taba3ni.tn"
+// distributorId must match Login fillDemoCredentials dist email  → "ahmed.mahmoudi@taba3ni.tn"
+
 const mockOrders: Order[] = [
   {
     id: "1",
     orderNumber: "ORD-001",
     clientId: "client@taba3ni.tn",
     client: "Carrefour Lac 2",
-    products: "Milk (50L), Yogurt (30)",
+    products: "Full Cream Milk (50L), Greek Yogurt (30)",
     amount: 1250,
     status: "out-for-delivery",
     paymentStatus: "unpaid",
     date: "2025-12-28 10:30",
-    distributorId: "dist-1",
+    distributorId: "ahmed.mahmoudi@taba3ni.tn",
+    distributorName: "Ahmed Mahmoudi",
   },
   {
     id: "2",
     orderNumber: "ORD-002",
-    clientId: "monoprix.menzah@email.com", // FIXED: Use email as ID
+    clientId: "monoprix.menzah@email.com",
     client: "Monoprix Menzah",
-    products: "Cheese (20kg), Butter (10kg)",
+    products: "Cheddar Cheese (20kg), Butter (10kg)",
     amount: 890,
     status: "delivered",
     paymentStatus: "paid",
     date: "2025-12-27 09:15",
-    distributorId: "dist-1",
+    distributorId: "karim.belaid@taba3ni.tn",
+    distributorName: "Karim Belaid",
   },
   {
     id: "3",
     orderNumber: "ORD-003",
     clientId: "general.marsa@email.com",
     client: "Magasin Général Marsa",
-    products: "Milk (100L), Yogurt (50)",
+    products: "Full Cream Milk (100L), Greek Yogurt (50)",
     amount: 2100,
     status: "processing",
     paymentStatus: "partial",
     date: "2025-12-25 08:45",
-    distributorId: "dist-2",
+    distributorId: "ahmed.mahmoudi@taba3ni.tn",
+    distributorName: "Ahmed Mahmoudi",
   },
   {
     id: "4",
     orderNumber: "ORD-004",
-    clientId: "client@taba3ni.tn", // FIXED: Same client, multiple orders
+    clientId: "client@taba3ni.tn",
     client: "Carrefour Lac 2",
-    products: "Butter (15kg), Cream (20L)",
+    products: "Butter (15kg), Whipping Cream (20L)",
     amount: 650,
     status: "pending",
     paymentStatus: "unpaid",
     date: "2025-12-29 11:00",
+    // No distributor yet — pending orders not assigned
   },
   {
     id: "5",
     orderNumber: "ORD-005",
     clientId: "superette.ariana@email.com",
     client: "Superette Ariana",
-    products: "Milk (30L), Yogurt (20)",
+    products: "Skimmed Milk (30L), Greek Yogurt (20)",
     amount: 580,
     status: "processing",
     paymentStatus: "unpaid",
     date: "2025-12-28 14:30",
-    distributorId: "dist-2",
+    distributorId: "ahmed.mahmoudi@taba3ni.tn",
+    distributorName: "Ahmed Mahmoudi",
   },
   {
     id: "6",
     orderNumber: "ORD-006",
-    clientId: "monoprix.menzah@email.com", // FIXED: Same client
+    clientId: "monoprix.menzah@email.com",
     client: "Monoprix Menzah",
-    products: "Milk (80L)",
+    products: "Full Cream Milk (80L)",
     amount: 1200,
     status: "pending",
     paymentStatus: "unpaid",
     date: "2025-12-20 08:00",
+    distributorId: "karim.belaid@taba3ni.tn",
+    distributorName: "Karim Belaid",
+  },
+  {
+    id: "7",
+    orderNumber: "ORD-007",
+    clientId: "client@taba3ni.tn",
+    client: "Carrefour Lac 2",
+    products: "Greek Yogurt (100), Full Cream Milk (30L)",
+    amount: 980,
+    status: "delivered",
+    paymentStatus: "paid",
+    date: "2025-12-15 09:00",
+    distributorId: "ahmed.mahmoudi@taba3ni.tn",
+    distributorName: "Ahmed Mahmoudi",
   },
 ];
 
-// Status Update Component
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const getInitials = (name: string) =>
+  name
+    .trim()
+    .split(" ")
+    .map((n) => n[0]?.toUpperCase())
+    .join("")
+    .slice(0, 2);
+
+// ─── Status Update Modal ──────────────────────────────────────────────────────
+
 function StatusUpdateModal({
   orderId,
   currentStatus,
@@ -659,18 +684,12 @@ function StatusUpdateModal({
     },
   ];
 
-  const handleSubmit = () => {
-    onUpdate(selectedStatus);
-    onClose();
-  };
-
   return (
     <StatusUpdateContainer>
       <Heading as="h3">Update Order Status</Heading>
       <p style={{ color: "var(--color-grey-600)", marginBottom: "2.4rem" }}>
         Select the new status for order #{orderId}
       </p>
-
       <StatusOptions>
         {statusOptions.map((option) => (
           <StatusOption
@@ -686,14 +705,16 @@ function StatusUpdateModal({
           </StatusOption>
         ))}
       </StatusOptions>
-
       <ButtonGroup>
         <Button type="button" $variation="secondary" onClick={onClose}>
           Cancel
         </Button>
         <Button
           type="button"
-          onClick={handleSubmit}
+          onClick={() => {
+            onUpdate(selectedStatus);
+            onClose();
+          }}
           disabled={selectedStatus === currentStatus}
         >
           Update Status
@@ -703,6 +724,8 @@ function StatusUpdateModal({
   );
 }
 
+// ─── Main Component ───────────────────────────────────────────────────────────
+
 function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
   const navigate = useNavigate();
   const { addNotification } = useNotifications();
@@ -710,48 +733,51 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [orders, setOrders] = useState<Order[]>(mockOrders);
 
-  // Role-based data filtering
+  // ── Role-based filtering ────────────────────────────────────────────────────
   const getRoleFilteredOrders = (): Order[] => {
     if (userRole === "client") {
-      return mockOrders.filter((order) => order.clientId === userId);
+      return orders.filter((o) => o.clientId === userId);
     }
     if (userRole === "distributor") {
-      return mockOrders.filter((order) => order.distributorId === userId);
+      return orders.filter((o) => o.distributorId === userId);
     }
-    return mockOrders;
+    return orders;
   };
 
   const roleFilteredOrders = getRoleFilteredOrders();
 
-  // Filter orders by status, search, and date range
+  // ── Search + status + date filtering ───────────────────────────────────────
   const filteredOrders = roleFilteredOrders.filter((order) => {
     const matchesStatus =
       statusFilter === "all" || order.status === statusFilter;
     const matchesSearch =
       order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.client.toLowerCase().includes(searchQuery.toLowerCase());
+      order.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (order.distributorName
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()) ??
+        false);
 
-    // Date filtering
     let matchesDateRange = true;
     if (dateFrom || dateTo) {
       const orderDate = new Date(order.date);
       if (dateFrom) {
-        const fromDate = new Date(dateFrom);
-        fromDate.setHours(0, 0, 0, 0);
-        matchesDateRange = matchesDateRange && orderDate >= fromDate;
+        const from = new Date(dateFrom);
+        from.setHours(0, 0, 0, 0);
+        matchesDateRange = matchesDateRange && orderDate >= from;
       }
       if (dateTo) {
-        const toDate = new Date(dateTo);
-        toDate.setHours(23, 59, 59, 999);
-        matchesDateRange = matchesDateRange && orderDate <= toDate;
+        const to = new Date(dateTo);
+        to.setHours(23, 59, 59, 999);
+        matchesDateRange = matchesDateRange && orderDate <= to;
       }
     }
-
     return matchesStatus && matchesSearch && matchesDateRange;
   });
 
-  // Calculate stats
+  // ── Stats ───────────────────────────────────────────────────────────────────
   const stats = {
     total: roleFilteredOrders.length,
     pending: roleFilteredOrders.filter((o) => o.status === "pending").length,
@@ -762,7 +788,7 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
     failed: roleFilteredOrders.filter((o) => o.status === "failed").length,
   };
 
-  // Clear all filters
+  // ── Handlers ────────────────────────────────────────────────────────────────
   const handleClearFilters = () => {
     setStatusFilter("all");
     setSearchQuery("");
@@ -773,12 +799,12 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
     });
   };
 
-  // Export to CSV
   const handleExport = () => {
-    const csvData = [
+    const rows = [
       [
         "Order Number",
         "Client",
+        "Distributor",
         "Products",
         "Amount (TND)",
         "Status",
@@ -788,6 +814,7 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
       ...filteredOrders.map((o) => [
         o.orderNumber,
         o.client,
+        o.distributorName || "Unassigned",
         o.products,
         o.amount,
         o.status,
@@ -795,63 +822,53 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
         o.date,
       ]),
     ];
-
-    const csvContent = csvData.map((row) => row.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const csv = rows.map((r) => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `taba3ni-orders-${userRole}-${
-      new Date().toISOString().split("T")[0]
-    }.csv`;
+    link.download = `taba3ni-orders-${userRole}-${new Date().toISOString().split("T")[0]}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
-
     addNotification(
       "✅ Export Successful",
-      `Exported ${filteredOrders.length} orders to CSV`,
+      `Exported ${filteredOrders.length} orders`,
       "success",
-      { duration: 4000, persistent: true }
+      { duration: 4000, persistent: true },
     );
   };
 
-  // Update order status
   const handleStatusUpdate = (orderId: string, newStatus: OrderStatus) => {
-    console.log(`Update order ${orderId} to status: ${newStatus}`);
-    // TODO: Call API to update status
+    setOrders((prev) =>
+      prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
+    );
     addNotification(
       "✅ Status Updated",
       `Order status changed to ${newStatus}`,
       "success",
-      { duration: 4000, persistent: true }
+      { duration: 4000, persistent: true },
     );
   };
 
-  // Cancel order (client only)
   const handleCancelOrder = (orderId: string, orderNumber: string) => {
-    console.log(`Cancel order ${orderId}`);
-    // TODO: Call API to cancel order
+    setOrders((prev) => prev.filter((o) => o.id !== orderId));
     addNotification(
       "✅ Order Cancelled",
       `Order ${orderNumber} has been cancelled`,
       "success",
-      { duration: 4000, persistent: true }
+      { duration: 4000, persistent: true },
     );
   };
 
-  const handleViewOrder = (orderId: string) => {
-    navigate(`/orders/${orderId}`);
-  };
-
-  const handleDeleteOrder = (orderId: string) => {
-    console.log("Delete order:", orderId);
+  const handleDeleteOrder = (orderId: string, orderNumber: string) => {
+    setOrders((prev) => prev.filter((o) => o.id !== orderId));
     addNotification(
       "✅ Order Deleted",
-      "Order has been deleted successfully",
+      `Order ${orderNumber} deleted`,
       "success",
-      { duration: 4000, persistent: true }
+      { duration: 4000, persistent: true },
     );
   };
 
@@ -859,12 +876,6 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
     if (userRole === "client") return "My Orders";
     if (userRole === "distributor") return "My Deliveries";
     return "Orders Management";
-  };
-
-  const getButtonText = () => {
-    if (userRole === "client") return "+ Place New Order";
-    if (userRole === "distributor") return "View Route";
-    return "+ New Order";
   };
 
   const hasActiveFilters =
@@ -878,7 +889,9 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
         {userRole !== "distributor" && (
           <Modal>
             <Modal.Open opens="create-order">
-              <Button $size="medium">{getButtonText()}</Button>
+              <Button $size="medium">
+                {userRole === "client" ? "+ Place New Order" : "+ New Order"}
+              </Button>
             </Modal.Open>
             <Modal.Window name="create-order">
               <OrderForm
@@ -918,15 +931,17 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
         )}
       </StatsRow>
 
-      {/* Filters & Search */}
+      {/* Filters */}
       <FiltersBar>
         <SearchBar
-          placeholder="Search by order ID or client..."
+          placeholder={
+            userRole === "admin"
+              ? "Search by order ID, client, or distributor..."
+              : "Search by order ID..."
+          }
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-
-        {/* Date Range Filter */}
         <DateFilterGroup>
           <label>From:</label>
           <input
@@ -941,44 +956,28 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
             onChange={(e) => setDateTo(e.target.value)}
           />
         </DateFilterGroup>
-
-        {/* Status Filters */}
         <FilterGroup>
-          <FilterButton
-            $active={statusFilter === "all"}
-            onClick={() => setStatusFilter("all")}
-          >
-            All
-          </FilterButton>
-          <FilterButton
-            $active={statusFilter === "pending"}
-            onClick={() => setStatusFilter("pending")}
-          >
-            Pending
-          </FilterButton>
-          <FilterButton
-            $active={statusFilter === "processing"}
-            onClick={() => setStatusFilter("processing")}
-          >
-            Processing
-          </FilterButton>
-          <FilterButton
-            $active={statusFilter === "delivered"}
-            onClick={() => setStatusFilter("delivered")}
-          >
-            Delivered
-          </FilterButton>
-          {userRole === "admin" && (
+          {[
+            "all",
+            "pending",
+            "processing",
+            "out-for-delivery",
+            "delivered",
+            ...(userRole === "admin" ? ["failed"] : []),
+          ].map((s) => (
             <FilterButton
-              $active={statusFilter === "failed"}
-              onClick={() => setStatusFilter("failed")}
+              key={s}
+              $active={statusFilter === s}
+              onClick={() => setStatusFilter(s)}
             >
-              Failed
+              {s === "all"
+                ? "All"
+                : s === "out-for-delivery"
+                  ? "Out for Delivery"
+                  : s.charAt(0).toUpperCase() + s.slice(1)}
             </FilterButton>
-          )}
+          ))}
         </FilterGroup>
-
-        {/* Clear Filters */}
         {hasActiveFilters && (
           <ClearFiltersButton onClick={handleClearFilters}>
             Clear Filters
@@ -986,7 +985,7 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
         )}
       </FiltersBar>
 
-      {/* Orders Table */}
+      {/* Table */}
       <TableCard>
         <TableControls>
           <ResultsCount>
@@ -1008,11 +1007,12 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
           <TableHeader>
             <div>Order ID</div>
             <div>Client</div>
+            <div>Distributor</div>
             <div>Products</div>
             <div>Amount</div>
             <div>Status</div>
             <div>Payment</div>
-            <div></div>
+            <div />
           </TableHeader>
 
           {filteredOrders.length === 0 ? (
@@ -1026,8 +1026,8 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
                   ? userRole === "client"
                     ? "You haven't placed any orders yet"
                     : userRole === "distributor"
-                    ? "No deliveries assigned to you yet"
-                    : "No orders in the system yet"
+                      ? "No deliveries assigned to you yet"
+                      : "No orders in the system yet"
                   : "Try adjusting your filters or search query"}
               </p>
               {userRole === "client" && roleFilteredOrders.length === 0 && (
@@ -1048,7 +1048,7 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
             </EmptyState>
           ) : (
             <>
-              {/* Desktop Table View */}
+              {/* ── Desktop Table ── */}
               <Menus>
                 {filteredOrders.map((order) => {
                   const orderStatus = getStatusDisplay(order.status);
@@ -1057,7 +1057,28 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
                   return (
                     <TableRow key={order.id}>
                       <OrderId>#{order.orderNumber}</OrderId>
+
                       <ClientName>{order.client}</ClientName>
+
+                      {/* Distributor column */}
+                      <DistributorCell>
+                        {order.distributorName ? (
+                          <>
+                            <DistributorAvatar>
+                              {getInitials(order.distributorName)}
+                            </DistributorAvatar>
+                            <DistributorName>
+                              <span className="name">
+                                {order.distributorName}
+                              </span>
+                              <span className="label">Distributor</span>
+                            </DistributorName>
+                          </>
+                        ) : (
+                          <UnassignedBadge>Unassigned</UnassignedBadge>
+                        )}
+                      </DistributorCell>
+
                       <div
                         style={{
                           fontSize: "1.3rem",
@@ -1066,17 +1087,17 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
                       >
                         {order.products}
                       </div>
-                      <Amount>{order.amount} TND</Amount>
-                      <div>
-                        <StatusBadge $status={order.status}>
-                          {orderStatus.icon} {orderStatus.label}
-                        </StatusBadge>
-                      </div>
-                      <div>
-                        <StatusBadge $status={order.paymentStatus}>
-                          {paymentStatus.icon} {paymentStatus.label}
-                        </StatusBadge>
-                      </div>
+
+                      <Amount>{order.amount.toLocaleString()} TND</Amount>
+
+                      <StatusBadge $status={order.status}>
+                        {orderStatus.icon} {orderStatus.label}
+                      </StatusBadge>
+
+                      <StatusBadge $status={order.paymentStatus}>
+                        {paymentStatus.icon} {paymentStatus.label}
+                      </StatusBadge>
+
                       <div>
                         <Modal>
                           <Menus.Menu>
@@ -1084,12 +1105,10 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
                             <Menus.List id={order.id}>
                               <Menus.Button
                                 icon={<HiOutlineEye />}
-                                onClick={() => handleViewOrder(order.id)}
+                                onClick={() => navigate(`/orders/${order.id}`)}
                               >
                                 View Details
                               </Menus.Button>
-
-                              {/* Admin Actions */}
                               {userRole === "admin" && (
                                 <>
                                   <Modal.Open opens={`status-${order.id}`}>
@@ -1109,8 +1128,6 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
                                   </Modal.Open>
                                 </>
                               )}
-
-                              {/* Client Actions */}
                               {userRole === "client" &&
                                 order.status === "pending" && (
                                   <Modal.Open opens={`cancel-${order.id}`}>
@@ -1119,8 +1136,6 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
                                     </Menus.Button>
                                   </Modal.Open>
                                 )}
-
-                              {/* Distributor Actions */}
                               {userRole === "distributor" && (
                                 <Modal.Open opens={`status-${order.id}`}>
                                   <Menus.Button icon={<HiOutlineTruck />}>
@@ -1131,58 +1146,56 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
                             </Menus.List>
                           </Menus.Menu>
 
-                          {/* Status Update Modal */}
                           {(userRole === "admin" ||
                             userRole === "distributor") && (
                             <Modal.Window name={`status-${order.id}`}>
                               <StatusUpdateModal
                                 orderId={order.orderNumber}
                                 currentStatus={order.status}
-                                onUpdate={(newStatus) =>
-                                  handleStatusUpdate(order.id, newStatus)
+                                onUpdate={(s) =>
+                                  handleStatusUpdate(order.id, s)
                                 }
                                 onClose={() => {}}
                               />
                             </Modal.Window>
                           )}
-
-                          {/* Edit Order Modal */}
                           {userRole === "admin" && (
-                            <Modal.Window name={`edit-${order.id}`}>
-                              <OrderForm
-                                orderToEdit={{
-                                  id: order.id,
-                                  orderNumber: order.orderNumber,
-                                  client: order.client,
-                                  deliveryDate: order.date,
-                                  products: [
-                                    {
-                                      productId: "1",
-                                      name: "Full Cream Milk (1L)",
-                                      quantity: 50,
-                                      price: 15,
-                                    },
-                                  ],
-                                  notes: "Sample order notes",
-                                }}
-                                onCloseModal={() => {}}
-                                userRole={userRole}
-                              />
-                            </Modal.Window>
+                            <>
+                              <Modal.Window name={`edit-${order.id}`}>
+                                <OrderForm
+                                  orderToEdit={{
+                                    id: order.id,
+                                    orderNumber: order.orderNumber,
+                                    client: order.client,
+                                    deliveryDate: order.date,
+                                    products: [
+                                      {
+                                        productId: "1",
+                                        name: "Full Cream Milk (1L)",
+                                        quantity: 50,
+                                        price: 15,
+                                      },
+                                    ],
+                                    notes: "",
+                                  }}
+                                  onCloseModal={() => {}}
+                                  userRole={userRole}
+                                />
+                              </Modal.Window>
+                              <Modal.Window name={`delete-${order.id}`}>
+                                <ConfirmDelete
+                                  resourceName={`order ${order.orderNumber}`}
+                                  onConfirm={() =>
+                                    handleDeleteOrder(
+                                      order.id,
+                                      order.orderNumber,
+                                    )
+                                  }
+                                  onCloseModal={() => {}}
+                                />
+                              </Modal.Window>
+                            </>
                           )}
-
-                          {/* Delete Order Modal */}
-                          {userRole === "admin" && (
-                            <Modal.Window name={`delete-${order.id}`}>
-                              <ConfirmDelete
-                                resourceName={`order ${order.orderNumber}`}
-                                onConfirm={() => handleDeleteOrder(order.id)}
-                                onCloseModal={() => {}}
-                              />
-                            </Modal.Window>
-                          )}
-
-                          {/* Cancel Order Modal (Client) */}
                           {userRole === "client" && (
                             <Modal.Window name={`cancel-${order.id}`}>
                               <ConfirmDelete
@@ -1191,7 +1204,6 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
                                   handleCancelOrder(order.id, order.orderNumber)
                                 }
                                 onCloseModal={() => {}}
-                                disabled={order.status !== "pending"}
                               />
                             </Modal.Window>
                           )}
@@ -1202,7 +1214,7 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
                 })}
               </Menus>
 
-              {/* Mobile Card View */}
+              {/* ── Mobile Cards ── */}
               <MobileCardList>
                 {filteredOrders.map((order) => {
                   const orderStatus = getStatusDisplay(order.status);
@@ -1218,6 +1230,39 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
                       </MobileCardHeader>
 
                       <MobileCardBody>
+                        {/* Show distributor to client & admin */}
+                        {userRole !== "distributor" && (
+                          <MobileInfoRow>
+                            <MobileLabel>
+                              <HiOutlineUser />
+                              Distributor
+                            </MobileLabel>
+                            <MobileValue>
+                              {order.distributorName ? (
+                                <span
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "0.6rem",
+                                  }}
+                                >
+                                  <DistributorAvatar
+                                    style={{
+                                      width: "2.4rem",
+                                      height: "2.4rem",
+                                      fontSize: "0.9rem",
+                                    }}
+                                  >
+                                    {getInitials(order.distributorName)}
+                                  </DistributorAvatar>
+                                  {order.distributorName}
+                                </span>
+                              ) : (
+                                "Unassigned"
+                              )}
+                            </MobileValue>
+                          </MobileInfoRow>
+                        )}
                         <MobileInfoRow>
                           <MobileLabel>
                             <HiOutlineShoppingCart />
@@ -1233,15 +1278,15 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
                             {order.products}
                           </MobileValue>
                         </MobileInfoRow>
-
                         <MobileInfoRow>
                           <MobileLabel>
                             <HiOutlineCurrencyDollar />
                             Amount
                           </MobileLabel>
-                          <MobileValue>{order.amount} TND</MobileValue>
+                          <MobileValue>
+                            {order.amount.toLocaleString()} TND
+                          </MobileValue>
                         </MobileInfoRow>
-
                         <MobileInfoRow>
                           <MobileLabel>
                             <HiOutlineCalendar />
@@ -1268,18 +1313,15 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
 
                       <MobileActionsRow>
                         <MobileActionButton
-                          onClick={() => handleViewOrder(order.id)}
+                          onClick={() => navigate(`/orders/${order.id}`)}
                         >
-                          <HiOutlineEye />
-                          View
+                          <HiOutlineEye /> View
                         </MobileActionButton>
-
                         {userRole === "admin" && (
                           <Modal>
                             <Modal.Open opens={`edit-mobile-${order.id}`}>
                               <MobileActionButton>
-                                <HiOutlinePencil />
-                                Edit
+                                <HiOutlinePencil /> Edit
                               </MobileActionButton>
                             </Modal.Open>
                             <Modal.Window name={`edit-mobile-${order.id}`}>
@@ -1297,7 +1339,7 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
                                       price: 15,
                                     },
                                   ],
-                                  notes: "Sample order notes",
+                                  notes: "",
                                 }}
                                 onCloseModal={() => {}}
                                 userRole={userRole}
@@ -1305,35 +1347,31 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
                             </Modal.Window>
                           </Modal>
                         )}
-
                         {userRole === "distributor" && (
                           <Modal>
                             <Modal.Open opens={`status-mobile-${order.id}`}>
                               <MobileActionButton>
-                                <HiOutlineTruck />
-                                Update
+                                <HiOutlineTruck /> Update
                               </MobileActionButton>
                             </Modal.Open>
                             <Modal.Window name={`status-mobile-${order.id}`}>
                               <StatusUpdateModal
                                 orderId={order.orderNumber}
                                 currentStatus={order.status}
-                                onUpdate={(newStatus) =>
-                                  handleStatusUpdate(order.id, newStatus)
+                                onUpdate={(s) =>
+                                  handleStatusUpdate(order.id, s)
                                 }
                                 onClose={() => {}}
                               />
                             </Modal.Window>
                           </Modal>
                         )}
-
                         {userRole === "client" &&
                           order.status === "pending" && (
                             <Modal>
                               <Modal.Open opens={`cancel-mobile-${order.id}`}>
                                 <MobileActionButton>
-                                  <HiOutlineXCircle />
-                                  Cancel
+                                  <HiOutlineXCircle /> Cancel
                                 </MobileActionButton>
                               </Modal.Open>
                               <Modal.Window name={`cancel-mobile-${order.id}`}>
@@ -1342,7 +1380,7 @@ function Orders({ userRole = "admin", userId, userName }: OrdersProps) {
                                   onConfirm={() =>
                                     handleCancelOrder(
                                       order.id,
-                                      order.orderNumber
+                                      order.orderNumber,
                                     )
                                   }
                                   onCloseModal={() => {}}

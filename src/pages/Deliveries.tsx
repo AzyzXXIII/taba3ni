@@ -533,7 +533,7 @@ const mockDeliveries: Delivery[] = [
       address: "Avenue de la Bourse, Lac 2",
       city: "Tunis",
     },
-    distributorId: "ahmed.mahmoudi@taba3ni.com", // Email-based ID
+    distributorId: "ahmed.mahmoudi@taba3ni.tn", // Email-based ID
     distributor: {
       name: "Ahmed Mahmoudi",
       phone: "+216 98 123 456",
@@ -573,7 +573,7 @@ const mockDeliveries: Delivery[] = [
       address: "Rue de la République",
       city: "La Marsa",
     },
-    distributorId: "ahmed.mahmoudi@taba3ni.com",
+    distributorId: "ahmed.mahmoudi@taba3ni.tn",
     distributor: {
       name: "Ahmed Mahmoudi",
       phone: "+216 98 123 456",
