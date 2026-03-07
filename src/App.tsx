@@ -102,7 +102,16 @@ function App() {
               }
             >
               <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
+              <Route
+                path="dashboard"
+                element={
+                  <Dashboard
+                    userRole={user?.role}
+                    userId={user?.email}
+                    userName={user?.name}
+                  />
+                }
+              />{" "}
               {/* Orders */}
               {/* Orders - Pass user role and info */}
               <Route
@@ -116,14 +125,11 @@ function App() {
                 }
               />
               <Route path="orders/:orderId" element={<OrderDetails />} />
-
               {/* Products */}
               <Route path="products" element={<Products />} />
-
               {/* Clients */}
               <Route path="clients" element={<Clients />} />
               <Route path="clients/:clientId" element={<ClientDetails />} />
-
               {/* Deliveries ) */}
               <Route
                 path="deliveries"
@@ -143,15 +149,16 @@ function App() {
                 path="deliveryDetails/:deliveryId"
                 element={<DeliveryDetails />}
               />
-
               {/* Distributors - NEW */}
               <Route path="distributors" element={<Distributors />} />
               <Route
                 path="distributors/:distributorId"
                 element={<DistributorDetails />}
               />
-              <Route path="analytics" element={<Analytics />} />
-
+              <Route
+                path="analytics"
+                element={<Analytics userRole={user?.role} />}
+              />{" "}
               <Route path="invoices" element={<Invoices />} />
               <Route path="invoices/:invoiceId" element={<InvoiceDetails />} />
             </Route>

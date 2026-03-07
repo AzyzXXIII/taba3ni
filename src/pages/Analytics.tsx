@@ -686,8 +686,8 @@ const deliveryHeatmapData = [
     intensity: 18,
   },
 ];
-
-function Analytics() {
+type AnalyticsProps = { userRole?: "admin" | "distributor" | "client" };
+function Analytics({ userRole = "admin" }: AnalyticsProps) {
   const [selectedPeriod, setSelectedPeriod] = useState("30days");
   const [startDate, setStartDate] = useState("2025-09-11");
   const [endDate, setEndDate] = useState("2025-10-11");
@@ -696,6 +696,19 @@ function Analytics() {
   const [revenueChartType, setRevenueChartType] = useState<"area" | "bar">(
     "area",
   );
+
+  if (userRole !== "admin")
+    return (
+      <div style={{ textAlign: "center", padding: "8rem 2rem" }}>
+        <div style={{ fontSize: "6rem", marginBottom: "1.6rem" }}>🔒</div>
+        <h2 style={{ fontSize: "2.4rem", marginBottom: "0.8rem" }}>
+          Access Restricted
+        </h2>
+        <p style={{ color: "var(--color-grey-600)" }}>
+          Analytics are only available to administrators.
+        </p>
+      </div>
+    );
 
   // Calculate stats
   const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenue, 0);
