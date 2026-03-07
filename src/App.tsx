@@ -103,7 +103,6 @@ function App() {
             >
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
-
               {/* Orders */}
               {/* Orders - Pass user role and info */}
               <Route

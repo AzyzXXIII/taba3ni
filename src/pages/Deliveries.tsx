@@ -7,7 +7,6 @@ import {
   HiOutlineTrash,
   HiOutlineTruck,
   HiOutlineClock,
-  HiOutlineMapPin,
   HiOutlineUser,
   HiOutlineShoppingCart,
   HiOutlineCurrencyDollar,
@@ -630,12 +629,14 @@ const mockDeliveries: Delivery[] = [
 
 function Deliveries({ userRole = "admin", userId, userName }: DeliveriesProps) {
   const navigate = useNavigate();
+  const { addNotification } = useNotifications();
+
+  // ALL state at the top — before any function that references them
+  const [deliveries, setDeliveries] = useState<Delivery[]>(mockDeliveries);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-
-  const { addNotification } = useNotifications();
 
   // ROLE-BASED DATA FILTERING
   const getRoleFilteredDeliveries = (): Delivery[] => {
@@ -759,8 +760,6 @@ function Deliveries({ userRole = "admin", userId, userName }: DeliveriesProps) {
     navigate(`/deliveryDetails/${deliveryId}`);
   };
 
-  const [deliveries, setDeliveries] = useState(mockDeliveries);
-
   const handleDeleteDelivery = (id: string, deliveryId: string) => {
     setDeliveries((prev) => prev.filter((d) => d.id !== id));
     addNotification(
@@ -832,7 +831,6 @@ function Deliveries({ userRole = "admin", userId, userName }: DeliveriesProps) {
             </Modal.Open>
             <Modal.Window name="schedule-delivery">
               <DeliveryForm
-                o
                 onCloseModal={() => {
                   addNotification(
                     "✅ Delivery Scheduled",

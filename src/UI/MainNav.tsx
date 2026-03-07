@@ -10,6 +10,7 @@ import {
   HiOutlineChartBar,
   HiOutlineCog6Tooth,
 } from "react-icons/hi2";
+import { HiOutlineDocumentText } from "react-icons/hi2";
 
 const NavList = styled.ul`
   display: flex;
@@ -164,12 +165,7 @@ function MainNav({ role = "admin" }: MainNavProps) {
               <span>Dashboard</span>
             </StyledNavLink>
           </li>
-          <li>
-            <StyledNavLink to="/new-order">
-              <HiOutlineShoppingCart />
-              <span>New Order</span>
-            </StyledNavLink>
-          </li>
+
           <li>
             <StyledNavLink to="/orders">
               <HiOutlineTruck />
@@ -178,7 +174,7 @@ function MainNav({ role = "admin" }: MainNavProps) {
           </li>
           <li>
             <StyledNavLink to="/invoices">
-              <HiOutlineChartBar />
+              <HiOutlineDocumentText />
               <span>Invoices & Payments</span>
             </StyledNavLink>
           </li>
