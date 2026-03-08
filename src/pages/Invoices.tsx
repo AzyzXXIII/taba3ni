@@ -13,7 +13,9 @@ import {
   HiOutlineCalendarDays,
   HiOutlineTableCells,
   HiOutlineXMark,
-  HiOutlinePlus,
+  HiOutlineExclamationTriangle,
+  HiOutlineCreditCard,
+  HiOutlineBellAlert,
 } from "react-icons/hi2";
 import Heading from "../UI/Heading";
 import Row from "../UI/Row";
@@ -24,7 +26,8 @@ import Modal from "../UI/Modal";
 import StatsCard from "../UI/StatsCard";
 import { useNotifications } from "../hooks/useNotifications";
 import InvoiceForm from "../components/InvoiceForm";
-// ─── Animations ──────────────────────────────────────────────────────────────
+
+// ─── Animations ───────────────────────────────────────────────────────────────
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -38,7 +41,7 @@ const overlayIn = keyframes`
   to   { opacity: 1; }
 `;
 
-// ─── Layout ───────────────────────────────────────────────────────────────────
+// ─── Shared Layout ────────────────────────────────────────────────────────────
 const InvoicesLayout = styled.div`
   display: flex;
   flex-direction: column;
@@ -48,20 +51,10 @@ const InvoicesLayout = styled.div`
 
 const StatsRow = styled.div`
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
   gap: 1.6rem;
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-  }
 `;
 
-// ─── Filters ──────────────────────────────────────────────────────────────────
 const FiltersBar = styled.div`
   display: flex;
   gap: 1.2rem;
@@ -107,10 +100,6 @@ const DateRangeGroup = styled.div`
   border-radius: var(--border-radius-sm);
   padding: 0.6rem 1.2rem;
   flex-wrap: wrap;
-  @media (max-width: 600px) {
-    width: 100%;
-    justify-content: space-between;
-  }
 `;
 
 const DateLabel = styled.label`
@@ -168,7 +157,6 @@ const ExportButton = styled.button`
   }
 `;
 
-// ─── Table ────────────────────────────────────────────────────────────────────
 const TableCard = styled.div`
   background: var(--color-grey-0);
   border: 1px solid var(--color-grey-100);
@@ -182,11 +170,67 @@ const TableWrapper = styled.div`
   -webkit-overflow-scrolling: touch;
 `;
 
-const cols = "1fr 2fr 1.4fr 1fr 1fr 1fr 1.2fr 0.5fr";
+const ResultCount = styled.span`
+  font-size: 1.3rem;
+  color: var(--color-grey-500);
+  padding: 1.2rem 2.4rem;
+  border-bottom: 1px solid var(--color-grey-100);
+  display: block;
+  background: var(--color-grey-0);
+`;
 
-const TableHeader = styled.div`
+const StatusBadge = styled.span<{
+  $status: "paid" | "unpaid" | "overdue" | "partial";
+}>`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: ${(p) => {
+    if (p.$status === "paid") return "var(--color-green-100)";
+    if (p.$status === "partial") return "var(--color-yellow-100)";
+    if (p.$status === "overdue") return "var(--color-red-100)";
+    return "var(--color-grey-100)";
+  }};
+  color: ${(p) => {
+    if (p.$status === "paid") return "var(--color-green-700)";
+    if (p.$status === "partial") return "var(--color-yellow-700)";
+    if (p.$status === "overdue") return "var(--color-red-700)";
+    return "var(--color-grey-700)";
+  }};
+  & svg {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+`;
+
+const EmptyState = styled.div`
+  padding: 6rem 2rem;
+  text-align: center;
+  color: var(--color-grey-500);
+  & p {
+    font-size: 1.6rem;
+    margin-bottom: 0.8rem;
+  }
+  & svg {
+    width: 6rem;
+    height: 6rem;
+    margin: 0 auto 1.6rem;
+    color: var(--color-grey-300);
+  }
+`;
+
+// ─── Admin-specific styles ────────────────────────────────────────────────────
+const adminCols = "1fr 2fr 1.4fr 1fr 1fr 1fr 1.2fr 0.5fr";
+
+const AdminTableHeader = styled.div`
   display: grid;
-  grid-template-columns: ${cols};
+  grid-template-columns: ${adminCols};
   gap: 1.6rem;
   padding: 1.4rem 2.4rem;
   background: var(--color-grey-50);
@@ -199,9 +243,9 @@ const TableHeader = styled.div`
   min-width: 800px;
 `;
 
-const TableRow = styled.div`
+const AdminTableRow = styled.div`
   display: grid;
-  grid-template-columns: ${cols};
+  grid-template-columns: ${adminCols};
   gap: 1.6rem;
   padding: 1.5rem 2.4rem;
   border-bottom: 1px solid var(--color-grey-100);
@@ -263,36 +307,6 @@ const ProgressBar = styled.div<{ $percent: number }>`
   }
 `;
 
-const StatusBadge = styled.span<{
-  $status: "paid" | "unpaid" | "overdue" | "partial";
-}>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 1rem;
-  border-radius: 100px;
-  font-size: 1.15rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  background: ${(p) => {
-    if (p.$status === "paid") return "var(--color-green-100)";
-    if (p.$status === "partial") return "var(--color-yellow-100)";
-    if (p.$status === "overdue") return "var(--color-red-100)";
-    return "var(--color-grey-100)";
-  }};
-  color: ${(p) => {
-    if (p.$status === "paid") return "var(--color-green-700)";
-    if (p.$status === "partial") return "var(--color-yellow-700)";
-    if (p.$status === "overdue") return "var(--color-red-700)";
-    return "var(--color-grey-700)";
-  }};
-  & svg {
-    width: 1.3rem;
-    height: 1.3rem;
-  }
-`;
-
 const DueDateBadge = styled.span<{ $overdue?: boolean }>`
   display: inline-flex;
   align-items: center;
@@ -306,32 +320,217 @@ const DueDateBadge = styled.span<{ $overdue?: boolean }>`
     p.$overdue ? "var(--color-red-700)" : "var(--color-grey-700)"};
 `;
 
-const EmptyState = styled.div`
-  padding: 6rem 2rem;
-  text-align: center;
-  color: var(--color-grey-500);
-  & p {
-    font-size: 1.6rem;
-    margin-bottom: 0.8rem;
-  }
+// ─── Client-specific styles ───────────────────────────────────────────────────
+
+const AlertBanner = styled.div<{ $type: "warning" | "danger" | "info" }>`
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  padding: 1.6rem 2rem;
+  border-radius: var(--border-radius-md);
+  background: ${(p) =>
+    p.$type === "danger"
+      ? "linear-gradient(135deg, #fee2e2, #fecaca)"
+      : p.$type === "warning"
+        ? "linear-gradient(135deg, #fef3c7, #fde68a)"
+        : "linear-gradient(135deg, var(--color-brand-50), var(--color-brand-100))"};
+  border: 1.5px solid
+    ${(p) =>
+      p.$type === "danger"
+        ? "var(--color-red-300)"
+        : p.$type === "warning"
+          ? "var(--color-yellow-400)"
+          : "var(--color-brand-200)"};
+
   & svg {
-    width: 6rem;
-    height: 6rem;
-    margin: 0 auto 1.6rem;
-    color: var(--color-grey-300);
+    width: 2.4rem;
+    height: 2.4rem;
+    flex-shrink: 0;
+    color: ${(p) =>
+      p.$type === "danger"
+        ? "var(--color-red-600)"
+        : p.$type === "warning"
+          ? "var(--color-yellow-700)"
+          : "var(--color-brand-600)"};
   }
 `;
 
-const ResultCount = styled.span`
-  font-size: 1.3rem;
-  color: var(--color-grey-500);
-  padding: 1.2rem 2.4rem;
-  border-bottom: 1px solid var(--color-grey-100);
-  display: block;
-  background: var(--color-grey-0);
+const AlertText = styled.div`
+  flex: 1;
+  & strong {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-grey-900);
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+  & span {
+    font-size: 1.3rem;
+    color: var(--color-grey-700);
+  }
 `;
 
-// ─── Modal Styles ─────────────────────────────────────────────────────────────
+// Client card-based invoice list
+const ClientCardList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+`;
+
+const ClientInvoiceCard = styled.div<{ $status: string }>`
+  background: var(--color-grey-0);
+  border: 1.5px solid
+    ${(p) =>
+      p.$status === "overdue"
+        ? "var(--color-red-200)"
+        : p.$status === "paid"
+          ? "var(--color-green-200)"
+          : "var(--color-grey-200)"};
+  border-radius: var(--border-radius-md);
+  padding: 2rem 2.4rem;
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 2rem;
+  transition: all 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+  }
+`;
+
+const CardInvoiceInfo = styled.div`
+  & .inv-num {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-brand-600);
+    margin-bottom: 0.4rem;
+  }
+  & .inv-order {
+    font-size: 1.2rem;
+    color: var(--color-grey-500);
+  }
+  & .inv-date {
+    font-size: 1.2rem;
+    color: var(--color-grey-400);
+    margin-top: 0.2rem;
+  }
+`;
+
+const CardAmountBlock = styled.div`
+  text-align: right;
+  & .total {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-grey-900);
+  }
+  & .due {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--color-red-600);
+    margin-top: 0.2rem;
+  }
+  & .paid-label {
+    font-size: 1.2rem;
+    color: var(--color-green-600);
+    margin-top: 0.2rem;
+  }
+
+  @media (max-width: 768px) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+`;
+
+const CardActions = styled.div`
+  display: flex;
+  gap: 0.8rem;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+`;
+
+const IconActionBtn = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1.4rem;
+  border: 1.5px solid var(--color-grey-200);
+  border-radius: var(--border-radius-sm);
+  background: var(--color-grey-0);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-grey-700);
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+
+  & svg {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+
+  &:hover {
+    background: var(--color-brand-50);
+    border-color: var(--color-brand-400);
+    color: var(--color-brand-700);
+  }
+
+  &.pay:hover {
+    background: var(--color-green-50);
+    border-color: var(--color-green-500);
+    color: var(--color-green-700);
+  }
+`;
+
+const ClientSummaryBox = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1.6rem;
+  padding: 2rem;
+  background: linear-gradient(
+    135deg,
+    var(--color-brand-50),
+    var(--color-grey-0)
+  );
+  border: 1px solid var(--color-brand-100);
+  border-radius: var(--border-radius-md);
+`;
+
+const SummaryBlock = styled.div`
+  text-align: center;
+  padding: 1.2rem;
+
+  & .label {
+    font-size: 1.2rem;
+    color: var(--color-grey-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.6rem;
+  }
+  & .value {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--color-grey-900);
+  }
+  & .sub {
+    font-size: 1.2rem;
+    color: var(--color-grey-400);
+    margin-top: 0.2rem;
+  }
+`;
+
+// ─── Modal styles ─────────────────────────────────────────────────────────────
 const ModalOverlay = styled.div`
   position: fixed;
   inset: 0;
@@ -399,222 +598,13 @@ const ModalBody = styled.div`
   gap: 1.8rem;
 `;
 
-const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-`;
-
-const FormRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.6rem;
-  @media (max-width: 520px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const FormLabel = styled.label`
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: var(--color-grey-700);
-`;
-
-const FormInput = styled.input`
-  padding: 1rem 1.4rem;
-  border: 1.5px solid var(--color-grey-200);
-  border-radius: var(--border-radius-sm);
-  font-size: 1.4rem;
-  color: var(--color-grey-800);
-  background: var(--color-grey-0);
-  font-family: inherit;
-  transition: border-color 0.15s;
-  &:focus {
-    outline: none;
-    border-color: var(--color-brand-500);
-    box-shadow: 0 0 0 3px var(--color-brand-50, #eff6ff);
-  }
-`;
-
-const FormSelect = styled.select`
-  padding: 1rem 1.4rem;
-  border: 1.5px solid var(--color-grey-200);
-  border-radius: var(--border-radius-sm);
-  font-size: 1.4rem;
-  color: var(--color-grey-800);
-  background: var(--color-grey-0);
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color 0.15s;
-  &:focus {
-    outline: none;
-    border-color: var(--color-brand-500);
-    box-shadow: 0 0 0 3px var(--color-brand-50, #eff6ff);
-  }
-`;
-
-const FormTextarea = styled.textarea`
-  padding: 1rem 1.4rem;
-  border: 1.5px solid var(--color-grey-200);
-  border-radius: var(--border-radius-sm);
-  font-size: 1.4rem;
-  color: var(--color-grey-800);
-  background: var(--color-grey-0);
-  font-family: inherit;
-  resize: vertical;
-  min-height: 8rem;
-  transition: border-color 0.15s;
-  &:focus {
-    outline: none;
-    border-color: var(--color-brand-500);
-    box-shadow: 0 0 0 3px var(--color-brand-50, #eff6ff);
-  }
-`;
-
-const SectionDivider = styled.div`
-  border-top: 1px solid var(--color-grey-100);
-  padding-top: 1.8rem;
-  margin-top: 0.4rem;
-`;
-
-const SectionTitle = styled.h3`
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--color-grey-700);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 1.2rem;
-`;
-
-const LineItemGrid = styled.div`
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr auto;
-  gap: 1rem;
-  align-items: center;
-  @media (max-width: 520px) {
-    grid-template-columns: 1fr 1fr;
-    & > :first-child {
-      grid-column: 1 / -1;
-    }
-  }
-`;
-
-const RemoveItemBtn = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--color-red-500);
-  padding: 0.4rem;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  transition: color 0.15s;
-  &:hover {
-    color: var(--color-red-700);
-  }
-  &:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-  & svg {
-    width: 1.6rem;
-    height: 1.6rem;
-  }
-`;
-
-const AddItemBtn = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  background: none;
-  border: 1.5px dashed var(--color-brand-300);
-  border-radius: var(--border-radius-sm);
-  padding: 0.9rem 1.4rem;
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: var(--color-brand-600);
-  cursor: pointer;
-  width: 100%;
-  justify-content: center;
-  transition: all 0.15s;
-  &:hover {
-    background: var(--color-brand-50);
-    border-color: var(--color-brand-500);
-  }
-  & svg {
-    width: 1.5rem;
-    height: 1.5rem;
-  }
-`;
-
-const TotalRow = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 2rem;
-  padding: 1.2rem 0 0;
-  border-top: 2px solid var(--color-grey-100);
-`;
-
-const TotalLabel = styled.span`
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: var(--color-grey-600);
-`;
-
-const TotalAmount = styled.span`
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--color-brand-700);
-`;
-
-const ModalFooter = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 1.2rem;
-  padding: 0 2.8rem 2.4rem;
-`;
-
-const CancelBtn = styled.button`
-  padding: 1rem 2rem;
-  border: 1.5px solid var(--color-grey-200);
-  background: var(--color-grey-0);
-  border-radius: var(--border-radius-sm);
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: var(--color-grey-700);
-  cursor: pointer;
-  transition: all 0.15s;
-  &:hover {
-    background: var(--color-grey-100);
-  }
-`;
-
-const SubmitBtn = styled.button`
-  padding: 1rem 2.4rem;
-  background: var(--color-brand-600);
-  border: none;
-  border-radius: var(--border-radius-sm);
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #fff;
-  cursor: pointer;
-  transition: all 0.15s;
-  &:hover {
-    background: var(--color-brand-700);
-  }
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-`;
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 type PaymentStatus = "paid" | "unpaid" | "overdue" | "partial";
 
 type Invoice = {
   id: string;
   invoiceNumber: string;
+  clientEmail: string;
   client: { name: string; email: string };
   orderId: string;
   amount: number;
@@ -625,19 +615,13 @@ type Invoice = {
   paymentDate?: string;
 };
 
-type LineItemType = {
-  id: string;
-  description: string;
-  quantity: number;
-  unitPrice: number;
-};
-
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 const mockInvoices: Invoice[] = [
   {
     id: "1",
     invoiceNumber: "INV-2025-001",
-    client: { name: "Carrefour Lac 2", email: "carrefour.lac2@email.com" },
+    clientEmail: "client@taba3ni.tn",
+    client: { name: "Carrefour Lac 2", email: "client@taba3ni.tn" },
     orderId: "ORD-001",
     amount: 3450,
     paidAmount: 0,
@@ -648,6 +632,7 @@ const mockInvoices: Invoice[] = [
   {
     id: "2",
     invoiceNumber: "INV-2025-002",
+    clientEmail: "monoprix.menzah@email.com",
     client: { name: "Monoprix Menzah", email: "monoprix.menzah@email.com" },
     orderId: "ORD-002",
     amount: 2100,
@@ -660,6 +645,7 @@ const mockInvoices: Invoice[] = [
   {
     id: "3",
     invoiceNumber: "INV-2025-003",
+    clientEmail: "general.marsa@email.com",
     client: { name: "Magasin General Marsa", email: "general.marsa@email.com" },
     orderId: "ORD-003",
     amount: 1500,
@@ -671,7 +657,8 @@ const mockInvoices: Invoice[] = [
   {
     id: "4",
     invoiceNumber: "INV-2025-004",
-    client: { name: "Superette Ariana", email: "superette.ariana@email.com" },
+    clientEmail: "client@taba3ni.tn",
+    client: { name: "Carrefour Lac 2", email: "client@taba3ni.tn" },
     orderId: "ORD-004",
     amount: 890,
     paidAmount: 450,
@@ -682,6 +669,7 @@ const mockInvoices: Invoice[] = [
   {
     id: "5",
     invoiceNumber: "INV-2025-005",
+    clientEmail: "cafe.arts@email.com",
     client: { name: "Cafe des Arts", email: "cafe.arts@email.com" },
     orderId: "ORD-005",
     amount: 1200,
@@ -691,18 +679,22 @@ const mockInvoices: Invoice[] = [
     dueDate: "2025-11-12",
     paymentDate: "2025-10-12",
   },
+  {
+    id: "6",
+    invoiceNumber: "INV-2025-006",
+    clientEmail: "client@taba3ni.tn",
+    client: { name: "Carrefour Lac 2", email: "client@taba3ni.tn" },
+    orderId: "ORD-008",
+    amount: 2750,
+    paidAmount: 2750,
+    status: "paid",
+    issueDate: "2025-11-01",
+    dueDate: "2025-12-01",
+    paymentDate: "2025-11-20",
+  },
 ];
 
-const mockClients = [
-  "Carrefour Lac 2",
-  "Monoprix Menzah",
-  "Magasin General Marsa",
-  "Superette Ariana",
-  "Cafe des Arts",
-  "Distribution Centre Nord",
-];
-
-// ─── CSV Export ───────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 function exportToCSV(invoices: Invoice[]) {
   const headers = [
     "Invoice #",
@@ -742,10 +734,29 @@ function exportToCSV(invoices: Invoice[]) {
   URL.revokeObjectURL(url);
 }
 
-// ─── Generate Invoice Modal ───────────────────────────────────────────────────
+const getStatusIcon = (status: PaymentStatus) => {
+  switch (status) {
+    case "paid":
+      return <HiOutlineCheckCircle />;
+    case "partial":
+      return <HiOutlineClock />;
+    case "overdue":
+      return <HiOutlineXCircle />;
+    default:
+      return <HiOutlineClock />;
+  }
+};
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
-function Invoices() {
+const paidPercent = (invoice: Invoice) =>
+  invoice.amount === 0
+    ? 0
+    : Math.round((invoice.paidAmount / invoice.amount) * 100);
+
+const isOverdue = (dueDate: string, status: PaymentStatus) =>
+  status !== "paid" && new Date(dueDate) < new Date();
+
+// ─── Admin View ───────────────────────────────────────────────────────────────
+function AdminInvoices() {
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -777,9 +788,6 @@ function Invoices() {
     overdue: mockInvoices.filter((i) => i.status === "overdue").length,
   };
 
-  const handleViewInvoice = (invoiceId: string) =>
-    navigate(`/invoices/${invoiceId}`);
-
   const handleDownloadInvoice = (invoice: Invoice) => {
     addNotification(
       "Downloading",
@@ -806,7 +814,6 @@ function Invoices() {
         "Reminder Sent",
         `Sent to ${invoice.client.name}`,
         "success",
-        5000,
       );
     }, 1500);
   };
@@ -819,27 +826,6 @@ function Invoices() {
       "success",
     );
   };
-
-  const isOverdue = (dueDate: string, status: PaymentStatus) =>
-    status !== "paid" && new Date(dueDate) < new Date();
-
-  const getStatusIcon = (status: PaymentStatus) => {
-    switch (status) {
-      case "paid":
-        return <HiOutlineCheckCircle />;
-      case "partial":
-        return <HiOutlineClock />;
-      case "overdue":
-        return <HiOutlineXCircle />;
-      default:
-        return <HiOutlineClock />;
-    }
-  };
-
-  const paidPercent = (invoice: Invoice) =>
-    invoice.amount === 0
-      ? 0
-      : Math.round((invoice.paidAmount / invoice.amount) * 100);
 
   return (
     <>
@@ -884,7 +870,7 @@ function Invoices() {
             color="var(--color-brand-600)"
           />
           <StatsCard
-            title="Paid Amount"
+            title="Collected"
             value={`${stats.paidAmount.toLocaleString()} TND`}
             icon={<HiOutlineCheckCircle />}
             color="var(--color-green-700)"
@@ -939,12 +925,9 @@ function Invoices() {
                   cursor: "pointer",
                   color: "var(--color-grey-400)",
                   fontSize: "1.4rem",
-                  lineHeight: "1",
-                  padding: "0 0.2rem",
                 }}
-                title="Clear dates"
               >
-                x
+                ×
               </button>
             )}
           </DateRangeGroup>
@@ -977,7 +960,7 @@ function Invoices() {
             </ResultCount>
           )}
           <TableWrapper>
-            <TableHeader>
+            <AdminTableHeader>
               <div>Invoice #</div>
               <div>Client</div>
               <div>Order</div>
@@ -986,7 +969,7 @@ function Invoices() {
               <div>Status</div>
               <div>Due Date</div>
               <div />
-            </TableHeader>
+            </AdminTableHeader>
 
             {filteredInvoices.length === 0 ? (
               <EmptyState>
@@ -995,13 +978,13 @@ function Invoices() {
                 <p
                   style={{ fontSize: "1.4rem", color: "var(--color-grey-400)" }}
                 >
-                  Try adjusting your filters or date range
+                  Try adjusting your filters
                 </p>
               </EmptyState>
             ) : (
               <Menus>
                 {filteredInvoices.map((invoice) => (
-                  <TableRow key={invoice.id}>
+                  <AdminTableRow key={invoice.id}>
                     <InvoiceId>#{invoice.invoiceNumber}</InvoiceId>
 
                     <div>
@@ -1045,7 +1028,9 @@ function Invoices() {
                           <Menus.List id={invoice.id}>
                             <Menus.Button
                               icon={<HiOutlineEye />}
-                              onClick={() => handleViewInvoice(invoice.id)}
+                              onClick={() =>
+                                navigate(`/invoices/${invoice.id}`)
+                              }
                             >
                               View Details
                             </Menus.Button>
@@ -1067,7 +1052,7 @@ function Invoices() {
                         </Menus.Menu>
                       </Modal>
                     </div>
-                  </TableRow>
+                  </AdminTableRow>
                 ))}
               </Menus>
             )}
@@ -1076,6 +1061,287 @@ function Invoices() {
       </InvoicesLayout>
     </>
   );
+}
+
+// ─── Client View ──────────────────────────────────────────────────────────────
+function ClientInvoices({ userId }: { userId?: string }) {
+  const navigate = useNavigate();
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const { addNotification } = useNotifications();
+
+  // Filter only this client's invoices
+  const myInvoices = mockInvoices.filter((inv) => inv.clientEmail === userId);
+
+  const filtered = myInvoices.filter(
+    (inv) => statusFilter === "all" || inv.status === statusFilter,
+  );
+
+  const stats = {
+    total: myInvoices.reduce((s, i) => s + i.amount, 0),
+    paid: myInvoices.reduce((s, i) => s + i.paidAmount, 0),
+    outstanding: myInvoices.reduce((s, i) => s + (i.amount - i.paidAmount), 0),
+    overdueCount: myInvoices.filter((i) => i.status === "overdue").length,
+    invoiceCount: myInvoices.length,
+  };
+
+  const hasOverdue = myInvoices.some((i) => i.status === "overdue");
+  const hasUnpaid = myInvoices.some(
+    (i) => i.status === "unpaid" || i.status === "partial",
+  );
+
+  const handleDownload = (invoice: Invoice) => {
+    addNotification(
+      "Preparing Download",
+      `${invoice.invoiceNumber} is being prepared...`,
+      "info",
+    );
+    setTimeout(() => {
+      addNotification(
+        "Download Ready",
+        `${invoice.invoiceNumber} downloaded successfully`,
+        "success",
+      );
+    }, 2000);
+  };
+
+  const handleContactAdmin = (invoice: Invoice) => {
+    addNotification(
+      "Request Sent",
+      `Payment query for ${invoice.invoiceNumber} sent to admin`,
+      "success",
+    );
+  };
+
+  return (
+    <InvoicesLayout>
+      {/* Header */}
+      <div>
+        <Heading as="h1">My Invoices</Heading>
+        <p
+          style={{
+            fontSize: "1.5rem",
+            color: "var(--color-grey-500)",
+            marginTop: "0.4rem",
+          }}
+        >
+          View and download your invoices and payment history
+        </p>
+      </div>
+
+      {/* Alert banners */}
+      {hasOverdue && (
+        <AlertBanner $type="danger">
+          <HiOutlineExclamationTriangle />
+          <AlertText>
+            <strong>Payment Overdue</strong>
+            <span>
+              You have {stats.overdueCount} overdue invoice
+              {stats.overdueCount > 1 ? "s" : ""}. Please contact us to arrange
+              payment and avoid service interruption.
+            </span>
+          </AlertText>
+          <Button
+            $variation="secondary"
+            $size="small"
+            onClick={() => setStatusFilter("overdue")}
+          >
+            View Overdue
+          </Button>
+        </AlertBanner>
+      )}
+
+      {!hasOverdue && hasUnpaid && (
+        <AlertBanner $type="warning">
+          <HiOutlineBellAlert />
+          <AlertText>
+            <strong>Pending Payments</strong>
+            <span>
+              You have unpaid invoices. Please review them below and contact us
+              to process payment.
+            </span>
+          </AlertText>
+        </AlertBanner>
+      )}
+
+      {/* Account summary */}
+      <ClientSummaryBox>
+        <SummaryBlock>
+          <div className="label">Total Invoiced</div>
+          <div className="value">{stats.total.toLocaleString()}</div>
+          <div className="sub">TND · {stats.invoiceCount} invoices</div>
+        </SummaryBlock>
+        <SummaryBlock>
+          <div className="label">Total Paid</div>
+          <div className="value" style={{ color: "var(--color-green-600)" }}>
+            {stats.paid.toLocaleString()}
+          </div>
+          <div className="sub">TND</div>
+        </SummaryBlock>
+        <SummaryBlock>
+          <div className="label">Outstanding</div>
+          <div
+            className="value"
+            style={{
+              color:
+                stats.outstanding > 0
+                  ? "var(--color-red-600)"
+                  : "var(--color-green-600)",
+            }}
+          >
+            {stats.outstanding.toLocaleString()}
+          </div>
+          <div className="sub">TND</div>
+        </SummaryBlock>
+        <SummaryBlock>
+          <div className="label">Payment Rate</div>
+          <div className="value" style={{ color: "var(--color-brand-600)" }}>
+            {stats.total > 0
+              ? Math.round((stats.paid / stats.total) * 100)
+              : 100}
+            %
+          </div>
+          <div className="sub">collected</div>
+        </SummaryBlock>
+      </ClientSummaryBox>
+
+      {/* Status filter */}
+      <FilterGroup>
+        {(["all", "paid", "unpaid", "partial", "overdue"] as const).map((s) => (
+          <FilterButton
+            key={s}
+            $active={statusFilter === s}
+            onClick={() => setStatusFilter(s)}
+          >
+            {s.charAt(0).toUpperCase() + s.slice(1)}
+            {s !== "all" && (
+              <span style={{ marginLeft: "0.4rem", opacity: 0.75 }}>
+                ({myInvoices.filter((i) => i.status === s).length})
+              </span>
+            )}
+          </FilterButton>
+        ))}
+      </FilterGroup>
+
+      {/* Invoice cards */}
+      {filtered.length === 0 ? (
+        <TableCard>
+          <EmptyState>
+            <HiOutlineDocumentText />
+            <p>No invoices found</p>
+            <p style={{ fontSize: "1.4rem", color: "var(--color-grey-400)" }}>
+              {statusFilter === "all"
+                ? "Your invoices will appear here once generated."
+                : `No ${statusFilter} invoices.`}
+            </p>
+          </EmptyState>
+        </TableCard>
+      ) : (
+        <ClientCardList>
+          {filtered.map((invoice) => {
+            const outstanding = invoice.amount - invoice.paidAmount;
+            const overdue = isOverdue(invoice.dueDate, invoice.status);
+
+            return (
+              <ClientInvoiceCard
+                key={invoice.id}
+                $status={invoice.status}
+                onClick={() => navigate(`/invoices/${invoice.id}`)}
+              >
+                {/* Invoice info */}
+                <CardInvoiceInfo>
+                  <div className="inv-num">#{invoice.invoiceNumber}</div>
+                  <div className="inv-order">Order #{invoice.orderId}</div>
+                  <div className="inv-date">
+                    Issued {invoice.issueDate} · Due{" "}
+                    <span
+                      style={{
+                        color: overdue ? "var(--color-red-600)" : "inherit",
+                        fontWeight: overdue ? 700 : 400,
+                      }}
+                    >
+                      {invoice.dueDate}
+                    </span>
+                    {overdue && " ⚠️"}
+                  </div>
+                </CardInvoiceInfo>
+
+                {/* Status badge */}
+                <StatusBadge $status={invoice.status}>
+                  {getStatusIcon(invoice.status)}
+                  {invoice.status}
+                </StatusBadge>
+
+                {/* Amount */}
+                <CardAmountBlock onClick={(e) => e.stopPropagation()}>
+                  <div className="total">
+                    {invoice.amount.toLocaleString()} TND
+                  </div>
+                  {outstanding > 0 && (
+                    <div className="due">
+                      {outstanding.toLocaleString()} TND due
+                    </div>
+                  )}
+                  {invoice.status === "paid" && (
+                    <div className="paid-label">✓ Fully paid</div>
+                  )}
+                </CardAmountBlock>
+
+                {/* Actions */}
+                <CardActions onClick={(e) => e.stopPropagation()}>
+                  <IconActionBtn
+                    onClick={() => navigate(`/invoices/${invoice.id}`)}
+                  >
+                    <HiOutlineEye />
+                    View
+                  </IconActionBtn>
+                  <IconActionBtn onClick={() => handleDownload(invoice)}>
+                    <HiOutlineArrowDownTray />
+                    PDF
+                  </IconActionBtn>
+                  {invoice.status !== "paid" && (
+                    <IconActionBtn
+                      className="pay"
+                      onClick={() => handleContactAdmin(invoice)}
+                    >
+                      <HiOutlineCreditCard />
+                      Pay Now
+                    </IconActionBtn>
+                  )}
+                </CardActions>
+              </ClientInvoiceCard>
+            );
+          })}
+        </ClientCardList>
+      )}
+
+      {/* Help note */}
+      <div
+        style={{
+          padding: "1.6rem 2rem",
+          background: "var(--color-grey-50)",
+          borderRadius: "var(--border-radius-md)",
+          border: "1px solid var(--color-grey-200)",
+          fontSize: "1.3rem",
+          color: "var(--color-grey-600)",
+        }}
+      >
+        💬 Questions about an invoice? Contact your account manager at{" "}
+        <strong>billing@taba3ni.tn</strong> or call{" "}
+        <strong>+216 71 000 000</strong>.
+      </div>
+    </InvoicesLayout>
+  );
+}
+
+// ─── Root Export — role switcher ──────────────────────────────────────────────
+type InvoicesProps = {
+  userRole?: string;
+  userId?: string;
+};
+
+function Invoices({ userRole = "admin", userId }: InvoicesProps) {
+  if (userRole === "client") return <ClientInvoices userId={userId} />;
+  return <AdminInvoices />;
 }
 
 export default Invoices;

@@ -6,13 +6,16 @@ import {
   HiOutlinePaperAirplane,
   HiOutlineCurrencyDollar,
   HiOutlineCalendar,
-  HiOutlineUser,
   HiOutlinePhone,
   HiOutlineEnvelope,
   HiOutlineMapPin,
   HiOutlineBuildingOffice,
   HiOutlineCheckCircle,
   HiOutlineClock,
+  HiOutlineXCircle,
+  HiOutlineCreditCard,
+  HiOutlineChatBubbleLeftEllipsis,
+  HiOutlineExclamationTriangle,
 } from "react-icons/hi2";
 import Heading from "../UI/Heading";
 import Row from "../UI/Row";
@@ -20,8 +23,10 @@ import Button from "../UI/Button";
 import Modal from "../UI/Modal";
 import Timeline from "../UI/Timeline";
 import PaymentForm from "../components/PaymentForm";
+import { useNotifications } from "../hooks/useNotifications";
 
-// Styled Components
+// ─── Styled Components ────────────────────────────────────────────────────────
+
 const DetailsLayout = styled.div`
   display: flex;
   flex-direction: column;
@@ -39,11 +44,9 @@ const BackButton = styled.button`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-
   &:hover {
     color: var(--color-brand-700);
   }
-
   & svg {
     width: 2rem;
     height: 2rem;
@@ -53,13 +56,13 @@ const BackButton = styled.button`
 const ActionButtons = styled.div`
   display: flex;
   gap: 1.2rem;
+  flex-wrap: wrap;
 `;
 
 const Grid = styled.div`
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 2.4rem;
-
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
   }
@@ -88,7 +91,6 @@ const CompanyInfo = styled.div`
     color: var(--color-brand-600);
     margin-bottom: 0.8rem;
   }
-
   & p {
     font-size: 1.3rem;
     color: var(--color-grey-600);
@@ -98,14 +100,12 @@ const CompanyInfo = styled.div`
 
 const InvoiceInfo = styled.div`
   text-align: right;
-
   & h3 {
     font-size: 3.2rem;
     font-weight: 700;
     color: var(--color-grey-900);
     margin-bottom: 0.8rem;
   }
-
   & p {
     font-size: 1.3rem;
     color: var(--color-grey-600);
@@ -141,7 +141,6 @@ const InfoBlock = styled.div`
     letter-spacing: 0.5px;
     margin-bottom: 0.8rem;
   }
-
   & p {
     font-size: 1.4rem;
     color: var(--color-grey-900);
@@ -149,12 +148,11 @@ const InfoBlock = styled.div`
     display: flex;
     align-items: center;
     gap: 0.8rem;
-
-    & svg {
-      width: 1.6rem;
-      height: 1.6rem;
-      color: var(--color-brand-600);
-    }
+  }
+  & p svg {
+    width: 1.6rem;
+    height: 1.6rem;
+    color: var(--color-brand-600);
   }
 `;
 
@@ -166,7 +164,6 @@ const ItemsTable = styled.table`
 
 const TableHead = styled.thead`
   background-color: var(--color-grey-50);
-
   & th {
     padding: 1.2rem;
     text-align: left;
@@ -185,7 +182,6 @@ const TableBody = styled.tbody`
     color: var(--color-grey-700);
     border-bottom: 1px solid var(--color-grey-100);
   }
-
   & tr:last-child td {
     border-bottom: none;
   }
@@ -202,10 +198,10 @@ const TotalRow = styled.div<{ $highlight?: boolean }>`
   justify-content: space-between;
   align-items: center;
   padding: 0.8rem 0;
-  font-size: ${(props) => (props.$highlight ? "2rem" : "1.4rem")};
-  font-weight: ${(props) => (props.$highlight ? "700" : "500")};
-  color: ${(props) =>
-    props.$highlight ? "var(--color-brand-600)" : "var(--color-grey-700)"};
+  font-size: ${(p) => (p.$highlight ? "2rem" : "1.4rem")};
+  font-weight: ${(p) => (p.$highlight ? "700" : "500")};
+  color: ${(p) =>
+    p.$highlight ? "var(--color-brand-600)" : "var(--color-grey-700)"};
 `;
 
 const StatusBadge = styled.span<{
@@ -219,19 +215,18 @@ const StatusBadge = styled.span<{
   font-size: 1.4rem;
   font-weight: 600;
   text-transform: uppercase;
-  background-color: ${(props) => {
-    if (props.$status === "paid") return "var(--color-green-100)";
-    if (props.$status === "partial") return "var(--color-yellow-100)";
-    if (props.$status === "overdue") return "var(--color-red-100)";
+  background-color: ${(p) => {
+    if (p.$status === "paid") return "var(--color-green-100)";
+    if (p.$status === "partial") return "var(--color-yellow-100)";
+    if (p.$status === "overdue") return "var(--color-red-100)";
     return "var(--color-grey-100)";
   }};
-  color: ${(props) => {
-    if (props.$status === "paid") return "var(--color-green-700)";
-    if (props.$status === "partial") return "var(--color-yellow-700)";
-    if (props.$status === "overdue") return "var(--color-red-700)";
+  color: ${(p) => {
+    if (p.$status === "paid") return "var(--color-green-700)";
+    if (p.$status === "partial") return "var(--color-yellow-700)";
+    if (p.$status === "overdue") return "var(--color-red-700)";
     return "var(--color-grey-700)";
   }};
-
   & svg {
     width: 1.8rem;
     height: 1.8rem;
@@ -285,7 +280,6 @@ const PaymentMethod = styled.span`
 const PaymentInfo = styled.div`
   font-size: 1.3rem;
   color: var(--color-grey-600);
-
   & p {
     margin: 0.4rem 0;
   }
@@ -296,14 +290,12 @@ const StatBox = styled.div`
   background-color: var(--color-grey-50);
   border-radius: var(--border-radius-md);
   text-align: center;
-
   & h4 {
     font-size: 2.4rem;
     font-weight: 700;
     color: var(--color-brand-600);
     margin-bottom: 0.4rem;
   }
-
   & p {
     font-size: 1.2rem;
     color: var(--color-grey-600);
@@ -313,273 +305,494 @@ const StatBox = styled.div`
   }
 `;
 
-// Mock invoice data
-const mockInvoiceDetails = {
-  id: "1",
-  invoiceNumber: "INV-2025-001",
-  status: "partial" as const,
-  issueDate: "2025-09-15",
-  dueDate: "2025-10-15",
-  client: {
-    name: "Carrefour Lac 2",
-    email: "carrefour.lac2@email.com",
-    phone: "+216 71 123 456",
-    address: "Avenue de la Bourse, Lac 2",
-    city: "Tunis",
-    taxId: "123456789",
+// ─── Client-only styles ───────────────────────────────────────────────────────
+
+const ClientAlertBox = styled.div<{ $type: "warning" | "danger" | "success" }>`
+  display: flex;
+  align-items: flex-start;
+  gap: 1.6rem;
+  padding: 1.6rem 2rem;
+  border-radius: var(--border-radius-md);
+  background: ${(p) =>
+    p.$type === "danger"
+      ? "linear-gradient(135deg, #fee2e2, #fecaca)"
+      : p.$type === "success"
+        ? "linear-gradient(135deg, #dcfce7, #bbf7d0)"
+        : "linear-gradient(135deg, #fef3c7, #fde68a)"};
+  border: 1.5px solid
+    ${(p) =>
+      p.$type === "danger"
+        ? "var(--color-red-300)"
+        : p.$type === "success"
+          ? "var(--color-green-300)"
+          : "var(--color-yellow-400)"};
+
+  & svg {
+    width: 2.4rem;
+    height: 2.4rem;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+    color: ${(p) =>
+      p.$type === "danger"
+        ? "var(--color-red-600)"
+        : p.$type === "success"
+          ? "var(--color-green-600)"
+          : "var(--color-yellow-700)"};
+  }
+`;
+
+const AlertText = styled.div`
+  & strong {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-grey-900);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  & span {
+    font-size: 1.3rem;
+    color: var(--color-grey-700);
+  }
+`;
+
+const PaymentProgressBar = styled.div<{ $percent: number }>`
+  height: 1.2rem;
+  background: var(--color-grey-200);
+  border-radius: 100px;
+  overflow: hidden;
+  margin: 1.2rem 0;
+  &::after {
+    content: "";
+    display: block;
+    height: 100%;
+    width: ${(p) => p.$percent}%;
+    border-radius: 100px;
+    background: ${(p) =>
+      p.$percent === 100
+        ? "var(--color-green-500)"
+        : p.$percent > 50
+          ? "var(--color-yellow-500)"
+          : "var(--color-red-400)"};
+    transition: width 0.6s ease;
+  }
+`;
+
+const PaymentProgressLabel = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  color: var(--color-grey-500);
+  font-weight: 600;
+`;
+
+const ContactCard = styled.div`
+  padding: 2rem;
+  background: linear-gradient(
+    135deg,
+    var(--color-brand-50),
+    var(--color-grey-0)
+  );
+  border: 1px solid var(--color-brand-100);
+  border-radius: var(--border-radius-md);
+
+  & h4 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-grey-900);
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  & h4 svg {
+    width: 1.8rem;
+    height: 1.8rem;
+    color: var(--color-brand-600);
+  }
+  & p {
+    font-size: 1.3rem;
+    color: var(--color-grey-600);
+    margin: 0.6rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  & p svg {
+    width: 1.6rem;
+    height: 1.6rem;
+    color: var(--color-brand-500);
+  }
+  & strong {
+    color: var(--color-grey-900);
+  }
+`;
+
+// ─── Mock Data ────────────────────────────────────────────────────────────────
+
+const mockInvoiceDetails: Record<string, any> = {
+  "1": {
+    id: "1",
+    invoiceNumber: "INV-2025-001",
+    status: "overdue" as const,
+    clientEmail: "client@taba3ni.tn",
+    issueDate: "2025-09-15",
+    dueDate: "2025-10-15",
+    client: {
+      name: "Carrefour Lac 2",
+      email: "client@taba3ni.tn",
+      phone: "+216 71 123 456",
+      address: "Avenue de la Bourse, Lac 2",
+      city: "Tunis",
+      taxId: "123456789",
+    },
+    orderId: "ORD-001",
+    items: [
+      { name: "Full Cream Milk (1L)", quantity: 50, price: 15, total: 750 },
+      { name: "Greek Yogurt (500g)", quantity: 30, price: 8, total: 240 },
+      { name: "Cheddar Cheese (200g)", quantity: 20, price: 18, total: 360 },
+    ],
+    subtotal: 1350,
+    tax: 243,
+    total: 1593,
+    paidAmount: 0,
+    remainingAmount: 1593,
+    payments: [],
+    timeline: [
+      { action: "Invoice generated", date: "2025-09-15 10:00" },
+      { action: "Invoice sent to client", date: "2025-09-15 10:15" },
+      { action: "Payment reminder sent", date: "2025-10-16 09:00" },
+    ],
   },
-  orderId: "ORD-001",
+  "4": {
+    id: "4",
+    invoiceNumber: "INV-2025-004",
+    status: "partial" as const,
+    clientEmail: "client@taba3ni.tn",
+    issueDate: "2025-10-10",
+    dueDate: "2025-11-10",
+    client: {
+      name: "Carrefour Lac 2",
+      email: "client@taba3ni.tn",
+      phone: "+216 71 123 456",
+      address: "Avenue de la Bourse, Lac 2",
+      city: "Tunis",
+      taxId: "123456789",
+    },
+    orderId: "ORD-004",
+    items: [
+      { name: "Skimmed Milk (1L)", quantity: 30, price: 13, total: 390 },
+      { name: "Greek Yogurt (500g)", quantity: 20, price: 8, total: 160 },
+    ],
+    subtotal: 550,
+    tax: 99,
+    total: 649,
+    paidAmount: 450,
+    remainingAmount: 199,
+    payments: [
+      {
+        id: "1",
+        amount: 450,
+        method: "Bank Transfer",
+        date: "2025-10-20",
+        reference: "TRF-2025-0008",
+      },
+    ],
+    timeline: [
+      { action: "Invoice generated", date: "2025-10-10 09:00" },
+      { action: "Invoice sent to client", date: "2025-10-10 09:15" },
+      {
+        action: "Partial payment received (450 TND)",
+        date: "2025-10-20 14:00",
+      },
+    ],
+  },
+  "6": {
+    id: "6",
+    invoiceNumber: "INV-2025-006",
+    status: "paid" as const,
+    clientEmail: "client@taba3ni.tn",
+    issueDate: "2025-11-01",
+    dueDate: "2025-12-01",
+    client: {
+      name: "Carrefour Lac 2",
+      email: "client@taba3ni.tn",
+      phone: "+216 71 123 456",
+      address: "Avenue de la Bourse, Lac 2",
+      city: "Tunis",
+      taxId: "123456789",
+    },
+    orderId: "ORD-008",
+    items: [
+      { name: "Full Cream Milk (1L)", quantity: 100, price: 15, total: 1500 },
+      { name: "Butter (250g)", quantity: 50, price: 12, total: 600 },
+    ],
+    subtotal: 2100,
+    tax: 378,
+    total: 2478,
+    paidAmount: 2478,
+    remainingAmount: 0,
+    payments: [
+      {
+        id: "1",
+        amount: 2478,
+        method: "Bank Transfer",
+        date: "2025-11-20",
+        reference: "TRF-2025-0015",
+      },
+    ],
+    timeline: [
+      { action: "Invoice generated", date: "2025-11-01 08:00" },
+      { action: "Invoice sent to client", date: "2025-11-01 08:15" },
+      { action: "Full payment received (2,478 TND)", date: "2025-11-20 11:00" },
+      { action: "Invoice marked as paid", date: "2025-11-20 11:05" },
+    ],
+  },
+};
+
+// Default fallback for invoices not explicitly mocked (admin-side ones)
+const defaultInvoice = {
+  id: "2",
+  invoiceNumber: "INV-2025-002",
+  status: "paid" as const,
+  clientEmail: "monoprix.menzah@email.com",
+  issueDate: "2025-10-01",
+  dueDate: "2025-10-31",
+  client: {
+    name: "Monoprix Menzah",
+    email: "monoprix.menzah@email.com",
+    phone: "+216 71 456 789",
+    address: "Avenue Habib Bourguiba, Ariana",
+    city: "Ariana",
+    taxId: "987654321",
+  },
+  orderId: "ORD-002",
   items: [
-    { name: "Full Cream Milk (1L)", quantity: 50, price: 15, total: 750 },
-    { name: "Greek Yogurt (500g)", quantity: 30, price: 8, total: 240 },
     { name: "Cheddar Cheese (200g)", quantity: 20, price: 18, total: 360 },
+    { name: "Butter (250g)", quantity: 10, price: 12, total: 120 },
   ],
-  subtotal: 1350,
-  tax: 243, // 18% TVA
-  total: 1593,
-  paidAmount: 800,
-  remainingAmount: 793,
+  subtotal: 480,
+  tax: 86.4,
+  total: 566.4,
+  paidAmount: 566.4,
+  remainingAmount: 0,
   payments: [
     {
       id: "1",
-      amount: 800,
+      amount: 566.4,
       method: "Bank Transfer",
-      date: "2025-10-01",
-      reference: "TRF-2025-0001",
+      date: "2025-10-05",
+      reference: "TRF-2025-0002",
     },
   ],
   timeline: [
-    { action: "Invoice generated", date: "2025-09-15 10:00" },
-    { action: "Invoice sent to client", date: "2025-09-15 10:15" },
-    { action: "Partial payment received (800 TND)", date: "2025-10-01 14:30" },
-    { action: "Payment reminder sent", date: "2025-10-10 09:00" },
+    { action: "Invoice generated", date: "2025-10-01 09:00" },
+    { action: "Invoice sent to client", date: "2025-10-01 09:15" },
+    { action: "Full payment received", date: "2025-10-05 10:00" },
   ],
 };
 
-function InvoiceDetails() {
-  const { invoiceId } = useParams();
-  const navigate = useNavigate();
+// ─── PDF Generation ───────────────────────────────────────────────────────────
+function handleDownloadPDF(invoice: any) {
+  import("jspdf").then(({ default: jsPDF }) => {
+    const doc = new jsPDF({ unit: "mm", format: "a4" });
+    const pageW = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    let y = 20;
 
-  const invoice = mockInvoiceDetails;
+    doc.setFillColor(20, 93, 160);
+    doc.rect(0, 0, pageW, 38, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
+    doc.text("Taba3ni Dairy", margin, 16);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      "Distribution Management  |  Avenue Habib Bourguiba, Tunis",
+      margin,
+      23,
+    );
+    doc.text("Tel: +216 71 000 000  |  Tax ID: TN-123456789", margin, 29);
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text("INVOICE", pageW - margin, 16, { align: "right" });
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text(`#${invoice.invoiceNumber}`, pageW - margin, 23, {
+      align: "right",
+    });
+    doc.text(`Issue: ${invoice.issueDate}`, pageW - margin, 29, {
+      align: "right",
+    });
+    doc.text(`Due:   ${invoice.dueDate}`, pageW - margin, 35, {
+      align: "right",
+    });
 
-  // PDF Generation Function
-  const handleDownloadPDF = () => {
-    import("jspdf").then(({ default: jsPDF }) => {
-      const doc = new jsPDF({ unit: "mm", format: "a4" });
-      const pageW = doc.internal.pageSize.getWidth();
-      const margin = 20;
-      let y = 20;
+    y = 50;
+    doc.setTextColor(20, 93, 160);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text("BILL TO", margin, y);
+    doc.setDrawColor(20, 93, 160);
+    doc.setLineWidth(0.5);
+    doc.line(margin, y + 2, margin + 30, y + 2);
+    y += 8;
+    doc.setTextColor(30, 30, 30);
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text(invoice.client.name, margin, y);
+    y += 6;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(90, 90, 90);
+    doc.text(`${invoice.client.address}, ${invoice.client.city}`, margin, y);
+    y += 5;
+    doc.text(`Email: ${invoice.client.email}`, margin, y);
+    y += 12;
 
-      // ── Header ────────────────────────────────────────────────────────────────
-      doc.setFillColor(20, 93, 160);
-      doc.rect(0, 0, pageW, 38, "F");
+    const col = { desc: margin + 2, qty: 120, unit: 145, total: 175 };
+    doc.setFillColor(245, 247, 250);
+    doc.rect(margin, y, pageW - margin * 2, 8, "F");
+    doc.setTextColor(90, 90, 90);
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    doc.text("DESCRIPTION", col.desc, y + 5.5);
+    doc.text("QTY", col.qty, y + 5.5, { align: "right" });
+    doc.text("UNIT PRICE", col.unit + 10, y + 5.5, { align: "right" });
+    doc.text("TOTAL", col.total, y + 5.5, { align: "right" });
+    y += 8;
 
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(22);
-      doc.setFont("helvetica", "bold");
-      doc.text("Taba3ni Dairy", margin, 16);
-
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "normal");
-      doc.text(
-        "Distribution Management  |  Avenue Habib Bourguiba, Tunis",
-        margin,
-        23,
-      );
-      doc.text("Tel: +216 71 000 000  |  Tax ID: TN-123456789", margin, 29);
-
-      doc.setFontSize(20);
-      doc.setFont("helvetica", "bold");
-      doc.text("INVOICE", pageW - margin, 16, { align: "right" });
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "normal");
-      doc.text(`#${invoice.invoiceNumber}`, pageW - margin, 23, {
-        align: "right",
-      });
-      doc.text(`Issue: ${invoice.issueDate}`, pageW - margin, 29, {
-        align: "right",
-      });
-      doc.text(`Due:   ${invoice.dueDate}`, pageW - margin, 35, {
-        align: "right",
-      });
-
-      y = 50;
-
-      // ── Bill To ───────────────────────────────────────────────────────────────
-      doc.setTextColor(20, 93, 160);
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
-      doc.text("BILL TO", margin, y);
-
-      doc.setDrawColor(20, 93, 160);
-      doc.setLineWidth(0.5);
-      doc.line(margin, y + 2, margin + 30, y + 2);
-      y += 8;
-
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    for (const item of invoice.items) {
       doc.setTextColor(30, 30, 30);
-      doc.setFontSize(11);
+      doc.text(item.name, col.desc, y + 5);
+      doc.text(String(item.quantity), col.qty, y + 5, { align: "right" });
+      doc.text(`${item.price.toFixed(2)} TND`, col.unit + 10, y + 5, {
+        align: "right",
+      });
       doc.setFont("helvetica", "bold");
-      doc.text(invoice.client.name, margin, y);
-      y += 6;
-
-      doc.setFontSize(9);
+      doc.text(`${item.total.toFixed(2)} TND`, col.total, y + 5, {
+        align: "right",
+      });
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(90, 90, 90);
-      doc.text(`${invoice.client.address}, ${invoice.client.city}`, margin, y);
-      y += 5;
-      doc.text(`Phone: ${invoice.client.phone}`, margin, y);
-      y += 5;
-      doc.text(`Email: ${invoice.client.email}`, margin, y);
-      y += 5;
-      if (invoice.client.taxId) {
-        doc.text(`Tax ID: ${invoice.client.taxId}`, margin, y);
-        y += 5;
-      }
+      y += 7;
+    }
 
-      y += 6;
-
-      // ── Related Order ─────────────────────────────────────────────────────────
-      doc.setFontSize(9);
-      doc.setTextColor(90, 90, 90);
-      doc.setFont("helvetica", "normal");
-      doc.text(`Related Order: `, margin, y);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(20, 93, 160);
-      doc.text(`#${invoice.orderId}`, margin + 28, y);
-      y += 10;
-
-      // ── Items Table ───────────────────────────────────────────────────────────
-      // Header row
-      doc.setFillColor(245, 247, 250);
-      doc.rect(margin, y, pageW - margin * 2, 8, "F");
-
-      doc.setTextColor(90, 90, 90);
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "bold");
-      const col = { desc: margin + 2, qty: 120, unit: 145, total: 175 };
-      doc.text("DESCRIPTION", col.desc, y + 5.5);
-      doc.text("QTY", col.qty, y + 5.5, { align: "right" });
-      doc.text("UNIT PRICE", col.unit + 10, y + 5.5, { align: "right" });
-      doc.text("TOTAL", col.total, y + 5.5, { align: "right" });
-      y += 8;
-
-      // Item rows
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      let rowAlt = false;
-      for (const item of invoice.items) {
-        if (rowAlt) {
-          doc.setFillColor(250, 251, 253);
-          doc.rect(margin, y, pageW - margin * 2, 7, "F");
-        }
-        doc.setTextColor(30, 30, 30);
-        doc.text(item.name, col.desc, y + 5);
-        doc.text(String(item.quantity), col.qty, y + 5, { align: "right" });
-        doc.text(`${item.price.toFixed(2)} TND`, col.unit + 10, y + 5, {
-          align: "right",
-        });
-        doc.setFont("helvetica", "bold");
-        doc.text(`${item.total.toFixed(2)} TND`, col.total, y + 5, {
-          align: "right",
-        });
-        doc.setFont("helvetica", "normal");
-        y += 7;
-        rowAlt = !rowAlt;
-      }
-
-      // Divider
-      doc.setDrawColor(220, 220, 220);
-      doc.setLineWidth(0.3);
-      doc.line(margin, y + 2, pageW - margin, y + 2);
-      y += 8;
-
-      // Totals block (right-aligned)
-      const totalsX = pageW - margin - 60;
-      const totalsLabelX = totalsX;
-      const totalsValueX = pageW - margin;
-
-      const drawTotalRow = (
-        label: string,
-        value: string,
-        bold = false,
-        color?: [number, number, number],
-      ) => {
-        doc.setFontSize(bold ? 10 : 9);
-        doc.setFont("helvetica", bold ? "bold" : "normal");
-        doc.setTextColor(
-          ...(color ?? ([90, 90, 90] as [number, number, number])),
-        );
-        doc.text(label, totalsLabelX, y);
-        doc.setTextColor(
-          ...(color ?? ([30, 30, 30] as [number, number, number])),
-        );
-        doc.text(value, totalsValueX, y, { align: "right" });
-        y += bold ? 7 : 6;
-      };
-
-      drawTotalRow("Subtotal:", `${invoice.subtotal.toFixed(2)} TND`);
-      drawTotalRow("Tax (18% TVA):", `${invoice.tax.toFixed(2)} TND`);
-
-      doc.setDrawColor(20, 93, 160);
-      doc.line(totalsX, y, totalsValueX, y);
-      y += 4;
-      drawTotalRow(
-        "Total:",
-        `${invoice.total.toFixed(2)} TND`,
-        true,
-        [20, 93, 160],
+    y += 4;
+    const totalsX = pageW - margin - 60;
+    const totalsValueX = pageW - margin;
+    const drawTR = (
+      label: string,
+      value: string,
+      bold = false,
+      color?: [number, number, number],
+    ) => {
+      doc.setFontSize(bold ? 10 : 9);
+      doc.setFont("helvetica", bold ? "bold" : "normal");
+      doc.setTextColor(
+        ...(color ?? ([90, 90, 90] as [number, number, number])),
       );
-      drawTotalRow(
+      doc.text(label, totalsX, y);
+      doc.setTextColor(
+        ...(color ?? ([30, 30, 30] as [number, number, number])),
+      );
+      doc.text(value, totalsValueX, y, { align: "right" });
+      y += bold ? 7 : 6;
+    };
+    drawTR("Subtotal:", `${invoice.subtotal.toFixed(2)} TND`);
+    drawTR("Tax (19% TVA):", `${invoice.tax.toFixed(2)} TND`);
+    doc.setDrawColor(20, 93, 160);
+    doc.line(totalsX, y, totalsValueX, y);
+    y += 4;
+    drawTR("Total:", `${invoice.total.toFixed(2)} TND`, true, [20, 93, 160]);
+    if (invoice.paidAmount > 0) {
+      drawTR(
         "Paid:",
         `-${invoice.paidAmount.toFixed(2)} TND`,
         false,
         [22, 163, 74],
       );
-      drawTotalRow(
+    }
+    if (invoice.remainingAmount > 0) {
+      drawTR(
         "Amount Due:",
         `${invoice.remainingAmount.toFixed(2)} TND`,
         true,
         [220, 38, 38],
       );
+    }
 
-      y += 8;
+    doc.save(`Invoice_${invoice.invoiceNumber}.pdf`);
+  });
+}
 
-      // ── Footer ────────────────────────────────────────────────────────────────
-      doc.setDrawColor(220, 220, 220);
-      doc.line(margin, y, pageW - margin, y);
-      y += 6;
+// ─── Main Component ───────────────────────────────────────────────────────────
+type InvoiceDetailsProps = {
+  userRole?: string;
+  userId?: string;
+};
 
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(120, 120, 120);
-      doc.text(
-        "Payment Terms: Payment is due within 30 days. Late payments may incur additional charges.",
-        margin,
-        y,
-      );
-      y += 5;
-      doc.text(
-        "Bank Details: IBAN: TN59 1000 0000 0000 0000 0000  |  BIC: BFTNTNTT",
-        margin,
-        y,
-      );
-      y += 8;
+function InvoiceDetails({ userRole = "admin", userId }: InvoiceDetailsProps) {
+  const { invoiceId } = useParams();
+  const navigate = useNavigate();
+  const { addNotification } = useNotifications();
 
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(20, 93, 160);
-      doc.text("Thank you for your business!", pageW / 2, y, {
-        align: "center",
-      });
+  const invoice = mockInvoiceDetails[invoiceId ?? ""] ?? defaultInvoice;
+  const isClient = userRole === "client";
 
-      doc.save(`Invoice_${invoice.invoiceNumber}.pdf`);
-    });
-  };
+  // Block client from seeing other clients' invoices
+  if (isClient && invoice.clientEmail !== userId) {
+    return (
+      <DetailsLayout>
+        <BackButton onClick={() => navigate("/invoices")}>
+          <HiOutlineArrowLeft /> Back to My Invoices
+        </BackButton>
+        <div style={{ textAlign: "center", padding: "8rem 2rem" }}>
+          <div style={{ fontSize: "6rem", marginBottom: "1.6rem" }}>🔒</div>
+          <h2
+            style={{
+              fontSize: "2.4rem",
+              fontWeight: 700,
+              color: "var(--color-grey-900)",
+              marginBottom: "0.8rem",
+            }}
+          >
+            Access Denied
+          </h2>
+          <p style={{ fontSize: "1.5rem", color: "var(--color-grey-500)" }}>
+            You don't have permission to view this invoice.
+          </p>
+        </div>
+      </DetailsLayout>
+    );
+  }
+
+  const paidPercent =
+    invoice.total > 0
+      ? Math.round((invoice.paidAmount / invoice.total) * 100)
+      : 0;
 
   const handleSendReminder = () => {
-    console.log("Sending reminder to:", invoice.client.email);
-    alert(
-      `📧 Payment reminder sent to ${invoice.client.email}\n\nReminder: Invoice ${invoice.invoiceNumber} - Amount Due: ${invoice.remainingAmount} TND`,
+    addNotification(
+      "Sending Reminder",
+      `Sending to ${invoice.client.email}...`,
+      "info",
+    );
+    setTimeout(() => {
+      addNotification(
+        "Reminder Sent ✅",
+        `Payment reminder sent to ${invoice.client.name}`,
+        "success",
+      );
+    }, 1500);
+  };
+
+  const handleContactAdmin = () => {
+    addNotification(
+      "Message Sent",
+      "Your payment query has been sent to billing@taba3ni.tn",
+      "success",
     );
   };
 
@@ -587,8 +800,8 @@ function InvoiceDetails() {
     switch (status) {
       case "paid":
         return <HiOutlineCheckCircle />;
-      case "partial":
-        return <HiOutlineClock />;
+      case "overdue":
+        return <HiOutlineXCircle />;
       default:
         return <HiOutlineClock />;
     }
@@ -596,13 +809,13 @@ function InvoiceDetails() {
 
   return (
     <DetailsLayout>
-      {/* Back Button */}
+      {/* Back */}
       <BackButton onClick={() => navigate("/invoices")}>
         <HiOutlineArrowLeft />
-        Back to Invoices
+        {isClient ? "Back to My Invoices" : "Back to Invoices"}
       </BackButton>
 
-      {/* Header */}
+      {/* Header row */}
       <Row type="horizontal">
         <div>
           <Heading as="h1">Invoice #{invoice.invoiceNumber}</Heading>
@@ -613,16 +826,19 @@ function InvoiceDetails() {
             </StatusBadge>
           </div>
         </div>
+
         <ActionButtons>
           <Button
             $variation="secondary"
             $size="medium"
-            onClick={handleDownloadPDF}
+            onClick={() => handleDownloadPDF(invoice)}
           >
             <HiOutlineArrowDownTray style={{ width: "2rem", height: "2rem" }} />
             Download PDF
           </Button>
-          {invoice.status !== "paid" && (
+
+          {/* Admin-only actions */}
+          {!isClient && invoice.status !== "paid" && (
             <>
               <Button
                 $variation="secondary"
@@ -658,16 +874,67 @@ function InvoiceDetails() {
               </Modal>
             </>
           )}
+
+          {/* Client-only: contact button if unpaid */}
+          {isClient && invoice.status !== "paid" && (
+            <Button
+              $variation="primary"
+              $size="medium"
+              onClick={handleContactAdmin}
+            >
+              <HiOutlineCreditCard style={{ width: "2rem", height: "2rem" }} />
+              Contact for Payment
+            </Button>
+          )}
         </ActionButtons>
       </Row>
 
-      {/* Main Content Grid */}
+      {/* Client-only status alerts */}
+      {isClient && invoice.status === "overdue" && (
+        <ClientAlertBox $type="danger">
+          <HiOutlineExclamationTriangle />
+          <AlertText>
+            <strong>This invoice is overdue</strong>
+            <span>
+              Payment was due on {invoice.dueDate}. Please contact us at
+              billing@taba3ni.tn to arrange payment and avoid any service
+              disruption.
+            </span>
+          </AlertText>
+        </ClientAlertBox>
+      )}
+      {isClient && invoice.status === "partial" && (
+        <ClientAlertBox $type="warning">
+          <HiOutlineClock />
+          <AlertText>
+            <strong>Partial payment received</strong>
+            <span>
+              {invoice.remainingAmount.toLocaleString()} TND is still
+              outstanding. Please arrange the remaining payment before{" "}
+              {invoice.dueDate}.
+            </span>
+          </AlertText>
+        </ClientAlertBox>
+      )}
+      {isClient && invoice.status === "paid" && (
+        <ClientAlertBox $type="success">
+          <HiOutlineCheckCircle />
+          <AlertText>
+            <strong>Invoice fully paid</strong>
+            <span>
+              Thank you! This invoice has been settled. You can download a copy
+              for your records.
+            </span>
+          </AlertText>
+        </ClientAlertBox>
+      )}
+
+      {/* Main grid */}
       <Grid>
-        {/* Left Column - Invoice Details */}
+        {/* Left — Invoice document */}
         <div
           style={{ display: "flex", flexDirection: "column", gap: "2.4rem" }}
         >
-          {/* Invoice Document */}
           <Card>
             <InvoiceHeader>
               <CompanyInfo>
@@ -735,13 +1002,13 @@ function InvoiceDetails() {
                 <TableHead>
                   <tr>
                     <th>Description</th>
-                    <th style={{ textAlign: "right" }}>Quantity</th>
+                    <th style={{ textAlign: "right" }}>Qty</th>
                     <th style={{ textAlign: "right" }}>Unit Price</th>
                     <th style={{ textAlign: "right" }}>Total</th>
                   </tr>
                 </TableHead>
                 <TableBody>
-                  {invoice.items.map((item, index) => (
+                  {invoice.items.map((item: any, index: number) => (
                     <tr key={index}>
                       <td>{item.name}</td>
                       <td style={{ textAlign: "right" }}>{item.quantity}</td>
@@ -762,24 +1029,31 @@ function InvoiceDetails() {
                   <span>{invoice.subtotal.toFixed(2)} TND</span>
                 </TotalRow>
                 <TotalRow>
-                  <span>Tax (18% TVA):</span>
+                  <span>Tax (19% TVA):</span>
                   <span>{invoice.tax.toFixed(2)} TND</span>
                 </TotalRow>
                 <TotalRow $highlight>
                   <span>Total Amount:</span>
                   <span>{invoice.total.toFixed(2)} TND</span>
                 </TotalRow>
-                <TotalRow style={{ color: "var(--color-green-700)" }}>
-                  <span>Paid Amount:</span>
-                  <span>-{invoice.paidAmount.toFixed(2)} TND</span>
-                </TotalRow>
-                <TotalRow
-                  $highlight
-                  style={{ color: "var(--color-red-700)", marginTop: "1.2rem" }}
-                >
-                  <span>Amount Due:</span>
-                  <span>{invoice.remainingAmount.toFixed(2)} TND</span>
-                </TotalRow>
+                {invoice.paidAmount > 0 && (
+                  <TotalRow style={{ color: "var(--color-green-700)" }}>
+                    <span>Paid Amount:</span>
+                    <span>-{invoice.paidAmount.toFixed(2)} TND</span>
+                  </TotalRow>
+                )}
+                {invoice.remainingAmount > 0 && (
+                  <TotalRow
+                    $highlight
+                    style={{
+                      color: "var(--color-red-700)",
+                      marginTop: "1.2rem",
+                    }}
+                  >
+                    <span>Amount Due:</span>
+                    <span>{invoice.remainingAmount.toFixed(2)} TND</span>
+                  </TotalRow>
+                )}
               </TotalSection>
             </Section>
 
@@ -798,8 +1072,7 @@ function InvoiceDetails() {
                 }}
               >
                 <strong>Payment Terms:</strong> Payment is due within 30 days of
-                invoice date. Late payments may be subject to additional
-                charges.
+                invoice date.
               </p>
               <p
                 style={{
@@ -815,7 +1088,7 @@ function InvoiceDetails() {
           </Card>
         </div>
 
-        {/* Right Column - Payment Info & Timeline */}
+        {/* Right sidebar */}
         <div
           style={{ display: "flex", flexDirection: "column", gap: "2.4rem" }}
         >
@@ -841,12 +1114,23 @@ function InvoiceDetails() {
                 </h4>
                 <p>Paid</p>
               </StatBox>
-              <StatBox>
-                <h4 style={{ color: "var(--color-red-700)" }}>
-                  {invoice.remainingAmount.toLocaleString()} TND
-                </h4>
-                <p>Outstanding</p>
-              </StatBox>
+              {invoice.remainingAmount > 0 && (
+                <StatBox>
+                  <h4 style={{ color: "var(--color-red-700)" }}>
+                    {invoice.remainingAmount.toLocaleString()} TND
+                  </h4>
+                  <p>Outstanding</p>
+                </StatBox>
+              )}
+
+              {/* Payment progress bar */}
+              <div>
+                <PaymentProgressLabel>
+                  <span>Payment Progress</span>
+                  <span>{paidPercent}%</span>
+                </PaymentProgressLabel>
+                <PaymentProgressBar $percent={paidPercent} />
+              </div>
             </div>
           </Card>
 
@@ -868,7 +1152,7 @@ function InvoiceDetails() {
               </p>
             ) : (
               <PaymentsList>
-                {invoice.payments.map((payment) => (
+                {invoice.payments.map((payment: any) => (
                   <PaymentCard key={payment.id}>
                     <PaymentHeader>
                       <PaymentAmount>
@@ -894,8 +1178,8 @@ function InvoiceDetails() {
             <Timeline actions={invoice.timeline} />
           </Card>
 
-          {/* Quick Actions */}
-          {invoice.status !== "paid" && (
+          {/* Admin quick actions */}
+          {!isClient && invoice.status !== "paid" && (
             <Card>
               <CardHeader>
                 <Heading as="h2">Quick Actions</Heading>
@@ -942,7 +1226,7 @@ function InvoiceDetails() {
                 <Button
                   $variation="secondary"
                   $size="medium"
-                  onClick={handleDownloadPDF}
+                  onClick={() => handleDownloadPDF(invoice)}
                 >
                   <HiOutlineArrowDownTray
                     style={{ width: "2rem", height: "2rem" }}
@@ -951,6 +1235,40 @@ function InvoiceDetails() {
                 </Button>
               </div>
             </Card>
+          )}
+
+          {/* Client contact card */}
+          {isClient && invoice.status !== "paid" && (
+            <ContactCard>
+              <h4>
+                <HiOutlineChatBubbleLeftEllipsis />
+                Need Help with Payment?
+              </h4>
+              <p>
+                <HiOutlineEnvelope />
+                <span>
+                  Email: <strong>billing@taba3ni.tn</strong>
+                </span>
+              </p>
+              <p>
+                <HiOutlinePhone />
+                <span>
+                  Call: <strong>+216 71 000 000</strong>
+                </span>
+              </p>
+              <p>
+                <HiOutlineCalendar />
+                <span>Mon–Fri, 8:00–17:00</span>
+              </p>
+              <Button
+                $variation="secondary"
+                $size="medium"
+                onClick={handleContactAdmin}
+                style={{ marginTop: "1.2rem", width: "100%" }}
+              >
+                Send Payment Query
+              </Button>
+            </ContactCard>
           )}
         </div>
       </Grid>
