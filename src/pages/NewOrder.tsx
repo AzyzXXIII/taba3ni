@@ -1597,9 +1597,9 @@ function StepSuccess({
             <HiOutlineDocumentText />
             View My Orders
           </NavBtn>
-          <NavBtn onClick={() => navigate("/deliveries")}>
+          <NavBtn onClick={() => navigate("/orders")}>
             <HiOutlineTruck />
-            Track Delivery
+            Track My Order
           </NavBtn>
         </SuccessActions>
       </SuccessWrapper>
