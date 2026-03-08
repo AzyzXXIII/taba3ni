@@ -173,6 +173,13 @@ function MainNav({ role = "admin" }: MainNavProps) {
             </StyledNavLink>
           </li>
           <li>
+            <StyledNavLink to="/new-order">
+              <HiOutlineShoppingCart />
+              <span>New Order</span>
+            </StyledNavLink>
+          </li>
+
+          <li>
             <StyledNavLink to="/invoices">
               <HiOutlineDocumentText />
               <span>Invoices & Payments</span>

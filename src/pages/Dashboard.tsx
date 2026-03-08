@@ -1323,7 +1323,7 @@ function ClientDashboard({
               <Heading as="h2">Quick Actions</Heading>
             </SectionHeader>
             <QuickActions>
-              <ActionCard onClick={() => navigate("/orders")}>
+              <ActionCard onClick={() => navigate("/new-order")}>
                 <HiOutlineShoppingCart />
                 <h3>Place New Order</h3>
                 <p>Order dairy products</p>

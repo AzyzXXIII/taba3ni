@@ -22,6 +22,8 @@ import Invoices from "./pages/Invoices";
 import InvoiceDetails from "./pages/InvoiceDetails";
 import InvoiceForm from "./components/InvoiceForm";
 
+import NewOrder from "./pages/NewOrder";
+
 import { NotificationsProvider } from "./hooks/useNotifications";
 import { NotificationToast } from "./components/NotificationToast";
 
@@ -124,6 +126,7 @@ function App() {
                   />
                 }
               />
+              <Route path="new-order" element={<NewOrder />} />
               <Route path="orders/:orderId" element={<OrderDetails />} />
               {/* Products */}
               <Route path="products" element={<Products />} />
