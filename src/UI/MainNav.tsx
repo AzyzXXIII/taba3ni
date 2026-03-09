@@ -9,7 +9,6 @@ import {
   HiOutlineCube,
   HiOutlineChartBar,
   HiOutlineCog6Tooth,
-  HiOutlineClockHistory,
   HiOutlineUserCircle,
 } from "react-icons/hi2";
 import { HiOutlineDocumentText, HiOutlineArchiveBox } from "react-icons/hi2";
@@ -91,6 +90,12 @@ function MainNav({ role = "admin" }: MainNavProps) {
             </StyledNavLink>
           </li>
 
+          <li>
+            <StyledNavLink to="/analytics">
+              <HiOutlineChartBar />
+              <span>Analytics</span>
+            </StyledNavLink>
+          </li>
           <NavSectionLabel>Operations</NavSectionLabel>
 
           <li>
@@ -142,12 +147,6 @@ function MainNav({ role = "admin" }: MainNavProps) {
 
           <NavDivider />
 
-          <li>
-            <StyledNavLink to="/analytics">
-              <HiOutlineChartBar />
-              <span>Analytics</span>
-            </StyledNavLink>
-          </li>
           <li>
             <StyledNavLink to="/profile">
               <HiOutlineUserCircle />

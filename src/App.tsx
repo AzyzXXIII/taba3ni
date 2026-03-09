@@ -20,9 +20,9 @@ import DistributorDetails from "./pages/DistributorDetails";
 import Analytics from "./pages/Analytics";
 import Invoices from "./pages/Invoices";
 import InvoiceDetails from "./pages/InvoiceDetails";
-import InvoiceForm from "./components/InvoiceForm";
-
 import NewOrder from "./pages/NewOrder";
+import DeliveryHistory from "./pages/DeliveryHistory";
+import Profile from "./pages/Profile";
 
 import { NotificationsProvider } from "./hooks/useNotifications";
 import { NotificationToast } from "./components/NotificationToast";
@@ -71,108 +71,149 @@ function App() {
   }, [login, logout]);
 
   return (
-    <>
-      <NotificationsProvider>
-        <GlobalStyles />
-        <BrowserRouter>
-          <Routes>
-            {/* Public Routes */}
+    <NotificationsProvider>
+      <GlobalStyles />
+      <BrowserRouter>
+        <Routes>
+          {/* Public */}
+          <Route
+            path="/login"
+            element={
+              isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
+            }
+          />
+
+          {/* Protected — all nested inside AppLayout so sidebar always renders */}
+          <Route
+            element={
+              isAuthenticated && user ? (
+                <AppLayout
+                  role={user.role}
+                  userName={user.name}
+                  unreadNotifications={user.notifications}
+                  companyName="Taba3ni Dairy"
+                />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          >
+            <Route index element={<Navigate to="/dashboard" replace />} />
+
+            {/* Dashboard */}
             <Route
-              path="/login"
+              path="dashboard"
               element={
-                isAuthenticated ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <Login />
-                )
+                <Dashboard
+                  userRole={user?.role}
+                  userId={user?.email}
+                  userName={user?.name}
+                />
               }
             />
 
-            {/* Protected Routes */}
+            {/* Orders */}
             <Route
+              path="orders"
               element={
-                isAuthenticated && user ? (
-                  <AppLayout
-                    role={user.role}
-                    userName={user.name}
-                    unreadNotifications={user.notifications}
-                    companyName="Taba3ni Dairy"
-                  />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                <Orders
+                  userRole={user?.role}
+                  userId={user?.email}
+                  userName={user?.name}
+                />
               }
-            >
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route
-                path="dashboard"
-                element={
-                  <Dashboard
-                    userRole={user?.role}
-                    userId={user?.email}
-                    userName={user?.name}
-                  />
-                }
-              />{" "}
-              {/* Orders */}
-              {/* Orders - Pass user role and info */}
-              <Route
-                path="orders"
-                element={
-                  <Orders
-                    userRole={user?.role}
-                    userId={user?.email}
-                    userName={user?.name}
-                  />
-                }
-              />
-              <Route path="new-order" element={<NewOrder />} />
-              <Route path="orders/:orderId" element={<OrderDetails />} />
-              {/* Products */}
-              <Route path="products" element={<Products />} />
-              {/* Clients */}
-              <Route path="clients" element={<Clients />} />
-              <Route path="clients/:clientId" element={<ClientDetails />} />
-              {/* Deliveries ) */}
-              <Route
-                path="deliveries"
-                element={
-                  <Deliveries
-                    userRole={user?.role}
-                    userId={user?.email}
-                    userName={user?.name}
-                  />
-                }
-              />
-              <Route
-                path="deliveries/new"
-                element={<DeliveryForm onCloseModal={() => {}} />}
-              />
-              <Route
-                path="deliveryDetails/:deliveryId"
-                element={<DeliveryDetails />}
-              />
-              {/* Distributors - NEW */}
-              <Route path="distributors" element={<Distributors />} />
-              <Route
-                path="distributors/:distributorId"
-                element={<DistributorDetails />}
-              />
-              <Route
-                path="analytics"
-                element={<Analytics userRole={user?.role} />}
-              />{" "}
-              <Route path="invoices" element={<Invoices />} />
-              <Route path="invoices/:invoiceId" element={<InvoiceDetails />} />
-            </Route>
+            />
+            <Route
+              path="orders/:orderId"
+              element={
+                <OrderDetails userRole={user?.role} userId={user?.email} />
+              }
+            />
+            <Route path="new-order" element={<NewOrder />} />
 
-            {/* 404 Page */}
-            <Route path="*" element={<PageNotFound />} />
-          </Routes>
-        </BrowserRouter>
-        <NotificationToast />
-      </NotificationsProvider>
-    </>
+            {/* Deliveries */}
+            <Route
+              path="deliveries"
+              element={
+                <Deliveries
+                  userRole={user?.role}
+                  userId={user?.email}
+                  userName={user?.name}
+                />
+              }
+            />
+            <Route
+              path="deliveries/new"
+              element={<DeliveryForm onCloseModal={() => {}} />}
+            />
+            <Route
+              path="deliveryDetails/:deliveryId"
+              element={<DeliveryDetails />}
+            />
+
+            {/* History — all roles */}
+            <Route
+              path="history"
+              element={
+                <DeliveryHistory
+                  userRole={user?.role}
+                  userId={user?.email}
+                  userName={user?.name}
+                />
+              }
+            />
+
+            {/* Profile — all roles */}
+            <Route
+              path="profile"
+              element={
+                <Profile
+                  userRole={user?.role}
+                  userId={user?.email}
+                  userName={user?.name}
+                />
+              }
+            />
+
+            {/* Products */}
+            <Route path="products" element={<Products />} />
+
+            {/* Clients */}
+            <Route path="clients" element={<Clients />} />
+            <Route path="clients/:clientId" element={<ClientDetails />} />
+
+            {/* Distributors */}
+            <Route path="distributors" element={<Distributors />} />
+            <Route
+              path="distributors/:distributorId"
+              element={<DistributorDetails />}
+            />
+
+            {/* Analytics */}
+            <Route
+              path="analytics"
+              element={<Analytics userRole={user?.role} />}
+            />
+
+            {/* Invoices */}
+            <Route
+              path="invoices"
+              element={<Invoices userRole={user?.role} userId={user?.email} />}
+            />
+            <Route
+              path="invoices/:invoiceId"
+              element={
+                <InvoiceDetails userRole={user?.role} userId={user?.email} />
+              }
+            />
+          </Route>
+
+          {/* 404 */}
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </BrowserRouter>
+      <NotificationToast />
+    </NotificationsProvider>
   );
 }
 
