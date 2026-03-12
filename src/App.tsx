@@ -23,7 +23,7 @@ import InvoiceDetails from "./pages/InvoiceDetails";
 import NewOrder from "./pages/NewOrder";
 import DeliveryHistory from "./pages/DeliveryHistory";
 import Profile from "./pages/Profile";
-
+import Settings from "./pages/Settings";
 import { NotificationsProvider } from "./hooks/useNotifications";
 import { NotificationToast } from "./components/NotificationToast";
 
@@ -205,6 +205,10 @@ function App() {
               element={
                 <InvoiceDetails userRole={user?.role} userId={user?.email} />
               }
+            />
+            <Route
+              path="settings"
+              element={<Settings userRole={user?.role} />}
             />
           </Route>
 
