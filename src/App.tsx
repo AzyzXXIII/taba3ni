@@ -24,6 +24,7 @@ import NewOrder from "./pages/NewOrder";
 import DeliveryHistory from "./pages/DeliveryHistory";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import UserManagement from "./pages/UserManagement";
 import { NotificationsProvider } from "./hooks/useNotifications";
 import { NotificationToast } from "./components/NotificationToast";
 
@@ -161,6 +162,10 @@ function App() {
                   userName={user?.name}
                 />
               }
+            />
+            <Route
+              path="users"
+              element={<UserManagement userRole={user?.role} />}
             />
 
             {/* Profile — all roles */}

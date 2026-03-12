@@ -146,6 +146,12 @@ function MainNav({ role = "admin" }: MainNavProps) {
           </li>
 
           <NavDivider />
+          <li>
+            <StyledNavLink to="/users">
+              <HiOutlineUsers />
+              <span>User Management</span>
+            </StyledNavLink>
+          </li>
 
           <li>
             <StyledNavLink to="/profile">
